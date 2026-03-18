@@ -165,7 +165,7 @@ export default function Login() {
 
           {/* Footer */}
           <div className="text-center mt-8 text-gray-500 text-sm">
-            <p>© 2024 F1 Bolão - Predict the podium</p>
+            <p>© 2026 F1 Bolão - Predict the podium</p>
           </div>
         </div>
       </div>
