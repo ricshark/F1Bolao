@@ -73,5 +73,6 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/login',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  // Verificar se isso resolve o problema com o login que não reconhece a senha do usuário
+  //secret: process.env.NEXTAUTH_SECRET,
 };
