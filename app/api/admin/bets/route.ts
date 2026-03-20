@@ -3,8 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Bet from '@/models/Bet';
-import User from '@/models/User';
-import Race from '@/models/Race';
+// Import models for side-effects (prevents Next.js tree-shaking)
+import '@/models/User';
+import '@/models/Race';
 
 export const dynamic = 'force-dynamic';
 
