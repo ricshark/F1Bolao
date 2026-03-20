@@ -1,7 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
-import { clientPromise } from './mongodb';
+import dbConnect, { clientPromise } from './mongodb';
 import bcrypt from 'bcryptjs';
 import User from '@/models/User';
 
@@ -21,6 +21,8 @@ export const authOptions: NextAuthOptions = {
           console.log('[next-auth] missing credentials');
           return null;
         }
+
+        await dbConnect();
 
         const user = await User.findOne({ email: credentials.email.trim().toLowerCase() });
         if (!user) {
