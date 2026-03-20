@@ -9,19 +9,24 @@ import Race from '@/models/Race';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  const userId = (session?.user as any)?.id;
-  const isAdmin = (session?.user as any)?.isAdmin;
+  try {
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as any)?.id;
+    const isAdmin = (session?.user as any)?.isAdmin;
 
-  if (!userId || !isAdmin) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!userId || !isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await dbConnect();
+
+    const bets = await Bet.find({})
+      .populate('user', 'name email')
+      .populate('race', 'round name date circuit')
+      .sort({ createdAt: -1 });
+    return NextResponse.json(bets);
+  } catch (err: any) {
+    console.error('Admin Bets Error:', err);
+    return NextResponse.json({ error: err.message, stack: err.stack }, { status: 500 });
   }
-
-  await dbConnect();
-
-  const bets = await Bet.find({})
-    .populate('user', 'name email')
-    .populate('race', 'round name date circuit')
-    .sort({ createdAt: -1 });
-  return NextResponse.json(bets);
 }
