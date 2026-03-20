@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Bet from '@/models/Bet';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id;

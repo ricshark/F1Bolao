@@ -5,6 +5,8 @@ import dbConnect from '@/lib/mongodb';
 import Bet from '@/models/Bet';
 import Race from '@/models/Race';
 
+export const dynamic = 'force-dynamic';
+
 const fallbackRaces = [
   { round: 1, name: 'Bahrain Grand Prix', date: '2026-03-28', circuit: 'Bahrain International Circuit', season: 2026 },
   { round: 2, name: 'Saudi Arabian Grand Prix', date: '2026-04-04', circuit: 'Jeddah Corniche Circuit', season: 2026 },

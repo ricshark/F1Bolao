@@ -72,8 +72,8 @@ export default function AdminPage() {
     setLoading(true);
     try {
       const [usersRes, betsRes] = await Promise.all([
-        fetch('/api/admin/users'),
-        fetch('/api/admin/bets')
+        fetch('/api/admin/users', { cache: 'no-store' }),
+        fetch('/api/admin/bets', { cache: 'no-store' })
       ]);
 
       if (usersRes.ok) {
