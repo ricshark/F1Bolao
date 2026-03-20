@@ -132,6 +132,26 @@ export default function AdminPage() {
     }
   };
 
+  const handleCalculatePoints = async () => {
+    if (!confirm('Deseja recalcular os pontos de todas as apostas baseados nos resultados oficiais da F1 API?')) return;
+    
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/calculate-points', { method: 'POST' });
+      if (res.ok) {
+        alert('Pontos calculados e atualizados com sucesso!');
+        fetchData();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Falha ao calcular os pontos');
+      }
+    } catch (err) {
+      alert('Erro inesperado de rede ao calcular os pontos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreateUserError('');
@@ -242,36 +262,46 @@ export default function AdminPage() {
       </header>
 
       <section className="mx-auto max-w-6xl px-6 py-8">
-        <div className="mb-6 flex gap-4">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex gap-4">
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                activeTab === 'users'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              }`}
+            >
+              Users ({users.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('createUser')}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                activeTab === 'createUser'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              }`}
+            >
+              Create User
+            </button>
+            <button
+              onClick={() => setActiveTab('bets')}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                activeTab === 'bets'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              }`}
+            >
+              Bets ({bets.length})
+            </button>
+          </div>
+          
           <button
-            onClick={() => setActiveTab('users')}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-              activeTab === 'users'
-                ? 'bg-red-600 text-white'
-                : 'bg-white/10 text-gray-300 hover:bg-white/20'
-            }`}
+            onClick={handleCalculatePoints}
+            disabled={loading}
+            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50 ml-auto"
           >
-            Users ({users.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('createUser')}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-              activeTab === 'createUser'
-                ? 'bg-red-600 text-white'
-                : 'bg-white/10 text-gray-300 hover:bg-white/20'
-            }`}
-          >
-            Create User
-          </button>
-          <button
-            onClick={() => setActiveTab('bets')}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-              activeTab === 'bets'
-                ? 'bg-red-600 text-white'
-                : 'bg-white/10 text-gray-300 hover:bg-white/20'
-            }`}
-          >
-            Bets ({bets.length})
+            ♺ Calcular Pontos
           </button>
         </div>
 
