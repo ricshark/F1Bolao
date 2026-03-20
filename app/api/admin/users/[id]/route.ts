@@ -52,7 +52,7 @@ export async function PUT(
     // We update fields except password directly if they exist
     const updateData: any = {};
     if (data.name !== undefined) updateData.name = data.name;
-    if (data.email !== undefined) updateData.email = data.email;
+    if (data.email !== undefined) updateData.email = data.email.trim().toLowerCase();
     if (data.isAdmin !== undefined) updateData.isAdmin = data.isAdmin;
     if (data.points !== undefined) updateData.points = data.points;
 

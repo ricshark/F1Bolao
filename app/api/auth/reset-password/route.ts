@@ -9,6 +9,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Token and password are required' }, { status: 400 });
   }
 
+  const normalizedPassword = password.trim();
+
   await dbConnect();
 
   const user = await User.findOne({
@@ -20,7 +22,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid or expired token' }, { status: 400 });
   }
 
-  user.password = await bcrypt.hash(password, 10);
+  user.password = await bcrypt.hash(normalizedPassword, 10);
   user.resetToken = null;
   user.resetTokenExpires = null;
   await user.save();

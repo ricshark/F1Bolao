@@ -32,17 +32,19 @@ export async function POST(request: NextRequest) {
   await dbConnect();
 
   const { name, email, password, isAdmin: newUserIsAdmin } = await request.json();
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedPassword = password.trim();
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
     return NextResponse.json({ error: 'User already exists' }, { status: 400 });
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(normalizedPassword, 10);
 
   const user = new User({
     name,
-    email,
+    email: normalizedEmail,
     password: hashedPassword,
     isAdmin: newUserIsAdmin || false,
   });

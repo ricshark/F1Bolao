@@ -11,7 +11,9 @@ export async function POST(request: NextRequest) {
 
   await dbConnect();
 
-  const user = await User.findOne({ email });
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const user = await User.findOne({ email: normalizedEmail });
   if (!user) {
     // Avoid leaking whether the email exists
     return NextResponse.json({ message: 'Se este e-mail estiver cadastrado, um código de recuperação foi enviado.' });
@@ -29,7 +31,7 @@ export async function POST(request: NextRequest) {
   let previewUrl = null;
   try {
     const { sendResetEmail } = await import('@/lib/email');
-    previewUrl = await sendResetEmail(email, code);
+    previewUrl = await sendResetEmail(normalizedEmail, code);
   } catch (err) {
     console.error('Failed to send email', err);
     // Em produção deveriamos retornar erro 500 se o email não enviasse

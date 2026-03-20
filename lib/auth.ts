@@ -22,19 +22,19 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const user = await User.findOne({ email: credentials.email });
+        const user = await User.findOne({ email: credentials.email.trim().toLowerCase() });
         if (!user) {
-          console.log('[next-auth] user not found', { email: credentials.email });
+          console.log('[next-auth] user not found', { email: credentials.email.trim().toLowerCase() });
           return null;
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        const isPasswordValid = await bcrypt.compare(credentials.password.trim(), user.password);
         if (!isPasswordValid) {
-          console.log('[next-auth] invalid password for', { email: credentials.email });
+          console.log('[next-auth] invalid password for', { email: credentials.email.trim().toLowerCase() });
           return null;
         }
 
-        console.log('[next-auth] login success for', { email: credentials.email });
+        console.log('[next-auth] login success for', { email: credentials.email.trim().toLowerCase() });
         return {
           id: user._id.toString(),
           email: user.email,
