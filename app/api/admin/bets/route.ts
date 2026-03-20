@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Bet from '@/models/Bet';
+import User from '@/models/User';
+import Race from '@/models/Race';
 
 export const dynamic = 'force-dynamic';
 
