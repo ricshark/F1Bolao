@@ -4,13 +4,14 @@ import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Bet from '@/models/Bet';
 import Race from '@/models/Race';
+import SystemConfig from '@/models/SystemConfig';
 
 export const dynamic = 'force-dynamic';
 
 const fallbackRaces = [
-  { round: 1, name: 'Bahrain Grand Prix', date: '2026-03-28', circuit: 'Bahrain International Circuit', season: 2026 },
-  { round: 2, name: 'Saudi Arabian Grand Prix', date: '2026-04-04', circuit: 'Jeddah Corniche Circuit', season: 2026 },
-  { round: 3, name: 'Australian Grand Prix', date: '2026-04-18', circuit: 'Albert Park Circuit', season: 2026 },
+  { round: 1, name: 'Bahrain Grand Prix', date: '2026-03-28', time: '15:00:00Z', circuit: 'Bahrain International Circuit', season: 2026 },
+  { round: 2, name: 'Saudi Arabian Grand Prix', date: '2026-04-04', time: '15:00:00Z', circuit: 'Jeddah Corniche Circuit', season: 2026 },
+  { round: 3, name: 'Australian Grand Prix', date: '2026-04-18', time: '15:00:00Z', circuit: 'Albert Park Circuit', season: 2026 },
 ];
 
 export async function POST(request: NextRequest) {
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
         round: r.round,
         name: r.raceName,
         date: r.date,
+        time: r.time || '15:00:00Z',
         circuit: r.Circuit.circuitName,
         season: r.season,
       });
@@ -55,6 +57,7 @@ export async function POST(request: NextRequest) {
         round: fallback.round,
         name: fallback.name,
         date: fallback.date,
+        time: fallback.time,
         circuit: fallback.circuit,
         season: fallback.season,
       });
@@ -65,9 +68,23 @@ export async function POST(request: NextRequest) {
 
   const raceId = race._id;
 
+  const config = await SystemConfig.findOne();
+  const betLockHours = config?.betLockHours ?? 1;
+
+  // Convert Mongoose Date object to ISO string and append time appropriately
+  const raceDateStr = new Date(race.date).toISOString().split('T')[0];
+  const raceDateTime = new Date(race.time ? `${raceDateStr}T${race.time}` : `${raceDateStr}T15:00:00Z`);
+  const lockTime = new Date(raceDateTime.getTime() - betLockHours * 3600 * 1000);
+
+  if (new Date() > lockTime) {
+    return NextResponse.json({ error: 'Bets are locked for this race as the maximum time limit was reached.' }, { status: 403 });
+  }
+
   const existingBet = await Bet.findOne({ user: userId, race: raceId });
   if (existingBet) {
-    return NextResponse.json({ error: 'Bet already placed' }, { status: 400 });
+    existingBet.prediction = prediction;
+    await existingBet.save();
+    return NextResponse.json(existingBet);
   }
 
   const bet = new Bet({

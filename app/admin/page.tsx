@@ -36,8 +36,11 @@ export default function AdminPage() {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [bets, setBets] = useState<Bet[]>([]);
-  const [activeTab, setActiveTab] = useState<'users' | 'bets' | 'createUser'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'bets' | 'createUser' | 'settings'>('users');
   const [loading, setLoading] = useState(true);
+  const [settingsForm, setSettingsForm] = useState({ betLockHours: 1 });
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [settingsSuccess, setSettingsSuccess] = useState('');
   const [createUserForm, setCreateUserForm] = useState({
     name: '',
     email: '',
@@ -71,10 +74,16 @@ export default function AdminPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [usersRes, betsRes] = await Promise.all([
+      const [usersRes, betsRes, settingsRes] = await Promise.all([
         fetch('/api/admin/users', { cache: 'no-store' }),
-        fetch('/api/admin/bets', { cache: 'no-store' })
+        fetch('/api/admin/bets', { cache: 'no-store' }),
+        fetch('/api/admin/settings', { cache: 'no-store' })
       ]);
+
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json();
+        setSettingsForm({ betLockHours: settingsData.betLockHours || 1 });
+      }
 
       if (usersRes.ok) {
         const usersData = await usersRes.json();
@@ -149,6 +158,29 @@ export default function AdminPage() {
       alert('Erro inesperado de rede ao calcular os pontos');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSettingsLoading(true);
+    setSettingsSuccess('');
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settingsForm),
+      });
+      if (res.ok) {
+        setSettingsSuccess('Settings saved successfully!');
+        setTimeout(() => setSettingsSuccess(''), 3000);
+      } else {
+        alert('Failed to save settings');
+      }
+    } catch (err) {
+      alert('Error saving settings');
+    } finally {
+      setSettingsLoading(false);
     }
   };
 
@@ -293,6 +325,16 @@ export default function AdminPage() {
               }`}
             >
               Bets ({bets.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                activeTab === 'settings'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              }`}
+            >
+              Settings
             </button>
           </div>
           
@@ -471,6 +513,43 @@ export default function AdminPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <h2 className="mb-4 text-xl font-bold">System Settings</h2>
+            <form onSubmit={handleSaveSettings} className="space-y-6 max-w-md">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Bet Lock Hours Before Race
+                </label>
+                <div className="flex gap-4">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={settingsForm.betLockHours}
+                    onChange={(e) => setSettingsForm({ betLockHours: Number(e.target.value) })}
+                    className="block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                  />
+                  <button
+                    type="submit"
+                    disabled={settingsLoading}
+                    className="whitespace-nowrap rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {settingsLoading ? 'Saving...' : 'Save Settings'}
+                  </button>
+                </div>
+                <p className="mt-2 text-xs text-gray-400">
+                  Number of hours before the race starts when betting and changing bets is locked. 
+                  (e.g., 1 = 1 hour before race).
+                </p>
+                {settingsSuccess && (
+                  <p className="mt-3 text-sm text-green-400">{settingsSuccess}</p>
+                )}
+              </div>
+            </form>
           </div>
         )}
       </section>

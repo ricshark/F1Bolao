@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
 const fallbackRaces = [
-  { round: 1, name: 'Bahrain Grand Prix', date: '2026-03-28', circuit: 'Bahrain International Circuit', season: 2026 },
-  { round: 2, name: 'Saudi Arabian Grand Prix', date: '2026-04-04', circuit: 'Jeddah Corniche Circuit', season: 2026 },
-  { round: 3, name: 'Australian Grand Prix', date: '2026-03-10', circuit: 'Albert Park Circuit', season: 2026 },
+  { round: 1, name: 'Bahrain Grand Prix', date: '2026-03-28', time: '15:00:00Z', circuit: 'Bahrain International Circuit', season: 2026 },
+  { round: 2, name: 'Saudi Arabian Grand Prix', date: '2026-04-04', time: '15:00:00Z', circuit: 'Jeddah Corniche Circuit', season: 2026 },
+  { round: 3, name: 'Australian Grand Prix', date: '2026-03-10', time: '15:00:00Z', circuit: 'Albert Park Circuit', season: 2026 },
 ];
 
 export async function GET() {
@@ -14,6 +14,7 @@ export async function GET() {
       round: race.round,
       name: race.raceName,
       date: race.date,
+      time: race.time || '15:00:00Z',
       circuit: race.Circuit.circuitName,
       season: race.season,
     }));

@@ -1,13 +1,14 @@
 'use client';
 
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Race {
   round: number;
   name: string;
   date: string;
+  time?: string;
   circuit: string;
   season: number;
 }
@@ -20,10 +21,10 @@ export default function Home() {
   const [prediction, setPrediction] = useState({ first: '', second: '', third: '' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<any[]>([]);
-  const [viewingResults, setViewingResults] = useState(false);
-  const [resultsSource, setResultsSource] = useState<'ergast' | 'fallback'>('fallback');
   const [drivers, setDrivers] = useState<{name: string, team: string}[]>([]);
+  const [betLockHours, setBetLockHours] = useState(1);
+  const [visits, setVisits] = useState<number | null>(null);
+  const hasVisited = useRef(false);
 
   useEffect(() => {
     const loadRaces = async () => {
@@ -102,8 +103,38 @@ export default function Home() {
       }
     };
 
+    const initializeSettings = async () => {
+      try {
+        const [settingsRes, visitRes] = await Promise.all([
+          fetch('/api/settings'),
+          hasVisited.current ? Promise.resolve(null) : fetch('/api/visits', { method: 'POST' })
+        ]);
+        
+        hasVisited.current = true;
+        
+        if (settingsRes.ok) {
+          const configData = await settingsRes.json();
+          setBetLockHours(configData.betLockHours || 1);
+        }
+        
+        if (visitRes && visitRes.ok) {
+          const visitData = await visitRes.json();
+          setVisits(visitData.visits);
+        } else if (!visitRes) {
+          const res = await fetch('/api/visits');
+          if (res.ok) {
+             const data = await res.json();
+             setVisits(data.visits);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load settings', err);
+      }
+    };
+
     loadRaces();
     fetchDrivers();
+    initializeSettings();
   }, []);
 
   const handleBet = async () => {
@@ -126,12 +157,8 @@ export default function Home() {
     alert(data?.error || 'Failed to place bet');
   };
 
-  const handleViewResults = async (round: number) => {
-    const res = await fetch(`/api/results/${round}`);
-    const data = await res.json();
-    setResults(data.results ?? data);
-    setViewingResults(true);
-    setResultsSource(data.source || (Array.isArray(data) ? 'ergast' : 'fallback'));
+  const handleViewResults = (round: number) => {
+    router.push(`/resultados/${round}`);
   };
 
   return (
@@ -202,7 +229,10 @@ export default function Home() {
             <div className="col-span-full rounded-xl border border-white/10 bg-white/5 p-8 text-center text-gray-300">No races found.</div>
           ) : (
             races.map(race => {
-              const isPast = new Date(race.date) < new Date();
+              const raceDateTime = new Date(race.time ? `${race.date}T${race.time}` : `${race.date}T15:00:00Z`);
+              const isPast = raceDateTime < new Date();
+              const isLocked = new Date(raceDateTime.getTime() - betLockHours * 3600 * 1000) <= new Date();
+
               return (
                 <div
                   key={race.round}
@@ -214,23 +244,24 @@ export default function Home() {
                       <p className="text-xs font-semibold uppercase tracking-wide text-red-300">Round {race.round}</p>
                       <h3 className="mt-2 text-xl font-bold text-white">{race.name}</h3>
                       <p className="mt-1 text-sm text-gray-300">{race.circuit}</p>
-                      <p className="mt-1 text-sm text-gray-400">{new Date(race.date).toLocaleDateString()}</p>
+                      <p className="mt-1 text-sm text-gray-400">{raceDateTime.toLocaleString()}</p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       {session ? (
-                        !isPast ? (
+                        !isLocked ? (
                           <button
                             onClick={() => setSelectedRace(race)}
                             className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-500"
                           >
-                            Place Bet
+                            Place/Update Bet
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleViewResults(race.round)}
-                            className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-white/20"
+                            onClick={isPast ? () => handleViewResults(race.round) : undefined}
+                            disabled={!isPast}
+                            className={`rounded-full px-4 py-2 text-sm font-semibold text-white shadow ${isPast ? 'bg-white/10 hover:bg-white/20' : 'bg-gray-600/50 cursor-not-allowed text-gray-400'}`}
                           >
-                            View Results
+                            {isPast ? 'View Results' : 'Bets Locked'}
                           </button>
                         )
                       ) : (
@@ -325,33 +356,9 @@ export default function Home() {
         </div>
       )}
 
-      {viewingResults && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-black/80 p-6 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Race Results</h2>
-              <button
-                onClick={() => setViewingResults(false)}
-                className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white hover:bg-white/20"
-              >
-                Close
-              </button>
-            </div>
-            {resultsSource === 'fallback' && (
-              <p className="mt-4 rounded-lg bg-yellow-700/20 p-3 text-sm text-yellow-100">
-                Note: real results could not be fetched; showing placeholder values.
-              </p>
-            )}
-            <ul className="mt-4 space-y-2 text-sm">
-              {results.map((result, index) => (
-                <li key={index} className="rounded-lg border border-white/10 bg-white/5 px-4 py-3">
-                  <span className="font-semibold text-white">{result.position}.</span> {result.driver} - {result.points} points
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
+      <footer className="mt-8 border-t border-red-600/20 py-6 text-center text-sm text-gray-400 backdrop-blur-md">
+        <p>Acessos totais: {visits !== null ? visits : '...'}</p>
+      </footer>
     </main>
   );
 }
