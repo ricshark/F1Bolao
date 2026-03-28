@@ -18,6 +18,6 @@ export const config = {
      * - forgot-password
      * - reset-password
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|login|forgot-password|reset-password).*)"
+    "/((?!api|_next/static|_next/image|favicon.ico|login|forgot-password|reset-password|$).*)"
   ],
 };

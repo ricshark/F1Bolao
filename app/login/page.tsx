@@ -34,7 +34,7 @@ export default function Login() {
         redirect: false,
       });
       if (result?.ok) {
-        router.push('/');
+        router.push('/dashboard');
       } else {
         alert('Login failed - please check your credentials');
       }
