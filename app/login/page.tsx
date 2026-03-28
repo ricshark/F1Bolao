@@ -25,7 +25,8 @@ export default function Login() {
         alert('Registered successfully! Please login.');
         setIsRegister(false);
       } else {
-        alert('Registration failed');
+        const data = await res.json().catch(() => ({}));
+        alert(`Registration failed: ${data.error || 'Check your data and try again.'}`);
       }
     } else {
       const result = await signIn('credentials', {
@@ -36,7 +37,7 @@ export default function Login() {
       if (result?.ok) {
         router.push('/dashboard');
       } else {
-        alert('Login failed - please check your credentials');
+        alert(`Login failed: ${result?.error || 'Please check your credentials'}`);
       }
     }
     setLoading(false);
