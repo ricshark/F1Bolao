@@ -93,10 +93,10 @@ export default function ResultadosPage({ params }: { params: { round: string } }
             </div>
           </div>
           <Link
-            href="/"
+            href="/dashboard"
             className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold transition hover:bg-white/20"
           >
-            Back to Home
+            Back to Dashboard
           </Link>
         </div>
       </header>

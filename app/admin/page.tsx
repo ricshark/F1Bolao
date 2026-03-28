@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/components/LanguageContext';
 
@@ -61,7 +61,41 @@ export default function AdminPage() {
     points: 0,
   });
   const [editUserError, setEditUserError] = useState('');
+  const [editUserError, setEditUserError] = useState('');
   const [editUserSuccess, setEditUserSuccess] = useState('');
+
+  const [betFilter, setBetFilter] = useState('');
+  const [betSortConfig, setBetSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
+
+  const sortedAndFilteredBets = useMemo(() => {
+    let result = [...bets];
+    if (betFilter) {
+      const q = betFilter.toLowerCase();
+      result = result.filter(b => b.user.name.toLowerCase().includes(q) || b.race.name.toLowerCase().includes(q));
+    }
+    if (betSortConfig) {
+      result.sort((a, b) => {
+        let valA: any, valB: any;
+        if (betSortConfig.key === 'user') { valA = a.user.name.toLowerCase(); valB = b.user.name.toLowerCase(); }
+        else if (betSortConfig.key === 'race') { valA = a.race.name.toLowerCase(); valB = b.race.name.toLowerCase(); }
+        else if (betSortConfig.key === 'points') { valA = a.points; valB = b.points; }
+        else if (betSortConfig.key === 'date') { valA = new Date(a.createdAt).getTime(); valB = new Date(b.createdAt).getTime(); }
+        
+        if (valA < valB) return betSortConfig.direction === 'asc' ? -1 : 1;
+        if (valA > valB) return betSortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    return result;
+  }, [bets, betFilter, betSortConfig]);
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (betSortConfig && betSortConfig.key === key && betSortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setBetSortConfig({ key, direction });
+  };
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -480,20 +514,37 @@ export default function AdminPage() {
 
         {activeTab === 'bets' && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h2 className="mb-4 text-xl font-bold">{t.betsTab}</h2>
+            <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <h2 className="text-xl font-bold">{t.betsTab}</h2>
+              <input
+                type="text"
+                placeholder="Search by User or Race..."
+                value={betFilter}
+                onChange={(e) => setBetFilter(e.target.value)}
+                className="w-full sm:w-64 rounded-xl border border-white/20 bg-black/40 px-4 py-2 text-sm text-white focus:border-red-500 focus:outline-none"
+              />
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 font-semibold">User</th>
-                    <th className="text-left py-3 px-4 font-semibold">Race</th>
+                    <th className="text-left py-3 px-4 font-semibold cursor-pointer hover:text-white transition" onClick={() => handleSort('user')}>
+                      User {betSortConfig?.key === 'user' ? (betSortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                    </th>
+                    <th className="text-left py-3 px-4 font-semibold cursor-pointer hover:text-white transition" onClick={() => handleSort('race')}>
+                      Race {betSortConfig?.key === 'race' ? (betSortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                    </th>
                     <th className="text-left py-3 px-4 font-semibold">Prediction</th>
-                    <th className="text-left py-3 px-4 font-semibold">Points</th>
-                    <th className="text-left py-3 px-4 font-semibold">Date</th>
+                    <th className="text-left py-3 px-4 font-semibold cursor-pointer hover:text-white transition" onClick={() => handleSort('points')}>
+                      Points {betSortConfig?.key === 'points' ? (betSortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                    </th>
+                    <th className="text-left py-3 px-4 font-semibold cursor-pointer hover:text-white transition" onClick={() => handleSort('date')}>
+                      Date {betSortConfig?.key === 'date' ? (betSortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {bets.map(bet => (
+                  {sortedAndFilteredBets.map(bet => (
                     <tr key={bet._id} className="border-b border-white/5 hover:bg-white/5">
                       <td className="py-3 px-4">{bet.user.name}</td>
                       <td className="py-3 px-4">
