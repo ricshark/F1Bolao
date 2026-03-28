@@ -3,6 +3,7 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/components/LanguageContext';
 
 interface Race {
   round: number;
@@ -16,6 +17,8 @@ interface Race {
 export default function Home() {
   const { data: session } = useSession();
   const router = useRouter();
+  const { t, toggleLang, lang } = useLanguage();
+  
   const [races, setRaces] = useState<Race[]>([]);
   const [selectedRace, setSelectedRace] = useState<Race | null>(null);
   const [prediction, setPrediction] = useState({ first: '', second: '', third: '' });
@@ -54,11 +57,11 @@ export default function Home() {
           setRaces(data);
         } else {
           setRaces([]);
-          setError(data?.error || 'Falha ao carregar corridas.');
+          setError(data?.error || t.loadingRaces);
         }
       } catch (err) {
         setRaces([]);
-        setError('Erro de rede ao carregar corridas.');
+        setError('Network error.');
       } finally {
         setLoading(false);
       }
@@ -151,7 +154,7 @@ export default function Home() {
     loadRaces();
     fetchDrivers();
     initializeSettings();
-  }, []);
+  }, [t.loadingRaces]);
 
   const handleOpenBetModal = (race: Race) => {
     setSelectedRace(race);
@@ -205,27 +208,34 @@ export default function Home() {
             <div className="h-10 w-10 rounded-full bg-red-600 flex items-center justify-center text-lg font-bold">F1</div>
             <div>
               <h1 className="text-xl font-bold tracking-wide">F1 Bolão</h1>
-              <p className="text-xs text-gray-300">Predict the podium and earn points</p>
+              <p className="text-xs text-gray-300">{t.subtitle}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
+            <button 
+              onClick={toggleLang}
+              className="px-2 py-1 text-xs font-bold uppercase rounded border border-gray-600 hover:border-white transition"
+            >
+              {t.langToggle}
+            </button>
+            
             {session ? (
               <>
-                <span className="text-sm text-gray-200">Hello, {session.user?.name}</span>
+                <span className="text-sm text-gray-200">{t.greeting}, {session.user?.name}</span>
                 {(session.user as any)?.isAdmin && (
                   <button
                     onClick={() => router.push('/admin')}
                     className="rounded-full bg-yellow-600 px-4 py-2 text-sm font-semibold transition hover:bg-yellow-500"
                   >
-                    Admin
+                    {t.admin}
                   </button>
                 )}
                 <button
                   onClick={() => signOut()}
                   className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold transition hover:bg-red-500"
                 >
-                  Logout
+                  {t.logout}
                 </button>
               </>
             ) : (
@@ -233,7 +243,7 @@ export default function Home() {
                 onClick={() => signIn()}
                 className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold transition hover:bg-red-500"
               >
-                Login
+                {t.signIn}
               </button>
             )}
           </div>
@@ -243,26 +253,26 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Active Grand Prix</h2>
-            <p className="text-sm text-gray-300">Choose your podium finishers before the race starts.</p>
+            <h2 className="text-3xl font-bold tracking-tight">{t.activeGP}</h2>
+            <p className="text-sm text-gray-300">{t.activeGPDesc}</p>
           </div>
           <div className="hidden items-center gap-3 text-sm text-gray-300 sm:flex">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
-              <span className="h-2 w-2 rounded-full bg-red-500" /> Upcoming
+              <span className="h-2 w-2 rounded-full bg-red-500" /> {t.upcoming}
             </span>
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
-              <span className="h-2 w-2 rounded-full bg-green-500" /> Finished
+              <span className="h-2 w-2 rounded-full bg-green-500" /> {t.finished}
             </span>
           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            <div className="col-span-full rounded-xl border border-white/10 bg-white/5 p-8 text-center text-gray-300">Loading races...</div>
+            <div className="col-span-full rounded-xl border border-white/10 bg-white/5 p-8 text-center text-gray-300">{t.loadingRaces}</div>
           ) : error ? (
             <div className="col-span-full rounded-xl border border-red-600/40 bg-white/5 p-8 text-center text-red-200">{error}</div>
           ) : races.length === 0 ? (
-            <div className="col-span-full rounded-xl border border-white/10 bg-white/5 p-8 text-center text-gray-300">No races found.</div>
+            <div className="col-span-full rounded-xl border border-white/10 bg-white/5 p-8 text-center text-gray-300">{t.noRaces}</div>
           ) : (
             races.map(race => {
               const raceDateTime = new Date(race.time ? `${race.date}T${race.time}` : `${race.date}T15:00:00Z`);
@@ -277,19 +287,19 @@ export default function Home() {
                   <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-500 via-white to-red-500" />
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-red-300">Round {race.round}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-red-300">{t.round} {race.round}</p>
                       <h3 className="mt-2 text-xl font-bold text-white">{race.name}</h3>
                       <p className="mt-1 text-sm text-gray-300">{race.circuit}</p>
-                      <p className="mt-1 text-sm text-gray-400">{raceDateTime.toLocaleString()}</p>
+                      <p className="mt-1 text-sm text-gray-400">{raceDateTime.toLocaleString(lang === 'pt' ? 'pt-BR' : 'en-US')}</p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       {session ? (
                         !isLocked ? (
                           <button
                             onClick={() => handleOpenBetModal(race)}
-                            className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-500"
+                            className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-500 text-center"
                           >
-                            Place/Update Bet
+                            {t.placeOrUpdate}
                           </button>
                         ) : (
                           <button
@@ -297,7 +307,7 @@ export default function Home() {
                             disabled={!isPast}
                             className={`rounded-full px-4 py-2 text-sm font-semibold text-white shadow ${isPast ? 'bg-white/10 hover:bg-white/20' : 'bg-gray-600/50 cursor-not-allowed text-gray-400'}`}
                           >
-                            {isPast ? 'View Results' : 'Bets Locked'}
+                            {isPast ? t.viewResults : t.betsLocked}
                           </button>
                         )
                       ) : (
@@ -305,7 +315,7 @@ export default function Home() {
                           onClick={() => router.push('/login')}
                           className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-500"
                         >
-                          Login to Bet
+                          {t.loginToBet}
                         </button>
                       )}
                     </div>
@@ -321,12 +331,12 @@ export default function Home() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
           <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-black/80 p-6 shadow-xl">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold">Bet on {selectedRace.name}</h2>
+              <h2 className="text-xl font-bold">{t.betOn} {selectedRace.name}</h2>
               <button
                 onClick={() => setSelectedRace(null)}
                 className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white hover:bg-white/20"
               >
-                Close
+                {t.close}
               </button>
             </div>
 
@@ -337,7 +347,7 @@ export default function Home() {
                 className="w-full rounded-xl border border-white/20 bg-black/60 px-4 py-3 text-sm text-white focus:border-red-500 focus:outline-none"
                 required
               >
-                <option value="">Select 1st Place Driver</option>
+                <option value="">{t.select1st}</option>
                 {drivers.map(driver => (
                   <option key={driver.name} value={driver.name}>
                     {driver.name} ({driver.team})
@@ -351,7 +361,7 @@ export default function Home() {
                 className="w-full rounded-xl border border-white/20 bg-black/60 px-4 py-3 text-sm text-white focus:border-red-500 focus:outline-none"
                 required
               >
-                <option value="">Select 2nd Place Driver</option>
+                <option value="">{t.select2nd}</option>
                 {drivers.map(driver => (
                   <option key={driver.name} value={driver.name}>
                     {driver.name} ({driver.team})
@@ -365,7 +375,7 @@ export default function Home() {
                 className="w-full rounded-xl border border-white/20 bg-black/60 px-4 py-3 text-sm text-white focus:border-red-500 focus:outline-none"
                 required
               >
-                <option value="">Select 3rd Place Driver</option>
+                <option value="">{t.select3rd}</option>
                 {drivers.map(driver => (
                   <option key={driver.name} value={driver.name}>
                     {driver.name} ({driver.team})
@@ -378,13 +388,13 @@ export default function Home() {
                   onClick={handleBet}
                   className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow hover:bg-red-500"
                 >
-                  Submit Bet
+                  {t.submitBet}
                 </button>
                 <button
                   onClick={() => setSelectedRace(null)}
                   className="flex-1 rounded-xl bg-white/10 px-4 py-3 text-sm font-semibold text-white shadow hover:bg-white/20"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
               </div>
             </div>

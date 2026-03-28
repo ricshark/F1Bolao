@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/components/LanguageContext';
 
 export default function Login() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegister, setIsRegister] = useState(false);
@@ -68,17 +70,17 @@ export default function Login() {
               <span className="text-3xl font-bold text-white">F1</span>
             </div>
             <h1 className="text-4xl font-bold text-white mb-2 tracking-wider">F1 BOLÃO</h1>
-            <p className="text-gray-300 text-lg">Predict the podium, earn points</p>
+            <p className="text-gray-300 text-lg">{t.subtitle}</p>
           </div>
 
           {/* Login Form */}
           <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-8 shadow-2xl">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-white mb-2">
-                {isRegister ? 'Create Account' : 'Welcome Back'}
+                {isRegister ? t.signUp : t.loginTitle}
               </h2>
               <p className="text-gray-400">
-                {isRegister ? 'Join the F1 prediction league' : 'Sign in to place your bets'}
+                {isRegister ? t.loginMsg : t.loginMsg}
               </p>
 
               {!isRegister && (
@@ -93,7 +95,7 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Email Address
+                  {t.emailLabel}
                 </label>
                 <input
                   type="email"
@@ -108,7 +110,7 @@ export default function Login() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Password
+                  {t.passwordLabel}
                 </label>
                 <input
                   type="password"
@@ -129,10 +131,10 @@ export default function Login() {
                 {loading ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    {isRegister ? 'Creating Account...' : 'Signing In...'}
+                    {t.loading}
                   </div>
                 ) : (
-                  isRegister ? 'Create Account' : 'Sign In'
+                  isRegister ? t.signUp : t.signIn
                 )}
               </button>
             </form>
@@ -146,8 +148,8 @@ export default function Login() {
                 disabled={loading}
               >
                 {isRegister
-                  ? 'Already have an account? Sign in'
-                  : 'Need an account? Create one'
+                  ? t.alreadyHaveAccount
+                  : t.dontHaveAccount
                 }
               </button>
             </div>

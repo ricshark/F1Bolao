@@ -42,6 +42,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'User already exists' }, { status: 400 });
   }
 
+  // Validação básica do e-mail
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(normalizedEmail)) {
+    return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
+  }
+
+  // Validação de força da senha
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/;
+  if (!passwordRegex.test(normalizedPassword)) {
+    return NextResponse.json(
+      { error: 'Password must be at least 8 characters long, contain one uppercase letter, and one special character (!@#$&*).' }, 
+      { status: 400 }
+    );
+  }
+
   const hashedPassword = await bcrypt.hash(normalizedPassword, 10);
 
   const user = new User({

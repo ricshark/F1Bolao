@@ -21,9 +21,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
   }
 
-  // Máxima segurança: exigir no mínimo 8 caracteres de senha
-  if (normalizedPassword.length < 8) {
-    return NextResponse.json({ error: 'Password must be at least 8 characters long' }, { status: 400 });
+  // Máxima segurança: exigir no mínimo 8 caracteres de senha, 1 maiúscula e 1 especial
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$&*]).{8,}$/;
+  if (!passwordRegex.test(normalizedPassword)) {
+    return NextResponse.json(
+      { error: 'Password must be at least 8 characters long, contain one uppercase letter, and one special character (!@#$&*).' }, 
+      { status: 400 }
+    );
   }
 
   const existingUser = await User.findOne({ email: normalizedEmail });

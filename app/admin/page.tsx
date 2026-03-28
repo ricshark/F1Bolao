@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/components/LanguageContext';
 
 interface User {
   _id: string;
@@ -34,6 +35,8 @@ interface Bet {
 export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { t } = useLanguage();
+  
   const [users, setUsers] = useState<User[]>([]);
   const [bets, setBets] = useState<Bet[]>([]);
   const [activeTab, setActiveTab] = useState<'users' | 'bets' | 'createUser' | 'settings'>('users');
@@ -263,7 +266,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p>Loading admin panel...</p>
+          <p>{t.loading}</p>
         </div>
       </div>
     );
@@ -280,15 +283,15 @@ export default function AdminPage() {
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-red-600 flex items-center justify-center text-lg font-bold">F1</div>
             <div>
-              <h1 className="text-xl font-bold tracking-wide">F1 Bolão Admin</h1>
-              <p className="text-xs text-gray-300">Manage users and bets</p>
+              <h1 className="text-xl font-bold tracking-wide">{t.adminTitle}</h1>
+              <p className="text-xs text-gray-300">{t.adminDesc}</p>
             </div>
           </div>
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/dashboard')}
             className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold transition hover:bg-white/20"
           >
-            Back to App
+            {t.backToApp}
           </button>
         </div>
       </header>
@@ -304,7 +307,7 @@ export default function AdminPage() {
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
               }`}
             >
-              Users ({users.length})
+              {t.usersTab} ({users.length})
             </button>
             <button
               onClick={() => setActiveTab('createUser')}
@@ -314,7 +317,7 @@ export default function AdminPage() {
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
               }`}
             >
-              Create User
+              {t.createUserTab}
             </button>
             <button
               onClick={() => setActiveTab('bets')}
@@ -324,7 +327,7 @@ export default function AdminPage() {
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
               }`}
             >
-              Bets ({bets.length})
+              {t.betsTab} ({bets.length})
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -334,7 +337,7 @@ export default function AdminPage() {
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
               }`}
             >
-              Settings
+              {t.settingsTab}
             </button>
           </div>
           
@@ -343,13 +346,13 @@ export default function AdminPage() {
             disabled={loading}
             className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50 ml-auto"
           >
-            ♺ Calcular Pontos
+            ♺ {t.calcPoints}
           </button>
         </div>
 
         {activeTab === 'users' && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h2 className="mb-4 text-xl font-bold">All Users</h2>
+            <h2 className="mb-4 text-xl font-bold">{t.usersTab}</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -406,11 +409,11 @@ export default function AdminPage() {
 
         {activeTab === 'createUser' && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h2 className="mb-4 text-xl font-bold">Create New User</h2>
+            <h2 className="mb-4 text-xl font-bold">{t.createUserTab}</h2>
             <form onSubmit={handleCreateUser} className="space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                  Name
+                  {t.nameLabel}
                 </label>
                 <input
                   type="text"
@@ -423,7 +426,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                  Email
+                  {t.emailLabel}
                 </label>
                 <input
                   type="email"
@@ -436,7 +439,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-                  Password
+                  {t.passwordLabel}
                 </label>
                 <input
                   type="password"
@@ -469,7 +472,7 @@ export default function AdminPage() {
                 type="submit"
                 className="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
               >
-                Create User
+                {t.createUserTab}
               </button>
             </form>
           </div>
@@ -477,7 +480,7 @@ export default function AdminPage() {
 
         {activeTab === 'bets' && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h2 className="mb-4 text-xl font-bold">All Bets</h2>
+            <h2 className="mb-4 text-xl font-bold">{t.betsTab}</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -518,7 +521,7 @@ export default function AdminPage() {
 
         {activeTab === 'settings' && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h2 className="mb-4 text-xl font-bold">System Settings</h2>
+            <h2 className="mb-4 text-xl font-bold">{t.settingsTab}</h2>
             <form onSubmit={handleSaveSettings} className="space-y-6 max-w-md">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">
@@ -538,7 +541,7 @@ export default function AdminPage() {
                     disabled={settingsLoading}
                     className="whitespace-nowrap rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
                   >
-                    {settingsLoading ? 'Saving...' : 'Save Settings'}
+                    {settingsLoading ? t.loading : 'Save Settings'}
                   </button>
                 </div>
                 <p className="mt-2 text-xs text-gray-400">
@@ -563,13 +566,13 @@ export default function AdminPage() {
                 onClick={() => setEditingUser(null)}
                 className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white hover:bg-white/20 transition"
               >
-                Close
+                {t.close}
               </button>
             </div>
             
             <form onSubmit={handleUpdateUser} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300">Name</label>
+                <label className="block text-sm font-medium text-gray-300">{t.nameLabel}</label>
                 <input
                   type="text"
                   value={editUserForm.name}
@@ -579,7 +582,7 @@ export default function AdminPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300">Email</label>
+                <label className="block text-sm font-medium text-gray-300">{t.emailLabel}</label>
                 <input
                   type="email"
                   value={editUserForm.email}
