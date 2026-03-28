@@ -19,12 +19,28 @@ export default function Home() {
   const [races, setRaces] = useState<Race[]>([]);
   const [selectedRace, setSelectedRace] = useState<Race | null>(null);
   const [prediction, setPrediction] = useState({ first: '', second: '', third: '' });
+  const [userBets, setUserBets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [drivers, setDrivers] = useState<{name: string, team: string}[]>([]);
   const [betLockHours, setBetLockHours] = useState(1);
   const [visits, setVisits] = useState<number | null>(null);
   const hasVisited = useRef(false);
+
+  useEffect(() => {
+    if (session) {
+      fetch('/api/bets')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setUserBets(data);
+          }
+        })
+        .catch(console.error);
+    } else {
+      setUserBets([]);
+    }
+  }, [session]);
 
   useEffect(() => {
     const loadRaces = async () => {
@@ -137,6 +153,20 @@ export default function Home() {
     initializeSettings();
   }, []);
 
+  const handleOpenBetModal = (race: Race) => {
+    setSelectedRace(race);
+    const existingBet = userBets.find((b: any) => b.race?.round === race.round);
+    if (existingBet && existingBet.prediction) {
+      setPrediction({
+        first: existingBet.prediction.first || '',
+        second: existingBet.prediction.second || '',
+        third: existingBet.prediction.third || ''
+      });
+    } else {
+      setPrediction({ first: '', second: '', third: '' });
+    }
+  };
+
   const handleBet = async () => {
     if (!selectedRace) return;
 
@@ -150,6 +180,12 @@ export default function Home() {
       alert('Bet placed!');
       setSelectedRace(null);
       setPrediction({ first: '', second: '', third: '' });
+      fetch('/api/bets')
+        .then(r => r.json())
+        .then(data => {
+          if (Array.isArray(data)) setUserBets(data);
+        })
+        .catch(console.error);
       return;
     }
 
@@ -250,7 +286,7 @@ export default function Home() {
                       {session ? (
                         !isLocked ? (
                           <button
-                            onClick={() => setSelectedRace(race)}
+                            onClick={() => handleOpenBetModal(race)}
                             className="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-red-500"
                           >
                             Place/Update Bet
