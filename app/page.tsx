@@ -155,7 +155,7 @@ export default function Home() {
 
   const handleOpenBetModal = (race: Race) => {
     setSelectedRace(race);
-    const existingBet = userBets.find((b: any) => b.race?.round === race.round);
+    const existingBet = userBets.find((b: any) => String(b.race?.round) === String(race.round));
     if (existingBet && existingBet.prediction) {
       setPrediction({
         first: existingBet.prediction.first || '',
