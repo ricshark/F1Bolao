@@ -36,7 +36,7 @@ export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { t } = useLanguage();
-  
+
   const [users, setUsers] = useState<User[]>([]);
   const [bets, setBets] = useState<Bet[]>([]);
   const [activeTab, setActiveTab] = useState<'users' | 'bets' | 'createUser' | 'settings'>('users');
@@ -61,7 +61,7 @@ export default function AdminPage() {
     points: 0,
   });
   const [editUserError, setEditUserError] = useState('');
-  const [editUserError, setEditUserError] = useState('');
+  //const [editUserError, setEditUserError] = useState('');
   const [editUserSuccess, setEditUserSuccess] = useState('');
 
   const [betFilter, setBetFilter] = useState('');
@@ -80,7 +80,7 @@ export default function AdminPage() {
         else if (betSortConfig.key === 'race') { valA = a.race.name.toLowerCase(); valB = b.race.name.toLowerCase(); }
         else if (betSortConfig.key === 'points') { valA = a.points; valB = b.points; }
         else if (betSortConfig.key === 'date') { valA = new Date(a.createdAt).getTime(); valB = new Date(b.createdAt).getTime(); }
-        
+
         if (valA < valB) return betSortConfig.direction === 'asc' ? -1 : 1;
         if (valA > valB) return betSortConfig.direction === 'asc' ? 1 : -1;
         return 0;
@@ -140,7 +140,7 @@ export default function AdminPage() {
 
   const handleDeleteUser = async (userId: string) => {
     if (!confirm('Are you sure you want to delete this user and all their bets?')) return;
-    
+
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/users/${userId}`, { method: 'DELETE' });
@@ -160,7 +160,7 @@ export default function AdminPage() {
 
   const handleClearBets = async (userId: string) => {
     if (!confirm('Are you sure you want to delete all bets for this user?')) return;
-    
+
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/users/${userId}/bets`, { method: 'DELETE' });
@@ -180,7 +180,7 @@ export default function AdminPage() {
 
   const handleCalculatePoints = async () => {
     if (!confirm('Deseja recalcular os pontos de todas as apostas baseados nos resultados oficiais da F1 API?')) return;
-    
+
     setLoading(true);
     try {
       const res = await fetch('/api/admin/calculate-points', { method: 'POST' });
@@ -251,7 +251,7 @@ export default function AdminPage() {
   const handleUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingUser) return;
-    
+
     setEditUserError('');
     setEditUserSuccess('');
     setLoading(true);
@@ -335,46 +335,42 @@ export default function AdminPage() {
           <div className="flex gap-4">
             <button
               onClick={() => setActiveTab('users')}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                activeTab === 'users'
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'users'
                   ? 'bg-red-600 text-white'
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
-              }`}
+                }`}
             >
               {t.usersTab} ({users.length})
             </button>
             <button
               onClick={() => setActiveTab('createUser')}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                activeTab === 'createUser'
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'createUser'
                   ? 'bg-red-600 text-white'
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
-              }`}
+                }`}
             >
               {t.createUserTab}
             </button>
             <button
               onClick={() => setActiveTab('bets')}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                activeTab === 'bets'
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'bets'
                   ? 'bg-red-600 text-white'
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
-              }`}
+                }`}
             >
               {t.betsTab} ({bets.length})
             </button>
             <button
               onClick={() => setActiveTab('settings')}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
-                activeTab === 'settings'
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'settings'
                   ? 'bg-red-600 text-white'
                   : 'bg-white/10 text-gray-300 hover:bg-white/20'
-              }`}
+                }`}
             >
               {t.settingsTab}
             </button>
           </div>
-          
+
           <button
             onClick={handleCalculatePoints}
             disabled={loading}
@@ -414,19 +410,19 @@ export default function AdminPage() {
                       </td>
                       <td className="py-3 px-4">{new Date(user.createdAt).toLocaleDateString()}</td>
                       <td className="py-3 px-4 text-right space-x-2 whitespace-nowrap">
-                        <button 
+                        <button
                           onClick={() => openEditModal(user)}
                           className="rounded bg-blue-600/20 px-3 py-1 text-xs font-semibold text-blue-500 hover:bg-blue-600/40 transition"
                         >
                           Edit Profile
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleClearBets(user._id)}
                           className="rounded bg-yellow-600/20 px-3 py-1 text-xs font-semibold text-yellow-500 hover:bg-yellow-600/40 transition"
                         >
                           Clear Bets
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDeleteUser(user._id)}
                           className="rounded bg-red-600/20 px-3 py-1 text-xs font-semibold text-red-500 hover:bg-red-600/40 transition"
                         >
@@ -596,7 +592,7 @@ export default function AdminPage() {
                   </button>
                 </div>
                 <p className="mt-2 text-xs text-gray-400">
-                  Number of hours before the race starts when betting and changing bets is locked. 
+                  Number of hours before the race starts when betting and changing bets is locked.
                   (e.g., 1 = 1 hour before race).
                 </p>
                 {settingsSuccess && (
@@ -620,7 +616,7 @@ export default function AdminPage() {
                 {t.close}
               </button>
             </div>
-            
+
             <form onSubmit={handleUpdateUser} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300">{t.nameLabel}</label>
@@ -663,14 +659,14 @@ export default function AdminPage() {
                   Administrator
                 </label>
               </div>
-              
+
               {editUserError && (
                 <p className="text-red-400 text-sm mt-2">{editUserError}</p>
               )}
               {editUserSuccess && (
                 <p className="text-green-400 text-sm mt-2">{editUserSuccess}</p>
               )}
-              
+
               <button
                 type="submit"
                 className="w-full mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
