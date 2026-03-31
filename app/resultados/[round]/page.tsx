@@ -110,7 +110,8 @@ export default function ResultadosPage({ params }: { params: { round: string } }
           </h2>
           <p className="text-lg text-red-200 mt-2">{race.circuit}</p>
           <p className="text-gray-400 mt-1">
-            {new Date(race.time ? `${race.date.split('T')[0]}T${race.time}` : race.date).toLocaleString()}
+            {/*new Date(race.time ? `${race.date.split('T')[0]}T${race.time}` : race.date).toLocaleString()*/}
+
           </p>
         </div>
 
@@ -144,42 +145,42 @@ export default function ResultadosPage({ params }: { params: { round: string } }
 
           {/* User Bets Table */}
           <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-6">
-             <h3 className="text-xl font-bold mb-6">User Predictions</h3>
-             
-             {bets && bets.length > 0 ? (
-               <div className="overflow-x-auto">
-                 <table className="w-full text-sm text-left">
-                   <thead className="text-xs uppercase bg-black/40 text-gray-400 border-b border-white/10">
-                     <tr>
-                       <th className="px-4 py-3 rounded-tl-lg">User</th>
-                       <th className="px-4 py-3">Winner (P1)</th>
-                       <th className="px-4 py-3">2nd Place (P2)</th>
-                       <th className="px-4 py-3">3rd Place (P3)</th>
-                       <th className="px-4 py-3 text-right rounded-tr-lg">Points</th>
-                     </tr>
-                   </thead>
-                   <tbody>
-                     {bets.map((bet) => (
-                       <tr key={bet._id} className="border-b border-white/5 hover:bg-white/5 transition">
-                         <td className="px-4 py-4 font-semibold text-white">{bet.userName}</td>
-                         <td className="px-4 py-4 text-gray-300">{bet.prediction.first}</td>
-                         <td className="px-4 py-4 text-gray-300">{bet.prediction.second}</td>
-                         <td className="px-4 py-4 text-gray-300">{bet.prediction.third}</td>
-                         <td className="px-4 py-4 text-right">
-                           <span className={`px-2 py-1 rounded text-xs font-bold ${bet.points > 0 ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-gray-500'}`}>
-                             +{bet.points} pts
-                           </span>
-                         </td>
-                       </tr>
-                     ))}
-                   </tbody>
-                 </table>
-               </div>
-             ) : (
-               <div className="text-center py-12 text-gray-400 bg-black/20 rounded-xl border border-white/5">
-                 <p className="mb-2">No bets have been placed for this race yet.</p>
-               </div>
-             )}
+            <h3 className="text-xl font-bold mb-6">User Predictions</h3>
+
+            {bets && bets.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="text-xs uppercase bg-black/40 text-gray-400 border-b border-white/10">
+                    <tr>
+                      <th className="px-4 py-3 rounded-tl-lg">User</th>
+                      <th className="px-4 py-3">Winner (P1)</th>
+                      <th className="px-4 py-3">2nd Place (P2)</th>
+                      <th className="px-4 py-3">3rd Place (P3)</th>
+                      <th className="px-4 py-3 text-right rounded-tr-lg">Points</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bets.map((bet) => (
+                      <tr key={bet._id} className="border-b border-white/5 hover:bg-white/5 transition">
+                        <td className="px-4 py-4 font-semibold text-white">{bet.userName}</td>
+                        <td className="px-4 py-4 text-gray-300">{bet.prediction.first}</td>
+                        <td className="px-4 py-4 text-gray-300">{bet.prediction.second}</td>
+                        <td className="px-4 py-4 text-gray-300">{bet.prediction.third}</td>
+                        <td className="px-4 py-4 text-right">
+                          <span className={`px-2 py-1 rounded text-xs font-bold ${bet.points > 0 ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-gray-500'}`}>
+                            +{bet.points} pts
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-400 bg-black/20 rounded-xl border border-white/5">
+                <p className="mb-2">No bets have been placed for this race yet.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
