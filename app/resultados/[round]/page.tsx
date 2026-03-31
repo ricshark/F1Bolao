@@ -110,7 +110,7 @@ export default function ResultadosPage({ params }: { params: { round: string } }
           </h2>
           <p className="text-lg text-red-200 mt-2">{race.circuit}</p>
           <p className="text-gray-400 mt-1">
-            {/*new Date(race.time ? `${race.date.split('T')[0]}T${race.time}` : race.date).toLocaleString()*/}
+            {new Date(race.time ? `${race.date.split('T')[0]}T${race.time}` : race.date).toLocaleString()}
 
           </p>
         </div>
