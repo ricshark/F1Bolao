@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useLanguage } from '@/components/LanguageContext';
 
 interface RaceDetails {
   race: {
@@ -33,6 +34,7 @@ export default function ResultadosPage({ params }: { params: { round: string } }
   const [data, setData] = useState<RaceDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { lang } = useLanguage();
 
   useEffect(() => {
     if (status === 'loading') return;
