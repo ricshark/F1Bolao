@@ -1,12 +1,15 @@
-// arquivo: /app/api/alexa/route.ts
-
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
+    const requestType = body?.request?.type;
     const intent = body?.request?.intent?.name;
 
     let resposta = "Desculpe, não entendi sua solicitação.";
+
+    if (requestType === "LaunchRequest") {
+        resposta = "Bem-vindo ao Bolão de Fórmula Um! Você pode me perguntar o ranking ou a próxima corrida.";
+    }
 
     if (intent === "GetRankingIntent") {
         resposta = "O líder do bolão é Ricardo com 141 pontos.";
@@ -20,7 +23,7 @@ export async function POST(req: NextRequest) {
         JSON.stringify({
             version: "1.0",
             response: {
-                shouldEndSession: true,
+                shouldEndSession: false, // mantém a sessão aberta após o LaunchRequest
                 outputSpeech: {
                     type: "PlainText",
                     text: resposta,
