@@ -1,3 +1,4 @@
+export const runtime = "nodejs";
 import { SkillBuilders } from "ask-sdk-core";
 import { NextRequest } from "next/server";
 
