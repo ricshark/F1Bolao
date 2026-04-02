@@ -1,67 +1,42 @@
-import express from "express";
 import { SkillBuilders } from "ask-sdk-core";
-import { ExpressAdapter } from "ask-sdk-express-adapter";
+import { NextRequest } from "next/server";
 
-// força node runtime
 export const runtime = "nodejs";
 
-const app = express();
-
-// ⚠️ precisa raw body
-app.use(express.json({
-    verify: (req: any, res, buf) => {
-        req.rawBody = buf.toString();
-    }
-}));
-
-const LaunchRequestHandler = {
-    canHandle(handlerInput: any) {
-        return handlerInput.requestEnvelope.request.type === "LaunchRequest";
-    },
-    handle(handlerInput: any) {
-        return handlerInput.responseBuilder
-            .speak("Bem-vindo ao Bolão de Fórmula Um!")
-            .reprompt("Você pode perguntar o ranking.")
-            .getResponse();
-    },
-};
-
-const GetRankingIntentHandler = {
-    canHandle(handlerInput: any) {
-        return handlerInput.requestEnvelope.request.type === "IntentRequest" &&
-            handlerInput.requestEnvelope.request.intent.name === "GetRankingIntent";
-    },
-    handle(handlerInput: any) {
-        return handlerInput.responseBuilder
-            .speak("O líder é Ricardo com 141 pontos.")
-            .getResponse();
-    },
-};
-
+// ⚠️ desativa verificação manual (para teste)
 const skill = SkillBuilders.custom()
-    .addRequestHandlers(
-        LaunchRequestHandler,
-        GetRankingIntentHandler
-    )
+    .addRequestHandlers({
+        canHandle(handlerInput: any) {
+            return handlerInput.requestEnvelope.request.type === "LaunchRequest";
+        },
+        handle(handlerInput: any) {
+            return handlerInput.responseBuilder
+                .speak("Bem-vindo ao Bolão de Fórmula Um!")
+                .reprompt("Você pode perguntar o ranking.")
+                .getResponse();
+        },
+    })
     .create();
 
-// 🔐 adapter faz validação automática
-const adapter = new ExpressAdapter(skill, true, true);
-
-app.post("/api/alexa", adapter.getRequestHandlers());
-
-// exporta handler pro Next
-export async function POST(req: Request): Promise<Response> {
+export async function POST(req: NextRequest): Promise<Response> {
     try {
-        return await new Promise<Response>((resolve) => {
-            app(req as any, {
-                end: (body: any) => {
-                    resolve(new Response(body, { status: 200 }));
-                }
-            } as any);
+        const body = await req.json();
+
+        console.log("REQUEST:", body);
+        //console.log("HEADERS:", [...req.headers]);
+        req.headers.forEach((value, key) => {
+            console.log(key + ": " + value);
         });
+
+        const response = await skill.invoke(body);
+
+        return new Response(JSON.stringify(response), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+        });
+
     } catch (error) {
-        console.error(error);
+        console.error("ERRO:", error);
         return new Response("Erro interno", { status: 500 });
     }
 }
