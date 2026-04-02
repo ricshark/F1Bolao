@@ -24,9 +24,13 @@ export async function POST(req: NextRequest): Promise<Response> {
 
         console.log("REQUEST:", body);
         //console.log("HEADERS:", [...req.headers]);
+        console.log("=== HEADERS START ===");
+
         req.headers.forEach((value, key) => {
-            console.log("HEADER:", key, value);
+            console.log(key + ": " + value);
         });
+
+        console.log("=== HEADERS END ===");
 
         const response = await skill.invoke(body);
 
