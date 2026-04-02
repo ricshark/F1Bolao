@@ -1,18 +1,20 @@
-import { SkillBuilders, HandlerInput } from "ask-sdk-core";
+import { SkillBuilders } from "ask-sdk-core";
 import { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
 const APP_ID = process.env.ALEXA_ID;
 
-// ==============================
+// =========================
 // HANDLERS
-// ==============================
+// =========================
 const LaunchRequestHandler = {
-    canHandle(handlerInput: HandlerInput) {
+    canHandle(handlerInput: any) {
         return handlerInput.requestEnvelope.request.type === "LaunchRequest";
     },
-    handle(handlerInput: HandlerInput) {
+    handle(handlerInput: any) {
+        console.log("🚀 LaunchRequest disparado");
+
         return handlerInput.responseBuilder
             .speak("Bem-vindo ao Bolão de Fórmula Um!")
             .reprompt("Você pode perguntar o ranking.")
@@ -20,56 +22,74 @@ const LaunchRequestHandler = {
     },
 };
 
-// ==============================
-// ERROR HANDLER (ESSENCIAL)
-// ==============================
-const ErrorHandler = {
-    canHandle() {
-        return true;
-    },
-    handle(handlerInput: HandlerInput, error: Error) {
-        console.error("💥 ERRO NA SKILL:", error);
-
-        return handlerInput.responseBuilder
-            .speak("Desculpe, ocorreu um erro.")
-            .reprompt("Tente novamente.")
-            .getResponse();
-    },
-};
-
-// ==============================
+// =========================
 // SKILL
-// ==============================
+// =========================
 const skill = SkillBuilders.custom()
     .addRequestHandlers(LaunchRequestHandler)
-    .addErrorHandlers(ErrorHandler)
     .create();
 
-// ==============================
-// ROUTE (VERCEL)
-// ==============================
+// =========================
+// VALIDAÇÃO SIMPLES (SAFE PRA VERCEL)
+// =========================
+function isValidAlexaRequest(body: any): boolean {
+    try {
+        // Estrutura mínima
+        if (!body?.request || !body?.context) {
+            console.log("❌ Estrutura inválida");
+            return false;
+        }
+
+        // Application ID (aceita session OU context)
+        const appId =
+            body?.session?.application?.applicationId ||
+            body?.context?.System?.application?.applicationId;
+
+        if (appId !== APP_ID) {
+            console.log("❌ App ID inválido:", appId);
+            return false;
+        }
+
+        // Timestamp (até 150s)
+        const requestTime = new Date(body.request.timestamp).getTime();
+        const now = Date.now();
+        const diff = Math.abs(now - requestTime);
+
+        if (diff > 150000) {
+            console.log("❌ Timestamp inválido:", diff);
+            return false;
+        }
+
+        return true;
+    } catch (err) {
+        console.error("Erro validação:", err);
+        return false;
+    }
+}
+
+// =========================
+// ROUTE
+// =========================
 export async function POST(req: NextRequest): Promise<Response> {
     try {
         const body = await req.json();
 
-        console.log("=== REQUEST BODY ===");
+        console.log("📩 REQUEST RECEBIDO:");
         console.log(JSON.stringify(body, null, 2));
 
-        console.log("=== HEADERS ===");
-        req.headers.forEach((value, key) => {
-            console.log(`${key}: ${value}`);
-        });
-
-        // 🔒 Validação mínima (segura)
-        if (body?.session?.application?.applicationId !== APP_ID) {
-            console.log("❌ APP_ID inválido");
+        // 🔒 Validação
+        if (!isValidAlexaRequest(body)) {
+            console.log("❌ Requisição inválida");
             return new Response("Unauthorized", { status: 401 });
         }
 
         console.log("✅ Requisição válida");
 
-        // 🎯 Executa a skill
+        // 🚀 EXECUTA SKILL
         const response = await skill.invoke(body);
+
+        console.log("📤 RESPONSE:");
+        console.log(JSON.stringify(response, null, 2));
 
         return new Response(JSON.stringify(response), {
             status: 200,
@@ -79,7 +99,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         });
 
     } catch (error) {
-        console.error("❌ ERRO GERAL:", error);
+        console.error("🔥 ERRO:", error);
         return new Response("Erro interno", { status: 500 });
     }
 }
