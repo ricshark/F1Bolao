@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 const APP_ID = process.env.ALEXA_ID;
 
 // =========================
-// HANDLERS
+// HANDLER
 // =========================
 const LaunchRequestHandler = {
     canHandle(handlerInput: any) {
@@ -23,24 +23,17 @@ const LaunchRequestHandler = {
 };
 
 // =========================
-// SKILL
+// SKILL COMO LAMBDA
 // =========================
-const skill = SkillBuilders.custom()
+const alexaHandler = SkillBuilders.custom()
     .addRequestHandlers(LaunchRequestHandler)
-    .create();
+    .lambda();
 
 // =========================
-// VALIDAÇÃO SIMPLES (SAFE PRA VERCEL)
+// VALIDAÇÃO
 // =========================
 function isValidAlexaRequest(body: any): boolean {
     try {
-        // Estrutura mínima
-        if (!body?.request || !body?.context) {
-            console.log("❌ Estrutura inválida");
-            return false;
-        }
-
-        // Application ID (aceita session OU context)
         const appId =
             body?.session?.application?.applicationId ||
             body?.context?.System?.application?.applicationId;
@@ -50,19 +43,8 @@ function isValidAlexaRequest(body: any): boolean {
             return false;
         }
 
-        // Timestamp (até 150s)
-        const requestTime = new Date(body.request.timestamp).getTime();
-        const now = Date.now();
-        const diff = Math.abs(now - requestTime);
-
-        if (diff > 150000) {
-            console.log("❌ Timestamp inválido:", diff);
-            return false;
-        }
-
         return true;
-    } catch (err) {
-        console.error("Erro validação:", err);
+    } catch {
         return false;
     }
 }
@@ -74,32 +56,36 @@ export async function POST(req: NextRequest): Promise<Response> {
     try {
         const body = await req.json();
 
-        console.log("📩 REQUEST RECEBIDO:");
-        console.log(JSON.stringify(body, null, 2));
+        console.log("📩 REQUEST RECEBIDO");
 
-        // 🔒 Validação
         if (!isValidAlexaRequest(body)) {
-            console.log("❌ Requisição inválida");
             return new Response("Unauthorized", { status: 401 });
         }
 
         console.log("✅ Requisição válida");
 
-        // 🚀 EXECUTA SKILL
-        const response = await skill.invoke(body);
+        // 🔥 PROMISE WRAP (ESSENCIAL)
+        const response = await new Promise((resolve, reject) => {
+            alexaHandler(body, null, (err: any, result: any) => {
+                if (err) {
+                    console.error("❌ ERRO ALEXA:", err);
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
 
         console.log("📤 RESPONSE:");
         console.log(JSON.stringify(response, null, 2));
 
         return new Response(JSON.stringify(response), {
             status: 200,
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
         });
 
     } catch (error) {
-        console.error("🔥 ERRO:", error);
+        console.error("🔥 ERRO GERAL:", error);
         return new Response("Erro interno", { status: 500 });
     }
 }
