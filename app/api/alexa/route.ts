@@ -5,6 +5,8 @@ export async function POST(req: NextRequest) {
     const requestType = body?.request?.type;
     const intent = body?.request?.intent?.name;
 
+    console.log("Alexa request body:", body);
+
     let resposta = "Desculpe, não entendi sua solicitação.";
 
     if (requestType === "LaunchRequest") {
