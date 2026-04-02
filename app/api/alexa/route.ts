@@ -21,10 +21,28 @@ const LaunchRequestHandler = {
 };
 
 // ==============================
+// ERROR HANDLER (ESSENCIAL)
+// ==============================
+const ErrorHandler = {
+    canHandle() {
+        return true;
+    },
+    handle(handlerInput: HandlerInput, error: Error) {
+        console.error("💥 ERRO NA SKILL:", error);
+
+        return handlerInput.responseBuilder
+            .speak("Desculpe, ocorreu um erro.")
+            .reprompt("Tente novamente.")
+            .getResponse();
+    },
+};
+
+// ==============================
 // SKILL
 // ==============================
 const skill = SkillBuilders.custom()
     .addRequestHandlers(LaunchRequestHandler)
+    .addErrorHandlers(ErrorHandler)
     .create();
 
 // ==============================
@@ -42,7 +60,7 @@ export async function POST(req: NextRequest): Promise<Response> {
             console.log(`${key}: ${value}`);
         });
 
-        // 🔒 Validação mínima (recomendada)
+        // 🔒 Validação mínima (segura)
         if (body?.session?.application?.applicationId !== APP_ID) {
             console.log("❌ APP_ID inválido");
             return new Response("Unauthorized", { status: 401 });
@@ -50,7 +68,7 @@ export async function POST(req: NextRequest): Promise<Response> {
 
         console.log("✅ Requisição válida");
 
-        // 🎯 Executa skill
+        // 🎯 Executa a skill
         const response = await skill.invoke(body);
 
         return new Response(JSON.stringify(response), {
