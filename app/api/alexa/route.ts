@@ -1,93 +1,67 @@
-import { SkillBuilders } from "ask-sdk-core";
+import { SkillBuilders, HandlerInput } from "ask-sdk-core";
 import { NextRequest } from "next/server";
 
 export const runtime = "nodejs";
 
 const APP_ID = process.env.ALEXA_ID;
 
+// ==============================
+// HANDLERS
+// ==============================
+const LaunchRequestHandler = {
+    canHandle(handlerInput: HandlerInput) {
+        return handlerInput.requestEnvelope.request.type === "LaunchRequest";
+    },
+    handle(handlerInput: HandlerInput) {
+        return handlerInput.responseBuilder
+            .speak("Bem-vindo ao Bolão de Fórmula Um!")
+            .reprompt("Você pode perguntar o ranking.")
+            .getResponse();
+    },
+};
+
+// ==============================
+// SKILL
+// ==============================
 const skill = SkillBuilders.custom()
-    .addRequestHandlers({
-        canHandle(handlerInput: any) {
-            return handlerInput.requestEnvelope.request.type === "LaunchRequest";
-        },
-        handle(handlerInput: any) {
-            return handlerInput.responseBuilder
-                .speak("Bem-vindo ao Bolão de Fórmula Um!")
-                .reprompt("Você pode perguntar o ranking.")
-                .getResponse();
-        },
-    })
+    .addRequestHandlers(LaunchRequestHandler)
     .create();
 
-function isValidAlexaRequest(body: any, headers: Headers): boolean {
-    try {
-        // 1. Estrutura básica
-        if (!body?.request || !body?.context || !body?.session) {
-            return false;
-        }
-
-        // 2. Application ID
-        if (body?.session?.application?.applicationId !== APP_ID) {
-            return false;
-        }
-
-        // 3. Timestamp (até 150 segundos)
-        const requestTime = new Date(body.request.timestamp).getTime();
-        const now = Date.now();
-        const diff = Math.abs(now - requestTime);
-
-        if (diff > 150000) {
-            console.log("Timestamp inválido");
-            return false;
-        }
-
-        // 4. Origem esperada
-        const forwarded = headers.get("forwarded") || "";
-        if (!forwarded.includes("proto=https")) {
-            return false;
-        }
-
-        // 5. User agent (heurística)
-        const userAgent = headers.get("user-agent") || "";
-        if (!userAgent.toLowerCase().includes("amazon")) {
-            console.log("User-Agent suspeito:", userAgent);
-        }
-
-        return true;
-
-    } catch (err) {
-        console.error("Erro na validação:", err);
-        return false;
-    }
-}
-
+// ==============================
+// ROUTE (VERCEL)
+// ==============================
 export async function POST(req: NextRequest): Promise<Response> {
     try {
         const body = await req.json();
 
-        console.log("REQUEST:", body);
+        console.log("=== REQUEST BODY ===");
+        console.log(JSON.stringify(body, null, 2));
 
+        console.log("=== HEADERS ===");
         req.headers.forEach((value, key) => {
-            console.log(key + ": " + value);
+            console.log(`${key}: ${value}`);
         });
 
-        // 🔒 VALIDAÇÃO CUSTOM
-        if (!isValidAlexaRequest(body, req.headers)) {
-            console.log("❌ Requisição inválida");
+        // 🔒 Validação mínima (recomendada)
+        if (body?.session?.application?.applicationId !== APP_ID) {
+            console.log("❌ APP_ID inválido");
             return new Response("Unauthorized", { status: 401 });
         }
 
         console.log("✅ Requisição válida");
 
+        // 🎯 Executa skill
         const response = await skill.invoke(body);
 
         return new Response(JSON.stringify(response), {
             status: 200,
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+            },
         });
 
     } catch (error) {
-        console.error("ERRO:", error);
+        console.error("❌ ERRO GERAL:", error);
         return new Response("Erro interno", { status: 500 });
     }
 }
