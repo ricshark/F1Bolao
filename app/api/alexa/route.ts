@@ -1,11 +1,18 @@
+import express from "express";
 import { SkillBuilders } from "ask-sdk-core";
-import { NextRequest } from "next/server";
+import { ExpressAdapter } from "ask-sdk-express-adapter";
 
-// ⚠️ força runtime Node
+// força node runtime
 export const runtime = "nodejs";
 
-// usar require evita erro de tipagem/runtime
-const verifier = require("alexa-verifier");
+const app = express();
+
+// ⚠️ precisa raw body
+app.use(express.json({
+    verify: (req: any, res, buf) => {
+        req.rawBody = buf.toString();
+    }
+}));
 
 const LaunchRequestHandler = {
     canHandle(handlerInput: any) {
@@ -13,36 +20,20 @@ const LaunchRequestHandler = {
     },
     handle(handlerInput: any) {
         return handlerInput.responseBuilder
-            .speak("Bem-vindo ao Bolão de Fórmula Um! Você pode me perguntar o ranking ou a próxima corrida.")
-            .reprompt("Você pode perguntar o ranking ou a próxima corrida.")
+            .speak("Bem-vindo ao Bolão de Fórmula Um!")
+            .reprompt("Você pode perguntar o ranking.")
             .getResponse();
     },
 };
 
 const GetRankingIntentHandler = {
     canHandle(handlerInput: any) {
-        return (
-            handlerInput.requestEnvelope.request.type === "IntentRequest" &&
-            handlerInput.requestEnvelope.request.intent.name === "GetRankingIntent"
-        );
+        return handlerInput.requestEnvelope.request.type === "IntentRequest" &&
+            handlerInput.requestEnvelope.request.intent.name === "GetRankingIntent";
     },
     handle(handlerInput: any) {
         return handlerInput.responseBuilder
-            .speak("O líder do bolão é Ricardo com 141 pontos.")
-            .getResponse();
-    },
-};
-
-const GetNextRaceIntentHandler = {
-    canHandle(handlerInput: any) {
-        return (
-            handlerInput.requestEnvelope.request.type === "IntentRequest" &&
-            handlerInput.requestEnvelope.request.intent.name === "GetNextRaceIntent"
-        );
-    },
-    handle(handlerInput: any) {
-        return handlerInput.responseBuilder
-            .speak("A próxima corrida é o GP de Miami no dia 3 de maio.")
+            .speak("O líder é Ricardo com 141 pontos.")
             .getResponse();
     },
 };
@@ -50,93 +41,22 @@ const GetNextRaceIntentHandler = {
 const skill = SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        GetRankingIntentHandler,
-        GetNextRaceIntentHandler
+        GetRankingIntentHandler
     )
     .create();
 
-export async function POST(req: NextRequest) {
-    try {
-        const rawBody = await req.text();
+// 🔐 adapter faz validação automática
+const adapter = new ExpressAdapter(skill, true, true);
 
-        const signature = req.headers.get("signature") || "";
-        const certUrl = req.headers.get("signaturecertchainurl") || "";
+app.post("/api/alexa", adapter.getRequestHandlers());
 
-        console.log("Headers:", {
-            signature,
-            certUrl
-        });
-
-        // 🔐 validação PROMISE correta
-        const isValid = await new Promise<boolean>((resolve) => {
-            verifier(rawBody, certUrl, signature, (err: any) => {
-                if (err) {
-                    console.error("Erro validação:", err);
-                    resolve(false);
-                } else {
-                    resolve(true);
-                }
-            });
-        });
-
-        if (!isValid) {
-            return new Response("Invalid request", { status: 400 });
-        }
-
-        const body = JSON.parse(rawBody);
-
-        const response = await skill.invoke(body);
-
-        return new Response(JSON.stringify(response), {
-            status: 200,
-            headers: { "Content-Type": "application/json" },
-        });
-
-    } catch (error) {
-        console.error("ERRO GERAL:", error);
-
-        return new Response(
-            JSON.stringify({ error: "Erro interno" }),
-            { status: 500 }
-        );
-    }
+// exporta handler pro Next
+export async function POST(req: Request) {
+    return new Promise((resolve) => {
+        app(req as any, {
+            end: (body: any) => {
+                resolve(new Response(body, { status: 200 }));
+            }
+        } as any);
+    });
 }
-
-
-/*import { NextRequest } from "next/server";
-
-export async function POST(req: NextRequest) {
-    const body = await req.json();
-    const requestType = body?.request?.type;
-    const intent = body?.request?.intent?.name;
-
-    console.log("Alexa request body:", body);
-
-    let resposta = "Desculpe, não entendi sua solicitação.";
-
-    if (requestType === "LaunchRequest") {
-        resposta = "Bem-vindo ao Bolão de Fórmula Um! Você pode me perguntar o ranking ou a próxima corrida.";
-    }
-
-    if (intent === "GetRankingIntent") {
-        resposta = "O líder do bolão é Ricardo com 141 pontos.";
-    }
-
-    if (intent === "GetNextRaceIntent") {
-        resposta = "A próxima corrida é o GP de Miami no dia 03 de maio.";
-    }
-
-    return new Response(
-        JSON.stringify({
-            version: "1.0",
-            response: {
-                shouldEndSession: false, // mantém a sessão aberta após o LaunchRequest
-                outputSpeech: {
-                    type: "PlainText",
-                    text: resposta,
-                },
-            },
-        }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-    );
-}*/

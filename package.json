@@ -13,8 +13,10 @@
     "@types/bcryptjs": "^2.4.6",
     "alexa-verifier": "^4.0.0",
     "ask-sdk-core": "^2.14.0",
+    "ask-sdk-express-adapter": "^2.14.0",
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
     "mongoose": "^9.3.0",
     "next": "^14.0.0",
     "next-auth": "^4.24.13",
@@ -23,6 +25,7 @@
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^20.0.0",
     "@types/nodemailer": "^7.0.11",
     "@types/react": "^18.0.0",
