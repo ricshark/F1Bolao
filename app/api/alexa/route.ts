@@ -51,12 +51,17 @@ const adapter = new ExpressAdapter(skill, true, true);
 app.post("/api/alexa", adapter.getRequestHandlers());
 
 // exporta handler pro Next
-export async function POST(req: Request) {
-    return new Promise((resolve) => {
-        app(req as any, {
-            end: (body: any) => {
-                resolve(new Response(body, { status: 200 }));
-            }
-        } as any);
-    });
+export async function POST(req: Request): Promise<Response> {
+    try {
+        return await new Promise<Response>((resolve) => {
+            app(req as any, {
+                end: (body: any) => {
+                    resolve(new Response(body, { status: 200 }));
+                }
+            } as any);
+        });
+    } catch (error) {
+        console.error(error);
+        return new Response("Erro interno", { status: 500 });
+    }
 }
