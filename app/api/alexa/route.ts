@@ -1,4 +1,67 @@
+import { SkillBuilders } from "ask-sdk-core";
 import { NextRequest } from "next/server";
+
+const LaunchRequestHandler = {
+    canHandle(handlerInput: any) {
+        return handlerInput.requestEnvelope.request.type === "LaunchRequest";
+    },
+    handle(handlerInput: any) {
+        return handlerInput.responseBuilder
+            .speak("Bem-vindo ao Bolão de Fórmula Um! Você pode me perguntar o ranking ou a próxima corrida.")
+            .reprompt("Você pode perguntar o ranking ou a próxima corrida.")
+            .getResponse();
+    },
+};
+
+const GetRankingIntentHandler = {
+    canHandle(handlerInput: any) {
+        return (
+            handlerInput.requestEnvelope.request.type === "IntentRequest" &&
+            handlerInput.requestEnvelope.request.intent.name === "GetRankingIntent"
+        );
+    },
+    handle(handlerInput: any) {
+        return handlerInput.responseBuilder
+            .speak("O líder do bolão é Ricardo com 141 pontos.")
+            .getResponse();
+    },
+};
+
+const GetNextRaceIntentHandler = {
+    canHandle(handlerInput: any) {
+        return (
+            handlerInput.requestEnvelope.request.type === "IntentRequest" &&
+            handlerInput.requestEnvelope.request.intent.name === "GetNextRaceIntent"
+        );
+    },
+    handle(handlerInput: any) {
+        return handlerInput.responseBuilder
+            .speak("A próxima corrida é o GP de Miami no dia 3 de maio.")
+            .getResponse();
+    },
+};
+
+const skill = SkillBuilders.custom()
+    .addRequestHandlers(
+        LaunchRequestHandler,
+        GetRankingIntentHandler,
+        GetNextRaceIntentHandler
+    )
+    .create();
+
+export async function POST(req: NextRequest) {
+    const body = await req.json();
+
+    const response = await skill.invoke(body);
+
+    return new Response(JSON.stringify(response), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+    });
+}
+
+
+/*import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
     const body = await req.json();
@@ -34,4 +97,4 @@ export async function POST(req: NextRequest) {
         }),
         { status: 200, headers: { "Content-Type": "application/json" } }
     );
-}
+}*/
