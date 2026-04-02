@@ -25,7 +25,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         console.log("REQUEST:", body);
         //console.log("HEADERS:", [...req.headers]);
         req.headers.forEach((value, key) => {
-            console.log(key + ": " + value);
+            console.log("HEADER:", key, value);
         });
 
         const response = await skill.invoke(body);
