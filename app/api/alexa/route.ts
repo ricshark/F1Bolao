@@ -1,3 +1,9 @@
+//===========================================================================================================================================
+// FINAL CODE 
+// REMARK: This code only works when you have your own domain. 
+// It doesn't work with vercel.app. Identified issue: "Certificate for host 'f1-bolao-three.vercel.app' contains wildcard '*.vercel.app'"
+//============================================================================================================================================
+
 import { SkillBuilders } from "ask-sdk-core";
 import { NextRequest } from "next/server";
 
