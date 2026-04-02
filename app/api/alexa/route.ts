@@ -1,8 +1,12 @@
-export const runtime = "nodejs";
 import { SkillBuilders } from "ask-sdk-core";
 import { NextRequest } from "next/server";
 
+// ⚠️ força runtime Node
+export const runtime = "nodejs";
+
+// usar require evita erro de tipagem/runtime
 const verifier = require("alexa-verifier");
+
 const LaunchRequestHandler = {
     canHandle(handlerInput: any) {
         return handlerInput.requestEnvelope.request.type === "LaunchRequest";
@@ -53,18 +57,21 @@ const skill = SkillBuilders.custom()
 
 export async function POST(req: NextRequest) {
     try {
-        // ⚠️ PEGAR RAW BODY (ESSENCIAL)
         const rawBody = await req.text();
 
-        // Headers da Alexa
         const signature = req.headers.get("signature") || "";
         const certUrl = req.headers.get("signaturecertchainurl") || "";
 
-        // 🔐 VALIDAÇÃO
+        console.log("Headers:", {
+            signature,
+            certUrl
+        });
+
+        // 🔐 validação PROMISE correta
         const isValid = await new Promise<boolean>((resolve) => {
             verifier(rawBody, certUrl, signature, (err: any) => {
                 if (err) {
-                    console.error("Erro na validação:", err);
+                    console.error("Erro validação:", err);
                     resolve(false);
                 } else {
                     resolve(true);
@@ -76,7 +83,6 @@ export async function POST(req: NextRequest) {
             return new Response("Invalid request", { status: 400 });
         }
 
-        // Parse depois da validação
         const body = JSON.parse(rawBody);
 
         const response = await skill.invoke(body);
@@ -87,8 +93,12 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (error) {
-        console.error("Erro geral:", error);
-        return new Response("Erro interno", { status: 500 });
+        console.error("ERRO GERAL:", error);
+
+        return new Response(
+            JSON.stringify({ error: "Erro interno" }),
+            { status: 500 }
+        );
     }
 }
 
