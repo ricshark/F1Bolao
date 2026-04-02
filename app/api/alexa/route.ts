@@ -1,6 +1,7 @@
 import { SkillBuilders } from "ask-sdk-core";
 import { NextRequest } from "next/server";
 
+const verifier = require("alexa-verifier");
 const LaunchRequestHandler = {
     canHandle(handlerInput: any) {
         return handlerInput.requestEnvelope.request.type === "LaunchRequest";
@@ -50,14 +51,44 @@ const skill = SkillBuilders.custom()
     .create();
 
 export async function POST(req: NextRequest) {
-    const body = await req.json();
+    try {
+        // ⚠️ PEGAR RAW BODY (ESSENCIAL)
+        const rawBody = await req.text();
 
-    const response = await skill.invoke(body);
+        // Headers da Alexa
+        const signature = req.headers.get("signature") || "";
+        const certUrl = req.headers.get("signaturecertchainurl") || "";
 
-    return new Response(JSON.stringify(response), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-    });
+        // 🔐 VALIDAÇÃO
+        const isValid = await new Promise<boolean>((resolve) => {
+            verifier(rawBody, certUrl, signature, (err: any) => {
+                if (err) {
+                    console.error("Erro na validação:", err);
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+
+        if (!isValid) {
+            return new Response("Invalid request", { status: 400 });
+        }
+
+        // Parse depois da validação
+        const body = JSON.parse(rawBody);
+
+        const response = await skill.invoke(body);
+
+        return new Response(JSON.stringify(response), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+        });
+
+    } catch (error) {
+        console.error("Erro geral:", error);
+        return new Response("Erro interno", { status: 500 });
+    }
 }
 
 
