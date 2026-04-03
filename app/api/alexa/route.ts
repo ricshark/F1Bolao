@@ -1,3 +1,44 @@
+
+import { NextRequest, NextResponse } from "next/server";
+
+export const runtime = "nodejs";
+
+// =========================
+// GET /api/alexa
+// =========================
+export async function GET(req: NextRequest) {
+    try {
+        const { searchParams } = new URL(req.url);
+        const user = searchParams.get("user");
+
+        console.log("📩 Alexa request:", user);
+
+        // 🔥 SUBSTITUIR PELO SEU BANCO REAL
+        const points = 150;
+
+        return NextResponse.json({
+            success: true,
+            points,
+            speech: `Você tem ${points} pontos no bolão`
+        });
+
+    } catch (error) {
+        console.error("🔥 Error:", error);
+
+        return NextResponse.json(
+            {
+                success: false,
+                speech: "Erro ao buscar sua pontuação"
+            },
+            { status: 500 }
+        );
+    }
+}
+
+
+
+/* 1ST CODE
+
 //===========================================================================================================================================
 // FINAL CODE 
 // REMARK: This code only works when you have your own domain. 
@@ -95,8 +136,16 @@ export async function POST(req: NextRequest): Promise<Response> {
         return new Response("Erro interno", { status: 500 });
     }
 }
+*/
+
+
+
+
+
 
 /*
+
+2ND CODE
 
 -- SECURE CODE HOWEVER VERCEL REMOVE SENSIBLE DATA
 
