@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 // =========================
-// GET /api/alexa/score
+// GET /api/alexa
 // =========================
 export async function GET(req: NextRequest) {
     try {
