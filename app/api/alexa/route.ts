@@ -1,105 +1,32 @@
+// /api/alexa
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-// =========================
-// POST /api/alexa
-// =========================
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
     try {
-        const alexaRequest = await req.json();
-        console.log("📩 Alexa request:", JSON.stringify(alexaRequest, null, 2));
+        const { searchParams } = new URL(req.url);
+        const user = searchParams.get("user");
 
-        const requestType = alexaRequest.request.type;
+        // Aqui você conecta ao seu banco real
+        const points = 141; // mock, depois pega do MongoDB
 
-        // =====================
-        // LaunchRequest
-        // =====================
-        if (requestType === "LaunchRequest") {
-            return NextResponse.json({
-                version: "1.0",
-                response: {
-                    outputSpeech: {
-                        type: "PlainText",
-                        text: "Bem-vindo ao Fórmula Uno Bolão! Você pode me pedir sua pontuação dizendo, por exemplo, 'Qual é meu ranking?'",
-                    },
-                    shouldEndSession: false,
-                },
-            });
-        }
-
-        // =====================
-        // IntentRequest
-        // =====================
-        if (requestType === "IntentRequest") {
-            const intentName = alexaRequest.request.intent.name;
-
-            // ---------------------
-            // GetRankingIntent
-            // ---------------------
-            if (intentName === "GetRankingIntent") {
-                // Aqui você pode pegar o userId real ou slots se tiver
-                const userId = alexaRequest.session?.user?.userId || "anônimo";
-
-                // 🔥 Substitua por lógica real do seu banco
-                const points = 141;
-
-                return NextResponse.json({
-                    version: "1.0",
-                    response: {
-                        outputSpeech: {
-                            type: "PlainText",
-                            text: `Você tem ${points} pontos no bolão.`,
-                        },
-                        shouldEndSession: true,
-                    },
-                });
-            }
-
-            // ---------------------
-            // Fallback para outros intents
-            // ---------------------
-            return NextResponse.json({
-                version: "1.0",
-                response: {
-                    outputSpeech: {
-                        type: "PlainText",
-                        text: "Desculpe, não consegui entender sua solicitação.",
-                    },
-                    shouldEndSession: true,
-                },
-            });
-        }
-
-        // =====================
-        // Tipo desconhecido
-        // =====================
         return NextResponse.json({
-            version: "1.0",
-            response: {
-                outputSpeech: {
-                    type: "PlainText",
-                    text: "Tipo de requisição desconhecido.",
-                },
-                shouldEndSession: true,
-            },
+            success: true,
+            speech: `Você tem ${points} pontos no bolão`
+        }, {
+            status: 200,
+            headers: { "Content-Type": "application/json; charset=utf-8" }
         });
+
     } catch (error) {
-        console.error("🔥 Error:", error);
-
+        console.error(error);
         return NextResponse.json({
-            version: "1.0",
-            response: {
-                outputSpeech: {
-                    type: "PlainText",
-                    text: "Ocorreu um erro ao processar sua solicitação.",
-                },
-                shouldEndSession: true,
-            },
-        });
+            success: false,
+            speech: "Erro ao buscar sua pontuação"
+        }, { status: 500 });
     }
 }
-
 
 /* 1ST CODE
 
