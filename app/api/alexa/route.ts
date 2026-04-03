@@ -1,10 +1,9 @@
-
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
 // =========================
-// GET /api/alexa
+// GET /api/alexa/score
 // =========================
 export async function GET(req: NextRequest) {
     try {
@@ -13,28 +12,40 @@ export async function GET(req: NextRequest) {
 
         console.log("📩 Alexa request:", user);
 
-        // 🔥 SUBSTITUIR PELO SEU BANCO REAL
-        const points = 150;
+        // 🔥 Aqui você conecta no seu banco real
+        // Exemplo mock:
+        const points = 141;
 
-        return NextResponse.json({
+        const response = {
             success: true,
             points,
             speech: `Você tem ${points} pontos no bolão`
+        };
+
+        // ✅ Retorno com UTF-8 garantido
+        return new NextResponse(JSON.stringify(response), {
+            status: 200,
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            }
         });
 
     } catch (error) {
         console.error("🔥 Error:", error);
 
-        return NextResponse.json(
-            {
-                success: false,
-                speech: "Erro ao buscar sua pontuação"
-            },
-            { status: 500 }
-        );
+        const errorResponse = {
+            success: false,
+            speech: "Erro ao buscar sua pontuação"
+        };
+
+        return new NextResponse(JSON.stringify(errorResponse), {
+            status: 500,
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            }
+        });
     }
 }
-
 
 
 /* 1ST CODE
