@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            speech: `Você tem ${points} pontos no bolão`
+            speech: `Você ${user}tem ${points} pontos no bolão`
         }, {
             status: 200,
             headers: { "Content-Type": "application/json; charset=utf-8" }
