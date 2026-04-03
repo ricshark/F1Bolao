@@ -3,46 +3,99 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 // =========================
-// GET /api/alexa
+// POST /api/alexa
 // =========================
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
     try {
-        const { searchParams } = new URL(req.url);
-        const user = searchParams.get("user");
+        const alexaRequest = await req.json();
+        console.log("📩 Alexa request:", JSON.stringify(alexaRequest, null, 2));
 
-        console.log("📩 Alexa request:", user);
+        const requestType = alexaRequest.request.type;
 
-        // 🔥 Aqui você conecta no seu banco real
-        // Exemplo mock:
-        const points = 141;
+        // =====================
+        // LaunchRequest
+        // =====================
+        if (requestType === "LaunchRequest") {
+            return NextResponse.json({
+                version: "1.0",
+                response: {
+                    outputSpeech: {
+                        type: "PlainText",
+                        text: "Bem-vindo ao Fórmula Uno Bolão! Você pode me pedir sua pontuação dizendo, por exemplo, 'Qual é meu ranking?'",
+                    },
+                    shouldEndSession: false,
+                },
+            });
+        }
 
-        const response = {
-            success: true,
-            points,
-            speech: `Você tem ${points} pontos no bolão`
-        };
+        // =====================
+        // IntentRequest
+        // =====================
+        if (requestType === "IntentRequest") {
+            const intentName = alexaRequest.request.intent.name;
 
-        // ✅ Retorno com UTF-8 garantido
-        return new NextResponse(JSON.stringify(response), {
-            status: 200,
-            headers: {
-                "Content-Type": "application/json; charset=utf-8"
+            // ---------------------
+            // GetRankingIntent
+            // ---------------------
+            if (intentName === "GetRankingIntent") {
+                // Aqui você pode pegar o userId real ou slots se tiver
+                const userId = alexaRequest.session?.user?.userId || "anônimo";
+
+                // 🔥 Substitua por lógica real do seu banco
+                const points = 141;
+
+                return NextResponse.json({
+                    version: "1.0",
+                    response: {
+                        outputSpeech: {
+                            type: "PlainText",
+                            text: `Você tem ${points} pontos no bolão.`,
+                        },
+                        shouldEndSession: true,
+                    },
+                });
             }
-        });
 
+            // ---------------------
+            // Fallback para outros intents
+            // ---------------------
+            return NextResponse.json({
+                version: "1.0",
+                response: {
+                    outputSpeech: {
+                        type: "PlainText",
+                        text: "Desculpe, não consegui entender sua solicitação.",
+                    },
+                    shouldEndSession: true,
+                },
+            });
+        }
+
+        // =====================
+        // Tipo desconhecido
+        // =====================
+        return NextResponse.json({
+            version: "1.0",
+            response: {
+                outputSpeech: {
+                    type: "PlainText",
+                    text: "Tipo de requisição desconhecido.",
+                },
+                shouldEndSession: true,
+            },
+        });
     } catch (error) {
         console.error("🔥 Error:", error);
 
-        const errorResponse = {
-            success: false,
-            speech: "Erro ao buscar sua pontuação"
-        };
-
-        return new NextResponse(JSON.stringify(errorResponse), {
-            status: 500,
-            headers: {
-                "Content-Type": "application/json; charset=utf-8"
-            }
+        return NextResponse.json({
+            version: "1.0",
+            response: {
+                outputSpeech: {
+                    type: "PlainText",
+                    text: "Ocorreu um erro ao processar sua solicitação.",
+                },
+                shouldEndSession: true,
+            },
         });
     }
 }
