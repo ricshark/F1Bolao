@@ -4,6 +4,7 @@ import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
     try {
