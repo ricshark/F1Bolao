@@ -7,11 +7,34 @@ import SystemConfig from "@/models/SystemConfig";
 
 export const runtime = "nodejs";
 
+const OFFICIAL_DRIVERS = [
+    'Arvid Lindblad', 'Carlos Sainz', 'Charles Leclerc', 'Esteban Ocon',
+    'Fernando Alonso', 'Franco Colapinto', 'Gabriel Bortoleto', 'George Russell',
+    'Isack Hadjar', 'Lance Stroll', 'Lewis Hamilton', 'Liam Lawson',
+    'Lando Norris', 'Max Verstappen', 'Nico Hülkenberg', 'Oliver Bearman',
+    'Oscar Piastri', 'Pierre Gasly', 'Sergio Pérez', 'Valtteri Bottas'
+];
+
+function matchDriverName(input: string): string {
+    if (!input) return '';
+    const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    const normalizedInput = normalize(input);
+    
+    for (const driver of OFFICIAL_DRIVERS) {
+        if (normalize(driver).includes(normalizedInput)) {
+            return driver; // Retorna o nome formatado exato da lista do seu dropdown
+        }
+    }
+    return input; // Se não achar ninguem, salva como a Alexa mandou para fallback
+}
+
 export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
         const body = await req.json();
+        console.log("=== PAYLOAD RECEBIDO DA ALEXA ===", body);
+        
         const { userId, piloto1, piloto2, piloto3 } = body;
 
         if (!userId || !piloto1 || !piloto2 || !piloto3) {
@@ -22,7 +45,6 @@ export async function POST(req: NextRequest) {
         const user = await User.findOne({ alexaId: userId });
         
         if (!user) {
-            // Em log podemos debugar qual o id que bateu para ajudar a mapear manualmente depois
             console.error(`AlexaId não vinculado no MongoDB. Alexa enviou ID: ${userId}`);
             return NextResponse.json({ 
                 success: false, 
@@ -50,7 +72,11 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, message: 'Desculpe, o tempo limite para registrar palpites para a próxima corrida esgotou.' });
         }
 
-        const prediction = { first: piloto1, second: piloto2, third: piloto3 };
+        const prediction = { 
+            first: matchDriverName(piloto1), 
+            second: matchDriverName(piloto2), 
+            third: matchDriverName(piloto3) 
+        };
         
         let existingBet = await Bet.findOne({ user: user._id, race: nextRace._id });
         if (existingBet) {
