@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
         console.error(error);
         return NextResponse.json({
             success: false,
-            speech: "Erro ao buscar o ranking do bolão"
+            speech: "Erro ao buscar o resultado do ranking do bolão"
         }, { status: 500 });
     }
 }
