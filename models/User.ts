@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   isAdmin: { type: Boolean, default: false },
   points: { type: Number, default: 0 },
+  alexaId: { type: String, default: null },
   resetToken: { type: String, default: null },
   resetTokenExpires: { type: Date, default: null },
 }, { timestamps: true });
