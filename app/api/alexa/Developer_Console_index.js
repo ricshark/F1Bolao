@@ -1,19 +1,15 @@
 const Alexa = require('ask-sdk-core');
 const https = require('https');
 
-
 // =============================
-// FUNÇÃO PARA CHAMAR API NEXT.JS
+// FUNÇÕES PARA CHAMAR SUAS APIS
 // =============================
 function callUsersRankingAPI() {
     return new Promise((resolve, reject) => {
-        // Monta a URL com query string opcional
-        //const url = `https://f1-bolao-three.vercel.app/api/alexa?user=${encodeURIComponent(userId)}`;
         const url = `https://f1-bolao-three.vercel.app/api/alexa/users-ranking`;
 
         https.get(url, (res) => {
             let body = '';
-
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
                 try {
@@ -29,12 +25,10 @@ function callUsersRankingAPI() {
 
 function callNextRaceAPI() {
     return new Promise((resolve, reject) => {
-        // Monta a URL com query string opcional
         const url = `https://f1-bolao-three.vercel.app/api/alexa/next-race`;
 
         https.get(url, (res) => {
             let body = '';
-
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
                 try {
@@ -48,6 +42,43 @@ function callNextRaceAPI() {
     });
 }
 
+function callRegisterPalpiteAPI(userId, piloto1, piloto2, piloto3) {
+    return new Promise((resolve, reject) => {
+        const data = JSON.stringify({
+            userId,
+            piloto1,
+            piloto2,
+            piloto3
+        });
+
+        const options = {
+            hostname: 'f1-bolao-three.vercel.app',
+            path: '/api/alexa/register-palpite',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': data.length
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                try {
+                    const result = JSON.parse(body);
+                    resolve(result);
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        });
+
+        req.on('error', reject);
+        req.write(data);
+        req.end();
+    });
+}
 
 // =============================
 // LAUNCH REQUEST
@@ -58,8 +89,8 @@ const LaunchRequestHandler = {
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
-            .speak('Bem-vindo ao Fórmula Uno Bolão! Você pode perguntar sua pontuação.')
-            .reprompt('Diga, por exemplo: "Qual é meu ranking?"')
+            .speak('Bem-vindo ao Fórmula Uno Bolão! Você pode perguntar sua pontuação, a próxima corrida ou registrar seus palpites.')
+            .reprompt('Diga, por exemplo: "Qual é meu ranking?" ou "Meu palpite é Hamilton, Russell e Piastri".')
             .getResponse();
     }
 };
@@ -74,12 +105,8 @@ const GetRankingIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            const userId = handlerInput.requestEnvelope.session.user.userId;
-
-            // 🔥 Chama sua API Next.js
             const data = await callUsersRankingAPI();
 
-            // Verifica se a API retornou sucesso
             if (data.success) {
                 return handlerInput.responseBuilder
                     .speak(data.speech)
@@ -89,7 +116,6 @@ const GetRankingIntentHandler = {
                     .speak('Não consegui obter sua pontuação no momento.')
                     .getResponse();
             }
-
         } catch (error) {
             console.log('Erro ao chamar API:', error);
             return handlerInput.responseBuilder
@@ -98,7 +124,6 @@ const GetRankingIntentHandler = {
         }
     }
 };
-
 
 // =============================
 // GET NEXT RACE INTENT
@@ -110,11 +135,8 @@ const GetNextRaceIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-
-            // 🔥 Chama sua API Next.js
             const data = await callNextRaceAPI();
 
-            // Verifica se a API retornou sucesso
             if (data.success) {
                 return handlerInput.responseBuilder
                     .speak(data.speech)
@@ -124,11 +146,47 @@ const GetNextRaceIntentHandler = {
                     .speak('Não consegui obter a próxima corrida no momento.')
                     .getResponse();
             }
-
         } catch (error) {
             console.log('Erro ao chamar API:', error);
             return handlerInput.responseBuilder
                 .speak('Ocorreu um erro ao acessar o bolão.')
+                .getResponse();
+        }
+    }
+};
+
+// =============================
+// REGISTRAR PALPITE INTENT
+// =============================
+const RegistrarPalpiteIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'RegistrarPalpiteIntent';
+    },
+    async handle(handlerInput) {
+        try {
+            const userId = handlerInput.requestEnvelope.session.user.userId;
+            const slots = handlerInput.requestEnvelope.request.intent.slots;
+
+            const piloto1 = slots.firstplace.value;
+            const piloto2 = slots.secondplace.value;
+            const piloto3 = slots.thirdplace.value;
+
+            const result = await callRegisterPalpiteAPI(userId, piloto1, piloto2, piloto3);
+
+            if (result.success) {
+                return handlerInput.responseBuilder
+                    .speak(`Seu palpite foi registrado: ${piloto1}, ${piloto2} e ${piloto3}.`)
+                    .getResponse();
+            } else {
+                return handlerInput.responseBuilder
+                    .speak(result.message || 'Não consegui registrar seu palpite no momento.')
+                    .getResponse();
+            }
+        } catch (error) {
+            console.log('Erro ao registrar palpite:', error);
+            return handlerInput.responseBuilder
+                .speak('Ocorreu um erro ao registrar seu palpite.')
                 .getResponse();
         }
     }
@@ -144,8 +202,8 @@ const HelpIntentHandler = {
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
-            .speak('Você pode me pedir sua pontuação ou perguntar quem está liderando o bolão.')
-            .reprompt('Por exemplo, diga "Qual é meu ranking?"')
+            .speak('Você pode me pedir sua pontuação, perguntar a próxima corrida ou registrar seus palpites.')
+            .reprompt('Por exemplo, diga "Qual é meu ranking?" ou "Meu palpite é Hamilton, Russell e Piastri".')
             .getResponse();
     }
 };
@@ -170,8 +228,8 @@ const FallbackIntentHandler = {
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
-            .speak('Desculpe, não consegui entender. Você pode perguntar sua pontuação.')
-            .reprompt('Tente dizer, "Qual é meu ranking?"')
+            .speak('Desculpe, não consegui entender. Você pode perguntar sua pontuação ou registrar palpites.')
+            .reprompt('Tente dizer, "Qual é meu ranking?" ou "Meu palpite é Hamilton, Russell e Piastri".')
             .getResponse();
     }
 };
@@ -196,6 +254,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         LaunchRequestHandler,
         GetRankingIntentHandler,
         GetNextRaceIntentHandler,
+        RegistrarPalpiteIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler
