@@ -34,20 +34,30 @@ export async function POST(req: NextRequest) {
         await dbConnect();
 
         // 1. Pegar o access token enviado pela Alexa
-        const authHeader = req.headers.get("authorization");
-        let userEmail: string | null = null;
+        //const authHeader = req.headers.get("authorization");
+        //let userEmail: string | null = null;
 
         // 2. Buscar email do usuário para encontrar o usuário no F1 Bolão
-        if (authHeader && authHeader.startsWith("Bearer ")) {
-            const accessToken = authHeader.replace("Bearer ", "").trim();
-            userEmail = await getAlexaUserEmail(accessToken);
-        }
+        //if (authHeader && authHeader.startsWith("Bearer ")) {
+        //    const accessToken = authHeader.replace("Bearer ", "").trim();
+        //    userEmail = await getAlexaUserEmail(accessToken);
+        //}
 
         const body = await req.json();
 
         const { userId, piloto1, piloto2, piloto3 } = body;
+        const accessToken = body?.context?.System?.user?.accessToken;
+        let userEmail: string | null = null;
 
-        if (!userId || !piloto1 || !piloto2 || !piloto3) {
+        if (accessToken) {
+            userEmail = await getAlexaUserEmail(accessToken);
+        }
+
+        if (!userEmail) {
+            return NextResponse.json({ success: false, message: 'Identificação do usuário da Alexa não fornecida.' }, { status: 400 });
+        }
+
+        if (!piloto1 || !piloto2 || !piloto3) {
             return NextResponse.json({ success: false, message: 'Faltam dados para preencher o pódio completamente.' }, { status: 400 });
         }
 
@@ -55,10 +65,9 @@ export async function POST(req: NextRequest) {
         const user = await User.findOne({ email: userEmail });
 
         if (!user) {
-            console.error(`AlexaId não vinculado no MongoDB. Alexa enviou ID: ${userId}`);
             return NextResponse.json({
                 success: false,
-                message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no bolão. Peça ao administrador para fazer o vínculo informando os logs da api.'
+                message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no F1 Bolão.'
             });
         }
 
