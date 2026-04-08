@@ -79,14 +79,21 @@ export async function POST(req: NextRequest) {
         };
         
         let existingBet = await Bet.findOne({ user: user._id, race: nextRace._id });
+        const currentDate = new Date();
         if (existingBet) {
             existingBet.prediction = prediction;
+            existingBet.updatedAt = currentDate;
+            if (!existingBet.createdAt) {
+                existingBet.createdAt = currentDate;
+            }
             await existingBet.save();
         } else {
             existingBet = new Bet({
                 user: user._id,
                 race: nextRace._id,
-                prediction
+                prediction,
+                createdAt: currentDate,
+                updatedAt: currentDate
             });
             await existingBet.save();
         }

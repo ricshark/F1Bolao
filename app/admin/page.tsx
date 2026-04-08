@@ -64,6 +64,15 @@ export default function AdminPage() {
   //const [editUserError, setEditUserError] = useState('');
   const [editUserSuccess, setEditUserSuccess] = useState('');
 
+  const [editingBet, setEditingBet] = useState<Bet | null>(null);
+  const [editBetForm, setEditBetForm] = useState({
+    first: '',
+    second: '',
+    third: '',
+  });
+  const [editBetError, setEditBetError] = useState('');
+  const [editBetSuccess, setEditBetSuccess] = useState('');
+
   const [betFilter, setBetFilter] = useState('');
   const [betSortConfig, setBetSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
 
@@ -293,6 +302,52 @@ export default function AdminPage() {
     });
     setEditUserError('');
     setEditUserSuccess('');
+  };
+
+  const handleUpdateBet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBet) return;
+
+    setEditBetError('');
+    setEditBetSuccess('');
+    setLoading(true);
+
+    try {
+      const response = await fetch(`/api/admin/bets/${editingBet._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prediction: editBetForm }),
+      });
+
+      if (response.ok) {
+        setEditBetSuccess('Bet updated successfully!');
+        fetchData(); // Refresh the bets list
+        setTimeout(() => {
+          setEditingBet(null);
+          setEditBetSuccess('');
+        }, 1500);
+      } else {
+        const errorData = await response.json();
+        setEditBetError(errorData.error || 'Failed to update bet');
+      }
+    } catch (error) {
+      setEditBetError('An error occurred while updating the bet');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEditBetModal = (bet: Bet) => {
+    setEditingBet(bet);
+    setEditBetForm({
+      first: bet.prediction.first || '',
+      second: bet.prediction.second || '',
+      third: bet.prediction.third || '',
+    });
+    setEditBetError('');
+    setEditBetSuccess('');
   };
 
   if (status === 'loading' || loading) {
@@ -537,6 +592,7 @@ export default function AdminPage() {
                     <th className="text-left py-3 px-4 font-semibold cursor-pointer hover:text-white transition" onClick={() => handleSort('date')}>
                       Date {betSortConfig?.key === 'date' ? (betSortConfig.direction === 'asc' ? '↑' : '↓') : ''}
                     </th>
+                    <th className="text-right py-3 px-4 font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -558,6 +614,14 @@ export default function AdminPage() {
                       </td>
                       <td className="py-3 px-4">{bet.points}</td>
                       <td className="py-3 px-4">{new Date(bet.createdAt).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 text-right space-x-2 whitespace-nowrap">
+                        <button
+                          onClick={() => openEditBetModal(bet)}
+                          className="rounded bg-blue-600/20 px-3 py-1 text-xs font-semibold text-blue-500 hover:bg-blue-600/40 transition"
+                        >
+                          Edit Bet
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -665,6 +729,67 @@ export default function AdminPage() {
               )}
               {editUserSuccess && (
                 <p className="text-green-400 text-sm mt-2">{editUserSuccess}</p>
+              )}
+
+              <button
+                type="submit"
+                className="w-full mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+              >
+                Save Changes
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editingBet && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-black/90 p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Edit Bet</h2>
+              <button
+                onClick={() => setEditingBet(null)}
+                className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white hover:bg-white/20 transition"
+              >
+                {t.close}
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateBet} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300">1st Place</label>
+                <input
+                  type="text"
+                  value={editBetForm.first}
+                  onChange={(e) => setEditBetForm({ ...editBetForm, first: e.target.value })}
+                  required
+                  className="mt-1 block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300">2nd Place</label>
+                <input
+                  type="text"
+                  value={editBetForm.second}
+                  onChange={(e) => setEditBetForm({ ...editBetForm, second: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300">3rd Place</label>
+                <input
+                  type="text"
+                  value={editBetForm.third}
+                  onChange={(e) => setEditBetForm({ ...editBetForm, third: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                />
+              </div>
+
+              {editBetError && (
+                <p className="text-red-400 text-sm mt-2">{editBetError}</p>
+              )}
+              {editBetSuccess && (
+                <p className="text-green-400 text-sm mt-2">{editBetSuccess}</p>
               )}
 
               <button
