@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
         if (!user) {
             return NextResponse.json({
                 success: false,
-                message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no bolão. Peça ao administrador para fazer o vínculo.'
+                message: `Sua conta da Alexa ${userEmail} ainda não está vinculada a nenhum usuário no bolão. Peça ao administrador para fazer o vínculo.`
             });
         }
 
