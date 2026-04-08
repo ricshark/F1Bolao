@@ -3,12 +3,23 @@ import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import Race from "@/models/Race";
 import Bet from "@/models/Bet";
+import { getAlexaUserEmail } from "@/lib/alexa";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
     try {
         await dbConnect();
+
+        // 1. Pegar o access token enviado pela Alexa
+        const authHeader = req.headers.get("authorization");
+        let userEmail: string | null = null;
+
+        // 2. Buscar email do usuário para encontrar o usuário no F1 Bolão
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            const accessToken = authHeader.replace("Bearer ", "").trim();
+            userEmail = await getAlexaUserEmail(accessToken);
+        }
 
         const body = await req.json();
         const { userId, raceName } = body;
@@ -18,11 +29,11 @@ export async function POST(req: NextRequest) {
         }
 
         // Buscar usuário pelo alexaId
-        const user = await User.findOne({ alexaId: userId });
+        const user = await User.findOne({ email: userEmail });
         if (!user) {
-            return NextResponse.json({ 
-                success: false, 
-                message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no bolão. Peça ao administrador para fazer o vínculo.' 
+            return NextResponse.json({
+                success: false,
+                message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no bolão. Peça ao administrador para fazer o vínculo.'
             });
         }
 
@@ -32,11 +43,11 @@ export async function POST(req: NextRequest) {
         if (raceName) {
             const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
             const normalizedInput = normalize(raceName);
-            
+
             // Buscar todas as corridas e tentar dar match no nome ou circuito
             const allRaces = await Race.find();
-            targetRace = allRaces.find(r => 
-                normalize(r.name).includes(normalizedInput) || 
+            targetRace = allRaces.find(r =>
+                normalize(r.name).includes(normalizedInput) ||
                 normalize(r.circuit).includes(normalizedInput)
             );
         }
@@ -52,10 +63,10 @@ export async function POST(req: NextRequest) {
 
         // Buscar palpite do usuário para esta corrida
         const bet = await Bet.findOne({ user: user._id, race: targetRace._id });
-        
+
         if (!bet) {
-            return NextResponse.json({ 
-                success: true, 
+            return NextResponse.json({
+                success: true,
                 message: `Você ainda não registrou nenhum palpite para o ${targetRace.name}.`,
                 raceName: targetRace.name,
                 hasBet: false

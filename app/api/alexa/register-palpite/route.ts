@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Race from "@/models/Race";
 import Bet from "@/models/Bet";
 import SystemConfig from "@/models/SystemConfig";
+import { getAlexaUserEmail } from "@/lib/alexa";
 
 export const runtime = "nodejs";
 
@@ -19,7 +20,7 @@ function matchDriverName(input: string): string {
     if (!input) return '';
     const normalize = (str: string) => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
     const normalizedInput = normalize(input);
-    
+
     for (const driver of OFFICIAL_DRIVERS) {
         if (normalize(driver).includes(normalizedInput)) {
             return driver; // Retorna o nome formatado exato da lista do seu dropdown
@@ -32,9 +33,18 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
+        // 1. Pegar o access token enviado pela Alexa
+        const authHeader = req.headers.get("authorization");
+        let userEmail: string | null = null;
+
+        // 2. Buscar email do usuário para encontrar o usuário no F1 Bolão
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            const accessToken = authHeader.replace("Bearer ", "").trim();
+            userEmail = await getAlexaUserEmail(accessToken);
+        }
+
         const body = await req.json();
-        console.log("=== PAYLOAD RECEBIDO DA ALEXA ===", body);
-        
+
         const { userId, piloto1, piloto2, piloto3 } = body;
 
         if (!userId || !piloto1 || !piloto2 || !piloto3) {
@@ -42,13 +52,13 @@ export async function POST(req: NextRequest) {
         }
 
         // Identifica o Usuario na Base pelo ID vindo da Alexa
-        const user = await User.findOne({ alexaId: userId });
-        
+        const user = await User.findOne({ email: userEmail });
+
         if (!user) {
             console.error(`AlexaId não vinculado no MongoDB. Alexa enviou ID: ${userId}`);
-            return NextResponse.json({ 
-                success: false, 
-                message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no bolão. Peça ao administrador para fazer o vínculo informando os logs da api.' 
+            return NextResponse.json({
+                success: false,
+                message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no bolão. Peça ao administrador para fazer o vínculo informando os logs da api.'
             });
         }
 
@@ -72,12 +82,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, message: 'Desculpe, o tempo limite para registrar palpites para a próxima corrida esgotou.' });
         }
 
-        const prediction = { 
-            first: matchDriverName(piloto1), 
-            second: matchDriverName(piloto2), 
-            third: matchDriverName(piloto3) 
+        const prediction = {
+            first: matchDriverName(piloto1),
+            second: matchDriverName(piloto2),
+            third: matchDriverName(piloto3)
         };
-        
+
         let existingBet = await Bet.findOne({ user: user._id, race: nextRace._id });
         const currentDate = new Date();
         if (existingBet) {
