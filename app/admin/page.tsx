@@ -32,6 +32,31 @@ interface Bet {
   createdAt: string;
 }
 
+const OFFICIAL_DRIVERS = [
+  { name: 'Alexander Albon', team: 'Williams' },
+  { name: 'Andrea Kimi Antonelli', team: 'Mercedes' },
+  { name: 'Arvid Lindblad', team: 'Kick Sauber' },
+  { name: 'Carlos Sainz', team: 'Ferrari' },
+  { name: 'Charles Leclerc', team: 'Ferrari' },
+  { name: 'Esteban Ocon', team: 'Haas' },
+  { name: 'Fernando Alonso', team: 'Aston Martin' },
+  { name: 'Franco Colapinto', team: 'Williams' },
+  { name: 'Gabriel Bortoleto', team: 'Aston Martin' },
+  { name: 'George Russell', team: 'Mercedes' },
+  { name: 'Isack Hadjar', team: 'Alpine' },
+  { name: 'Lance Stroll', team: 'Aston Martin' },
+  { name: 'Lewis Hamilton', team: 'Mercedes' },
+  { name: 'Liam Lawson', team: 'Racing Bulls' },
+  { name: 'Lando Norris', team: 'McLaren' },
+  { name: 'Max Verstappen', team: 'Red Bull Racing' },
+  { name: 'Nico Hülkenberg', team: 'Haas' },
+  { name: 'Oliver Bearman', team: 'Ferrari' },
+  { name: 'Oscar Piastri', team: 'McLaren' },
+  { name: 'Pierre Gasly', team: 'Alpine' },
+  { name: 'Sergio Pérez', team: 'Red Bull Racing' },
+  { name: 'Valtteri Bottas', team: 'Kick Sauber' },
+];
+
 export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -758,31 +783,58 @@ export default function AdminPage() {
             <form onSubmit={handleUpdateBet} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300">1st Place</label>
-                <input
-                  type="text"
+                <select
                   value={editBetForm.first}
                   onChange={(e) => setEditBetForm({ ...editBetForm, first: e.target.value })}
                   required
-                  className="mt-1 block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
-                />
+                  className="mt-1 w-full rounded-xl border border-white/20 bg-black/60 px-4 py-3 text-sm text-white focus:border-red-500 focus:outline-none"
+                >
+                  <option value="" className="bg-gray-900">Select a driver...</option>
+                  {editBetForm.first && !OFFICIAL_DRIVERS.some(d => d.name === editBetForm.first) && (
+                    <option value={editBetForm.first} className="bg-gray-900">{editBetForm.first} (Invalid)</option>
+                  )}
+                  {OFFICIAL_DRIVERS.map(driver => (
+                    <option key={driver.name} value={driver.name} className="bg-gray-900">
+                      {driver.name} ({driver.team})
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300">2nd Place</label>
-                <input
-                  type="text"
+                <select
                   value={editBetForm.second}
                   onChange={(e) => setEditBetForm({ ...editBetForm, second: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
-                />
+                  className="mt-1 w-full rounded-xl border border-white/20 bg-black/60 px-4 py-3 text-sm text-white focus:border-red-500 focus:outline-none"
+                >
+                  <option value="" className="bg-gray-900">Select a driver...</option>
+                  {editBetForm.second && !OFFICIAL_DRIVERS.some(d => d.name === editBetForm.second) && (
+                    <option value={editBetForm.second} className="bg-gray-900">{editBetForm.second} (Invalid)</option>
+                  )}
+                  {OFFICIAL_DRIVERS.map(driver => (
+                    <option key={driver.name} value={driver.name} className="bg-gray-900">
+                      {driver.name} ({driver.team})
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300">3rd Place</label>
-                <input
-                  type="text"
+                <select
                   value={editBetForm.third}
                   onChange={(e) => setEditBetForm({ ...editBetForm, third: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
-                />
+                  className="mt-1 w-full rounded-xl border border-white/20 bg-black/60 px-4 py-3 text-sm text-white focus:border-red-500 focus:outline-none"
+                >
+                  <option value="" className="bg-gray-900">Select a driver...</option>
+                  {editBetForm.third && !OFFICIAL_DRIVERS.some(d => d.name === editBetForm.third) && (
+                    <option value={editBetForm.third} className="bg-gray-900">{editBetForm.third} (Invalid)</option>
+                  )}
+                  {OFFICIAL_DRIVERS.map(driver => (
+                    <option key={driver.name} value={driver.name} className="bg-gray-900">
+                      {driver.name} ({driver.team})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {editBetError && (
