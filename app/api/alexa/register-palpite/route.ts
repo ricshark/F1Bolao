@@ -45,12 +45,12 @@ export async function POST(req: NextRequest) {
 
         const body = await req.json();
 
-        const { userId, piloto1, piloto2, piloto3 } = body;
-        const accessToken = body?.context?.System?.user?.accessToken;
+        const { piloto1, piloto2, piloto3 } = body;
+        const consentToken = body?.session?.user?.permissions?.consentToken;
         let userEmail: string | null = null;
 
-        if (accessToken) {
-            userEmail = await getAlexaUserEmail(accessToken);
+        if (consentToken) {
+            userEmail = await getAlexaUserEmail(consentToken);
         }
 
         if (!userEmail) {

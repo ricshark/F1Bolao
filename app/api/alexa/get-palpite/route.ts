@@ -22,12 +22,12 @@ export async function POST(req: NextRequest) {
         //}
 
         const body = await req.json();
-        const { userId, raceName } = body;
-        const accessToken = body?.context?.System?.user?.accessToken;
+        const { raceName } = body;
+        const consentToken = body?.session?.user?.permissions?.consentToken;
         let userEmail: string | null = null;
 
-        if (accessToken) {
-            userEmail = await getAlexaUserEmail(accessToken);
+        if (consentToken) {
+            userEmail = await getAlexaUserEmail(consentToken);
         }
 
         if (!userEmail) {
