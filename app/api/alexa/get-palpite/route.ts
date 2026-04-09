@@ -26,6 +26,8 @@ export async function POST(req: NextRequest) {
         const consentToken = body?.session?.user?.permissions?.consentToken;
         console.log("consentToken:", consentToken);
         console.log("System context:", body?.session?.user?.permissions?.consentToken);
+        console.log("Body recebido:", JSON.stringify(body, null, 2));
+
 
         let userEmail: string | null = null;
 
