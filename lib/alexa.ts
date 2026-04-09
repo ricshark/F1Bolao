@@ -16,6 +16,7 @@ export async function getAlexaUserEmail(consentToken: string): Promise<string | 
         }
 
         const email = await response.text();
+        console.log("Email do usuário Alexa:", email);
         return email;
     } catch (err) {
         console.error("Erro na chamada ao Profile API:", err);
