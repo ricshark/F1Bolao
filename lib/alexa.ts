@@ -1,11 +1,11 @@
 // lib/alexa.ts
-export async function getAlexaUserEmail(consentToken: string): Promise<string | null> {
+export async function getAlexaUserEmail(apiAccessToken: string): Promise<string | null> {
     try {
         const response = await fetch(
             "https://api.amazonalexa.com/v2/accounts/~current/settings/Profile.email",
             {
                 headers: {
-                    Authorization: `Bearer ${consentToken}`
+                    Authorization: `Bearer ${apiAccessToken}`
                 }
             }
         );
