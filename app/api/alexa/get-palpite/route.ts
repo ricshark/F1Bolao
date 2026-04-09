@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
         const body = await req.json();
         const { raceName } = body;
         const apiAccessToken = body?.context?.System?.apiAccessToken;
+        console.log("apiAccessToken", apiAccessToken);
         let userEmail: string | null = null;
 
         if (apiAccessToken) {

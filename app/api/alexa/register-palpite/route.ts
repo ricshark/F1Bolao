@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
 
         const { piloto1, piloto2, piloto3 } = body;
         const apiAccessToken = body?.context?.System?.apiAccessToken;
+        console.log("apiAccessToken", apiAccessToken);
         let userEmail: string | null = null;
 
         if (apiAccessToken) {
