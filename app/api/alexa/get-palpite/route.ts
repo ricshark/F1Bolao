@@ -23,14 +23,14 @@ export async function POST(req: NextRequest) {
 
         const body = await req.json();
         const { raceName } = body;
-        const apiAccessToken = body?.context?.System?.apiAccessToken;
-        console.log("apiAccessToken:", apiAccessToken);
-        console.log("System context:", body?.context?.System);
+        const consentToken = body?.session?.user?.permissions?.consentToken;
+        console.log("consentToken:", consentToken);
+        console.log("System context:", body?.session?.user?.permissions?.consentToken);
 
         let userEmail: string | null = null;
 
-        if (apiAccessToken) {
-            userEmail = await getAlexaUserEmail(apiAccessToken);
+        if (consentToken) {
+            userEmail = await getAlexaUserEmail(consentToken);
         }
 
         if (!userEmail) {
