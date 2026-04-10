@@ -42,10 +42,10 @@ function callNextRaceAPI() {
     });
 }
 
-function callRegisterPalpiteAPI(userId, piloto1, piloto2, piloto3) {
+function callRegisterPalpiteAPI(email, piloto1, piloto2, piloto3) {
     return new Promise((resolve, reject) => {
         const data = JSON.stringify({
-            userId,
+            email,
             piloto1,
             piloto2,
             piloto3
@@ -80,10 +80,10 @@ function callRegisterPalpiteAPI(userId, piloto1, piloto2, piloto3) {
     });
 }
 
-function callGetPalpiteAPI(userId, raceName) {
+function callGetPalpiteAPI(email, raceName) {
     return new Promise((resolve, reject) => {
         const data = JSON.stringify({
-            userId,
+            email,
             raceName
         });
 
@@ -286,7 +286,17 @@ const RegistrarPalpiteIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            const userId = handlerInput.requestEnvelope.session.user.userId;
+
+            // Busca o e-mail do usuário via perfil (necessário permissão)
+            const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
+            const email = await upsServiceClient.getProfileEmail();
+
+            if (!email) {
+                return handlerInput.responseBuilder
+                    .speak('Não consegui acessar seu e-mail. Por favor, habilite a permissão de e-mail na Skill do aplicativo Alexa.')
+                    .getResponse();
+            }
+
             const slots = handlerInput.requestEnvelope.request.intent.slots;
 
             // Normaliza os nomes recebidos
@@ -294,7 +304,7 @@ const RegistrarPalpiteIntentHandler = {
             const piloto2 = normalizarPiloto(slots.secondplace.value);
             const piloto3 = normalizarPiloto(slots.thirdplace.value);
 
-            const result = await callRegisterPalpiteAPI(userId, piloto1, piloto2, piloto3);
+            const result = await callRegisterPalpiteAPI(email, piloto1, piloto2, piloto3);
 
             if (result.success) {
                 return handlerInput.responseBuilder
@@ -325,11 +335,21 @@ const GetPalpiteIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            const userId = handlerInput.requestEnvelope.session.user.userId;
+
+            // Busca o e-mail do usuário via perfil (necessário permissão)
+            const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
+            const email = await upsServiceClient.getProfileEmail();
+
+            if (!email) {
+                return handlerInput.responseBuilder
+                    .speak('Não consegui acessar seu e-mail. Por favor, habilite a permissão de e-mail na Skill do aplicativo Alexa.')
+                    .getResponse();
+            }
+
             const slots = handlerInput.requestEnvelope.request.intent.slots;
             const raceName = slots.race ? slots.race.value : null;
 
-            const result = await callGetPalpiteAPI(userId, raceName);
+            const result = await callGetPalpiteAPI(email, raceName);
 
             if (result.success) {
                 return handlerInput.responseBuilder
@@ -421,5 +441,14 @@ exports.handler = Alexa.SkillBuilders.custom()
         CancelAndStopIntentHandler,
         FallbackIntentHandler
     )
-    .addErrorHandlers(ErrorHandler)
+    .addErrorHandlers({
+        canHandle() { return true; },
+        handle(handlerInput, error) {
+            console.log('Erro Lambda:', error);
+            return handlerInput.responseBuilder
+                .speak('Ocorreu um erro ao processar sua solicitação.')
+                .getResponse();
+        }
+    })
+    .withApiClient(new Alexa.DefaultApiClient()) // Necessário para acessar o perfil do usuário
     .lambda();
