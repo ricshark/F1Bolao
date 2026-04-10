@@ -147,16 +147,19 @@ const GetRankingIntentHandler = {
             if (data.success) {
                 return handlerInput.responseBuilder
                     .speak(data.speech)
+                    .reprompt('Você pode perguntar também sobre a próxima corrida ou registrar seus palpites.')
                     .getResponse();
             } else {
                 return handlerInput.responseBuilder
                     .speak('Não consegui obter sua pontuação no momento.')
+                    .reprompt('Tente perguntar novamente ou peça para registrar seus palpites.')
                     .getResponse();
             }
         } catch (error) {
             console.log('Erro ao chamar API:', error);
             return handlerInput.responseBuilder
                 .speak('Ocorreu um erro ao acessar o bolão.')
+                .reprompt('Você pode tentar novamente ou perguntar sobre a próxima corrida.')
                 .getResponse();
         }
     }
@@ -177,16 +180,19 @@ const GetNextRaceIntentHandler = {
             if (data.success) {
                 return handlerInput.responseBuilder
                     .speak(data.speech)
+                    .reprompt('Você pode registrar seus palpites ou perguntar seu ranking.')
                     .getResponse();
             } else {
                 return handlerInput.responseBuilder
                     .speak('Não consegui obter a próxima corrida no momento.')
+                    .reprompt('Você pode tentar novamente ou perguntar seu ranking.')
                     .getResponse();
             }
         } catch (error) {
             console.log('Erro ao chamar API:', error);
             return handlerInput.responseBuilder
                 .speak('Ocorreu um erro ao acessar o bolão.')
+                .reprompt('Você pode tentar novamente ou perguntar seu ranking.')
                 .getResponse();
         }
     }
@@ -286,20 +292,17 @@ const RegistrarPalpiteIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-
-            // Busca o e-mail do usuário via perfil (necessário permissão)
             const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
             const email = await upsServiceClient.getProfileEmail();
 
             if (!email) {
                 return handlerInput.responseBuilder
                     .speak('Não consegui acessar seu e-mail. Por favor, habilite a permissão de e-mail na Skill do aplicativo Alexa.')
+                    .reprompt('Você pode habilitar a permissão e depois registrar seus palpites novamente.')
                     .getResponse();
             }
 
             const slots = handlerInput.requestEnvelope.request.intent.slots;
-
-            // Normaliza os nomes recebidos
             const piloto1 = normalizarPiloto(slots.firstplace.value);
             const piloto2 = normalizarPiloto(slots.secondplace.value);
             const piloto3 = normalizarPiloto(slots.thirdplace.value);
@@ -309,16 +312,19 @@ const RegistrarPalpiteIntentHandler = {
             if (result.success) {
                 return handlerInput.responseBuilder
                     .speak(`Seu palpite foi registrado: ${piloto1}, ${piloto2} e ${piloto3}.`)
+                    .reprompt('Você pode perguntar seu ranking ou a próxima corrida.')
                     .getResponse();
             } else {
                 return handlerInput.responseBuilder
                     .speak(result.message || 'Não consegui registrar seu palpite no momento.')
+                    .reprompt('Tente novamente ou pergunte seu ranking.')
                     .getResponse();
             }
         } catch (error) {
             console.log('Erro ao registrar palpite:', error);
             return handlerInput.responseBuilder
                 .speak('Ocorreu um erro ao registrar seu palpite.')
+                .reprompt('Você pode tentar novamente ou perguntar a próxima corrida.')
                 .getResponse();
         }
     }
@@ -335,14 +341,13 @@ const GetPalpiteIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-
-            // Busca o e-mail do usuário via perfil (necessário permissão)
             const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
             const email = await upsServiceClient.getProfileEmail();
 
             if (!email) {
                 return handlerInput.responseBuilder
                     .speak('Não consegui acessar seu e-mail. Por favor, habilite a permissão de e-mail na Skill do aplicativo Alexa.')
+                    .reprompt('Você pode habilitar a permissão e depois perguntar seus palpites novamente.')
                     .getResponse();
             }
 
@@ -354,21 +359,23 @@ const GetPalpiteIntentHandler = {
             if (result.success) {
                 return handlerInput.responseBuilder
                     .speak(result.message)
+                    .reprompt('Você pode perguntar também seu ranking ou registrar novos palpites.')
                     .getResponse();
             } else {
                 return handlerInput.responseBuilder
                     .speak(result.message || 'Não consegui obter seus palpites no momento.')
+                    .reprompt('Tente novamente ou pergunte sobre a próxima corrida.')
                     .getResponse();
             }
         } catch (error) {
             console.log('Erro ao chamar API get-palpite:', error);
             return handlerInput.responseBuilder
                 .speak('Ocorreu um erro ao buscar seus palpites.')
+                .reprompt('Você pode tentar novamente ou perguntar seu ranking.')
                 .getResponse();
         }
     }
 };
-
 
 
 
