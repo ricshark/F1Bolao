@@ -20,27 +20,47 @@ export async function GET(req: NextRequest) {
         let speech = "Por enquanto, não temos nenhuma corrida futura cadastrada no sistema.";
 
         if (nextRace) {
-            // Monta uma data mais natural para audição garantindo que usamos a data da corrida
-            const dataCorrida = new Date(nextRace.date);
-            const dia = dataCorrida.getUTCDate();
-            
-            const meses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", 
-                           "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
-            const mesNome = meses[dataCorrida.getUTCMonth()];
+    const dataCorrida = new Date(nextRace.date);
 
-            speech = `A próxima corrida no calendário é o ${nextRace.name}, que vai acontecer no dia ${dia} de ${mesNome}.`;
-            
-            // Se possuir o horário da corrida preenchido ex: "14:00" ou "14:00:00Z"
-            if (nextRace.time) {
-                const parts = nextRace.time.split(":");
-                if (parts.length > 0) {
-                    const horaFormatada = parseInt(parts[0], 10);
-                    if (!isNaN(horaFormatada)) {
-                        speech += ` A largada está prevista para as ${horaFormatada} horas.`;
-                    }
-                }
+    // Zera horas para evitar erro de fuso ao calcular dias
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    const corrida = new Date(dataCorrida);
+    corrida.setHours(0, 0, 0, 0);
+
+    // Diferença em dias
+    const diffTime = corrida.getTime() - hoje.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    const dia = dataCorrida.getUTCDate();
+
+    const meses = [
+        "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+        "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+    ];
+    const mesNome = meses[dataCorrida.getUTCMonth()];
+
+    // Monta frase com dias restantes
+    if (diffDays === 0) {
+        speech = `A próxima corrida é o ${nextRace.name}, que acontece hoje, dia ${dia} de ${mesNome}.`;
+    } else if (diffDays === 1) {
+        speech = `A próxima corrida é o ${nextRace.name}, que acontece amanhã, dia ${dia} de ${mesNome}. Falta 1 dia.`;
+    } else {
+        speech = `A próxima corrida é o ${nextRace.name}, que acontece no dia ${dia} de ${mesNome}. Faltam ${diffDays} dias.`;
+    }
+
+    // Horário
+    if (nextRace.time) {
+        const parts = nextRace.time.split(":");
+        if (parts.length > 0) {
+            const horaFormatada = parseInt(parts[0], 10);
+            if (!isNaN(horaFormatada)) {
+                speech += ` A largada está prevista para as ${horaFormatada} horas.`;
             }
         }
+    }
+}
 
         return NextResponse.json({
             success: true,
