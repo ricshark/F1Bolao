@@ -3,7 +3,6 @@ import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import Race from "@/models/Race";
 import Bet from "@/models/Bet";
-import { getAlexaUserEmail } from "@/lib/alexa";
 
 export const runtime = "nodejs";
 
@@ -11,28 +10,14 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
-        // 1. Pegar o access token enviado pela Alexa
-        //const authHeader = req.headers.get("authorization");
-        //let userEmail: string | null = null;
-
-        // 2. Buscar email do usuário para encontrar o usuário no F1 Bolão
-        //if (authHeader && authHeader.startsWith("Bearer ")) {
-        //    const accessToken = authHeader.replace("Bearer ", "").trim();
-        //    userEmail = await getAlexaUserEmail(accessToken);
-        //}
-
         const body = await req.json();
-        const { raceName } = body;
-        const consentToken = body?.session?.user?.permissions?.consentToken;
-        console.log("consentToken:", consentToken);
-        console.log("System context:", body?.session?.user?.permissions?.consentToken);
-        console.log("Body recebido:", JSON.stringify(body, null, 2));
-
+        const { email, raceName } = body;
+        console.log("email:", email);
 
         let userEmail: string | null = null;
 
-        if (consentToken) {
-            userEmail = await getAlexaUserEmail(consentToken);
+        if (email) {
+            userEmail = email;
         }
 
         if (!userEmail) {
