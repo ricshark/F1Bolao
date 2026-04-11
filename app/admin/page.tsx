@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/components/LanguageContext';
+import Image from 'next/image';
 
 interface User {
   _id: string;
@@ -364,6 +365,25 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeleteBet = async (betId: string) => {
+    if (!confirm('Tem certeza que deseja deletar esta aposta?')) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/bets/${betId}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert('Aposta deletada com sucesso!');
+        fetchData();
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Falha ao deletar aposta');
+      }
+    } catch (err) {
+      alert('Erro ao deletar aposta');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const openEditBetModal = (bet: Bet) => {
     setEditingBet(bet);
     setEditBetForm({
@@ -395,7 +415,7 @@ export default function AdminPage() {
       <header className="border-b border-red-600/40 bg-black/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-red-600 flex items-center justify-center text-lg font-bold">F1</div>
+            <Image src="/logo.png" alt="F1 Bolão Logo" width={96} height={96} className="flex-shrink-0 rounded-full shadow-2xl transition hover:scale-105" priority />
             <div>
               <h1 className="text-xl font-bold tracking-wide">{t.adminTitle}</h1>
               <p className="text-xs text-gray-300">{t.adminDesc}</p>
@@ -646,6 +666,14 @@ export default function AdminPage() {
                         >
                           Edit Bet
                         </button>
+                        {new Date(bet.race.date) >= new Date() && (
+                          <button
+                            onClick={() => handleDeleteBet(bet._id)}
+                            className="rounded bg-red-600/20 px-3 py-1 text-xs font-semibold text-red-500 hover:bg-red-600/40 transition ml-2"
+                          >
+                            Delete
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

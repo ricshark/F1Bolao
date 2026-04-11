@@ -62,7 +62,18 @@ const defaultTranslations = {
     createUserTab: "Create User",
     betsTab: "Bets",
     settingsTab: "Settings",
-    calcPoints: "Calculate Points"
+    calcPoints: "Calculate Points",
+    
+    // App Navigation
+    navDashboard: "Dashboard",
+    navRanking: "Ranking",
+    navMyBets: "My Bets",
+    
+    // Widgets & Extras
+    rankingPlayers: "Player Ranking",
+    alexaPromoTitle: "F1 Bolão on Alexa",
+    alexaPromoDesc: "Say 'Alexa, open F1 Bolão' to know the next race, register your predictions, see the ranking and much more!",
+    alexaPromoBtn: "Install the F1 Bolão Skill on your Alexa now"
   },
   pt: {
     // Landing Page
@@ -121,7 +132,18 @@ const defaultTranslations = {
     createUserTab: "Criar Usuário",
     betsTab: "Apostas",
     settingsTab: "Configurações",
-    calcPoints: "Calcular Pontos"
+    calcPoints: "Calcular Pontos",
+
+    // App Navigation
+    navDashboard: "Dashboard",
+    navRanking: "Ranking",
+    navMyBets: "Minhas Apostas",
+    
+    // Widgets & Extras
+    rankingPlayers: "Ranking dos Jogadores",
+    alexaPromoTitle: "F1 Bolão na Alexa",
+    alexaPromoDesc: "Diga 'Alexa, abrir corrida carros' para saber a próxima corrida, registrar seus palpites, ver ranking e muito mais!",
+    alexaPromoBtn: "Instale já a Skill F1 Bolão na sua Alexa"
   }
 };
 

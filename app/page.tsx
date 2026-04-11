@@ -45,15 +45,16 @@ export default function LandingPage() {
       </div>
 
       <header className="relative z-30 mx-auto flex max-w-7xl items-center justify-between p-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-xl font-black text-white shadow-[0_0_20px_rgba(220,38,38,0.7)] group hover:scale-110 transition-transform">
-            F1
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-widest text-white drop-shadow-md">BOLÃO</h1>
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-widest">Prediction League</p>
-          </div>
-        </div>
+        <Link href="/" className="flex items-center">
+          <Image 
+            src="/logo.png" 
+            alt="F1 Bolão Logo" 
+            width={180} 
+            height={180} 
+            className="flex-shrink-0 rounded-full group hover:scale-110 shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-transform duration-500" 
+            priority
+          />
+        </Link>
         <nav className="flex items-center gap-4">
           <button 
             onClick={toggleLang}
@@ -103,18 +104,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* F1 Floating Badges - Added for extra racing emotion */}
-        <div className="absolute md:bottom-32 bottom-20 flex w-full justify-center gap-8 opacity-60">
-           <div className="flex flex-col items-center animate-bounce" style={{ animationDelay: '0s' }}>
-              <span className="text-3xl">🏎️</span>
-           </div>
-           <div className="flex flex-col items-center animate-bounce hidden md:flex" style={{ animationDelay: '0.2s' }}>
-              <span className="text-3xl">🏁</span>
-           </div>
-           <div className="flex flex-col items-center animate-bounce" style={{ animationDelay: '0.4s' }}>
-              <span className="text-3xl">🏆</span>
-           </div>
-        </div>
+
       </main>
 
       <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-red-900/40 via-black/80 to-transparent pointer-events-none z-20" />

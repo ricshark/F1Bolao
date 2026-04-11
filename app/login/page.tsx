@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/components/LanguageContext';
+import Image from 'next/image';
 
 export default function Login() {
   const { t } = useLanguage();
@@ -66,10 +67,15 @@ export default function Login() {
         <div className="w-full max-w-md">
           {/* F1 Logo Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-600 mb-4 shadow-2xl">
-              <span className="text-3xl font-bold text-white">F1</span>
-            </div>
-            <h1 className="text-4xl font-bold text-white mb-2 tracking-wider">F1 BOLÃO</h1>
+            <Image 
+              src="/logo.png" 
+              alt="F1 Bolão Logo" 
+              width={320} 
+              height={320} 
+              className="inline-block rounded-full mb-8 shadow-[0_0_50px_rgba(220,38,38,0.4)] transition-transform hover:scale-105 duration-500" 
+              priority
+            />
+            <h1 className="text-4xl font-bold text-white mb-2 tracking-wider"></h1>
             <p className="text-gray-300 text-lg">{t.subtitle}</p>
           </div>
 

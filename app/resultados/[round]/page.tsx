@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useLanguage } from '@/components/LanguageContext';
 
 interface RaceDetails {
@@ -88,7 +89,7 @@ export default function ResultadosPage({ params }: { params: { round: string } }
       <header className="border-b border-red-600/40 bg-black/70 backdrop-blur-md sticky top-0 z-10">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-red-600 flex items-center justify-center text-lg font-bold">F1</div>
+            <Image src="/logo.png" alt="F1 Bolão Logo" width={96} height={96} className="flex-shrink-0 rounded-full shadow-2xl transition hover:scale-105" priority />
             <div>
               <h1 className="text-xl font-bold tracking-wide">Race Results Dashboard</h1>
               <p className="text-xs text-gray-300">Round {race.round}</p>
