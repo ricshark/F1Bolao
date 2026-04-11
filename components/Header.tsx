@@ -11,14 +11,16 @@ export function Header() {
   const pathname = usePathname();
   const { t, toggleLang } = useLanguage();
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const navLinks = [
     { name: t.navDashboard, path: '/dashboard' },
     { name: t.navRanking, path: '/ranking' },
     { name: t.navMyBets, path: '/minhas-apostas' }
   ];
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -77,20 +79,31 @@ export function Header() {
   return (
     <>
       <header className="border-b border-red-600/40 bg-[#0a0a0a] sticky top-0 z-40 shadow-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          {/* Logo Left */}
-          <Link href="/dashboard" className="flex items-center gap-3 w-max">
-            <Image src="/logo.png" alt="F1 Bolão Logo" width={96} height={96} className="flex-shrink-0 rounded-full shadow-2xl transition hover:scale-105" priority />
-          </Link>
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-2 md:py-4">
+          
+          {/* Logo Left - Responsive sizes */}
+          <div className="flex items-center gap-3 md:w-1/4">
+            <Link href="/dashboard" className="flex items-center transition hover:scale-105 active:scale-95">
+              <div className="relative w-16 h-16 md:w-24 md:h-24">
+                <Image 
+                  src="/logo.png" 
+                  alt="F1 Bolão Logo" 
+                  fill
+                  className="object-contain rounded-full shadow-2xl" 
+                  priority 
+                />
+              </div>
+            </Link>
+          </div>
 
-          {/* Center Nav Links */}
-          <nav className="flex flex-1 justify-center items-center gap-6">
+          {/* Desktop Nav Links (Hidden on small screens) */}
+          <nav className="hidden lg:flex flex-1 justify-center items-center gap-6">
             {navLinks.map((link) => (
               <Link 
                 key={link.path} 
                 href={link.path}
-                className={`text-sm font-semibold transition hover:text-white ${
-                  pathname === link.path ? 'text-white border-b-2 border-red-600 pb-1' : 'text-gray-400'
+                className={`text-sm font-black uppercase tracking-widest transition-all hover:text-white ${
+                  pathname === link.path ? 'text-red-500 border-b-2 border-red-600 pb-1' : 'text-gray-400 hover:tracking-[0.2em]'
                 }`}
               >
                 {link.name}
@@ -98,46 +111,132 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Right Nav */}
-          <div className="flex items-center justify-end gap-4 w-1/4">
-            <button 
-              onClick={toggleLang}
-              className="px-2 py-1 text-xs font-bold uppercase rounded border border-gray-600 hover:border-white transition text-gray-300"
-            >
-              {t.langToggle}
-            </button>
+          {/* Right Section / Hamburger Button */}
+          <div className="flex items-center justify-end gap-3 md:gap-4 md:w-1/4">
             
-            {session ? (
-              <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => setShowProfileModal(true)}
-                  className="text-sm font-medium text-gray-300 hidden md:block hover:text-white transition"
-                >
-                  {t.greeting}, {session.user?.name?.split(' ')[0]}
-                </button>
-                {(session.user as any)?.isAdmin && (
-                  <button
-                    onClick={() => router.push('/admin')}
-                    className="rounded bg-white/10 px-3 py-1.5 text-xs font-semibold hover:bg-white/20 transition"
+            {/* Desktop-only elements */}
+            <div className="hidden md:flex items-center gap-4">
+              <button 
+                onClick={toggleLang}
+                className="px-2 py-1 text-[10px] font-black uppercase rounded border border-gray-700 hover:border-red-600 transition text-gray-400 hover:text-white"
+              >
+                {t.langToggle}
+              </button>
+              
+              {session ? (
+                <div className="flex items-center gap-3">
+                   <button 
+                    onClick={() => setShowProfileModal(true)}
+                    className="text-xs font-bold text-gray-400 hover:text-white transition uppercase border-r border-white/10 pr-3"
                   >
-                    {t.admin}
+                    {session.user?.name?.split(' ')[0]}
+                  </button>
+                  {(session.user as any)?.isAdmin && (
+                    <button
+                      onClick={() => router.push('/admin')}
+                      className="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-tighter hover:bg-white/10 transition"
+                    >
+                      {t.admin}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="rounded-full bg-red-700 px-4 py-1.5 text-xs font-black uppercase tracking-wide shadow-lg hover:bg-red-600 hover:shadow-red-900/40 transition active:scale-95"
+                  >
+                    {t.logout}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => signIn()}
+                  className="rounded-full bg-red-700 px-6 py-2 text-xs font-black uppercase tracking-wide shadow-lg hover:bg-red-600 transition active:scale-95"
+                >
+                  {t.signIn}
+                </button>
+              )}
+            </div>
+
+            {/* Mobile-only Hamburger Button */}
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="lg:hidden p-2 text-gray-400 hover:text-white transition-colors"
+              aria-label="Toggle Menu"
+            >
+              {isMenuOpen ? (
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M8 18h12" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile menu overlay */}
+        <div className={`lg:hidden fixed inset-0 z-50 bg-[#0f0f13] transition-all duration-300 ease-in-out transform ${
+          isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
+        }`} style={{ top: '80px' }}>
+          <div className="flex flex-col h-full p-8 space-y-8">
+             <nav className="flex flex-col space-y-6">
+                {navLinks.map((link) => (
+                  <Link 
+                    key={link.path} 
+                    href={link.path}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`text-2xl font-black uppercase tracking-widest ${
+                      pathname === link.path ? 'text-red-500 pl-4 border-l-4 border-red-600' : 'text-gray-200'
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+             </nav>
+
+             <div className="h-px bg-white/5" />
+
+             <div className="flex flex-col gap-6">
+                <button 
+                  onClick={() => { toggleLang(); setIsMenuOpen(false); }}
+                  className="flex items-center gap-3 text-lg font-bold text-gray-400"
+                >
+                  <span className="text-2xl">🌐</span> {t.langToggle}
+                </button>
+                
+                {session ? (
+                  <>
+                    <button 
+                      onClick={() => { setShowProfileModal(true); setIsMenuOpen(false); }}
+                      className="flex items-center gap-3 text-lg font-bold text-gray-400"
+                    >
+                      <span className="text-2xl">👤</span> {t.greeting}, {session.user?.name}
+                    </button>
+                    {(session.user as any)?.isAdmin && (
+                      <button
+                        onClick={() => { router.push('/admin'); setIsMenuOpen(false); }}
+                        className="w-full rounded-xl bg-white/5 border border-white/10 py-4 text-sm font-black uppercase"
+                      >
+                        {t.admin}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                      className="w-full rounded-xl bg-red-700 py-4 text-sm font-black uppercase shadow-lg shadow-red-900/20"
+                    >
+                      {t.logout}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => { signIn(); setIsMenuOpen(false); }}
+                    className="w-full rounded-xl bg-red-700 py-4 text-sm font-black uppercase shadow-lg shadow-red-900/20"
+                  >
+                    {t.signIn}
                   </button>
                 )}
-                <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
-                  className="rounded bg-red-700 px-4 py-1.5 text-sm font-bold shadow-md hover:bg-red-600 transition"
-                >
-                  {t.logout}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => signIn()}
-                className="rounded bg-red-700 px-4 py-1.5 text-sm font-bold shadow-md hover:bg-red-600 transition"
-              >
-                {t.signIn}
-              </button>
-            )}
+             </div>
           </div>
         </div>
       </header>
