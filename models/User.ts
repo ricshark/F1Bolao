@@ -7,8 +7,12 @@ const UserSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   points: { type: Number, default: 0 },
   alexaId: { type: String, default: null },
+  photo: { type: String, default: null },
   resetToken: { type: String, default: null },
   resetTokenExpires: { type: Date, default: null },
 }, { timestamps: true });
 
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
+export default mongoose.model('User', UserSchema);

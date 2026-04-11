@@ -1,11 +1,7 @@
 import mongoose from 'mongoose';
 import { MongoClient } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
-}
+const MONGODB_URI = process.env.MONGODB_URI || '';
 
 // For mongoose
 let cached = (global as any).mongoose;
@@ -15,6 +11,14 @@ if (!cached) {
 }
 
 async function dbConnect() {
+  if (!MONGODB_URI) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('MongoDB URI is not set.');
+    } else {
+      throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+    }
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -54,7 +58,6 @@ async function dbConnect() {
 const uri = MONGODB_URI;
 const options = {};
 
-let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
 const connectWithRetry = async (client: MongoClient, retries = 5, delayMs = 1000) => {
@@ -71,13 +74,21 @@ const connectWithRetry = async (client: MongoClient, retries = 5, delayMs = 1000
 
 if (process.env.NODE_ENV === 'development') {
   if (!(global as any)._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    (global as any)._mongoClientPromise = connectWithRetry(client);
+    if (uri) {
+      const client = new MongoClient(uri, options);
+      (global as any)._mongoClientPromise = connectWithRetry(client);
+    } else {
+      (global as any)._mongoClientPromise = Promise.reject(new Error('MONGODB_URI is not set'));
+    }
   }
   clientPromise = (global as any)._mongoClientPromise;
 } else {
-  client = new MongoClient(uri, options);
-  clientPromise = connectWithRetry(client);
+  if (uri) {
+    const client = new MongoClient(uri, options);
+    clientPromise = connectWithRetry(client);
+  } else {
+    clientPromise = Promise.reject(new Error('MONGODB_URI is not set'));
+  }
 }
 
 export default dbConnect;
