@@ -67,7 +67,12 @@ export default function AdminPage() {
   const [bets, setBets] = useState<Bet[]>([]);
   const [activeTab, setActiveTab] = useState<'users' | 'bets' | 'createUser' | 'settings'>('users');
   const [loading, setLoading] = useState(true);
-  const [settingsForm, setSettingsForm] = useState({ betLockHours: 1 });
+  const [settingsForm, setSettingsForm] = useState({ 
+    betLockHours: 1,
+    notif1Hours: 24,
+    notif2Hours: 12,
+    notif3Hours: 2
+  });
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [settingsSuccess, setSettingsSuccess] = useState('');
   const [createUserForm, setCreateUserForm] = useState({
@@ -154,7 +159,12 @@ export default function AdminPage() {
 
       if (settingsRes.ok) {
         const settingsData = await settingsRes.json();
-        setSettingsForm({ betLockHours: settingsData.betLockHours || 1 });
+        setSettingsForm({ 
+          betLockHours: settingsData.betLockHours || 1,
+          notif1Hours: settingsData.notif1Hours || 24,
+          notif2Hours: settingsData.notif2Hours || 12,
+          notif3Hours: settingsData.notif3Hours || 2
+        });
       }
 
       if (usersRes.ok) {
@@ -712,6 +722,50 @@ export default function AdminPage() {
                   Number of hours before the race starts when betting and changing bets is locked.
                   (e.g., 1 = 1 hour before race).
                 </p>
+              </div>
+
+              <div className="pt-4 border-t border-white/10">
+                <h3 className="text-lg font-semibold mb-3">Notification Settings (Hours Before Race)</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Attempt 1 (e.g., 24)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={settingsForm.notif1Hours}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, notif1Hours: Number(e.target.value) })}
+                      className="block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Attempt 2 (e.g., 12)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={settingsForm.notif2Hours}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, notif2Hours: Number(e.target.value) })}
+                      className="block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      Attempt 3 (e.g., 2)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={settingsForm.notif3Hours}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, notif3Hours: Number(e.target.value) })}
+                      className="block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                    />
+                  </div>
+                </div>
+
                 {settingsSuccess && (
                   <p className="mt-3 text-sm text-green-400">{settingsSuccess}</p>
                 )}
