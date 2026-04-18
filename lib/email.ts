@@ -48,3 +48,46 @@ export const sendResetEmail = async (to: string, resetLink: string) => {
     throw error;
   }
 };
+
+// Function to send reminder email
+export const sendBetReminderEmail = async (to: string, userName: string, raceName: string, daysRemaining: number) => {
+  const timeText = daysRemaining === 0 ? "HOJE" : `em ${daysRemaining} dias`;
+  
+  const mailOptions = {
+    from: process.env.SMTP_USER,
+    to,
+    subject: `[F1 Bolão] Alerta: Palpite Pendente para o ${raceName}`,
+    text: `Olá ${userName}, a corrida do ${raceName} está chegando e você ainda não fez seu palpite! Acesse o site do F1 Bolão agora ou diga "Alexa, pedir para Fórmula 1 Bolão registrar meu palpite".`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+        <h2 style="color: #e10600;">F1 Bolão - Alerta de Palpite</h2>
+        <p>Olá <strong>${userName}</strong>,</p>
+        <p>A largada do <strong>${raceName}</strong> está se aproximando e notamos que você ainda não registrou seu palpite.</p>
+        <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-left: 4px solid #ffeeba; margin: 20px 0;">
+          A corrida acontece <strong>${timeText}</strong>. Não deixe para a última hora!
+        </div>
+        <p>Você pode registrar seu palpite de duas formas:</p>
+        <ul>
+          <li><strong>Pelo Site:</strong> Acesse o F1 Bolão e faça seu palpite pela área de apostas.</li>
+          <li><strong>Pela Alexa:</strong> Diga <em>"Alexa, abrir Fórmula 1 Bolão"</em> ou <em>"Alexa, pedir para Fórmula 1 Bolão registrar meu palpite Hamilton, Russell e Norris"</em>.</li>
+        </ul>
+        <p style="text-align: center; margin: 30px 0;">
+          <a href="https://f1-bolao-three.vercel.app/" 
+             style="background-color: #e10600; color: white; padding: 12px 20px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+            Registrar Palpite Agora
+          </a>
+        </p>
+        <hr style="border: none; border-top: 1px solid #ccc; margin-top: 30px;" />
+        <p style="font-size: 12px; color: #666; text-align: center;">Equipe F1 Bolão</p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending reminder email:', error);
+    throw error;
+  }
+};

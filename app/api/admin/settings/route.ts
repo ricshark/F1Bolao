@@ -32,7 +32,7 @@ export async function PUT(request: NextRequest) {
   await dbConnect();
 
   const body = await request.json();
-  const { betLockHours } = body;
+  const { betLockHours, notif1Hours, notif2Hours, notif3Hours } = body;
 
   let config = await SystemConfig.findOne();
   if (!config) {
@@ -41,6 +41,15 @@ export async function PUT(request: NextRequest) {
 
   if (typeof betLockHours === 'number') {
     config.betLockHours = betLockHours;
+  }
+  if (typeof notif1Hours === 'number') {
+    config.notif1Hours = notif1Hours;
+  }
+  if (typeof notif2Hours === 'number') {
+    config.notif2Hours = notif2Hours;
+  }
+  if (typeof notif3Hours === 'number') {
+    config.notif3Hours = notif3Hours;
   }
 
   await config.save();

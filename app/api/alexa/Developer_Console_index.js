@@ -116,6 +116,45 @@ function callGetPalpiteAPI(email, raceName) {
     });
 }
 
+function callLastRacePodiumAPI() {
+    return new Promise((resolve, reject) => {
+        const url = `https://f1-bolao-three.vercel.app/api/alexa/last-race-podium`;
+        https.get(url, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
+            });
+        }).on('error', reject);
+    });
+}
+
+function callNextRaceProbabilityAPI() {
+    return new Promise((resolve, reject) => {
+        const url = `https://f1-bolao-three.vercel.app/api/alexa/next-race-probability`;
+        https.get(url, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
+            });
+        }).on('error', reject);
+    });
+}
+
+function callNewsAPI() {
+    return new Promise((resolve, reject) => {
+        const url = `https://f1-bolao-three.vercel.app/api/alexa/news`;
+        https.get(url, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
+            });
+        }).on('error', reject);
+    });
+}
+
 
 // =============================
 // LAUNCH REQUEST
@@ -377,6 +416,70 @@ const GetPalpiteIntentHandler = {
     }
 };
 
+// =============================
+// NOVIDADES INTENTS
+// =============================
+
+const GetLastRacePodiumIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetLastRacePodiumIntent';
+    },
+    async handle(handlerInput) {
+        try {
+            const data = await callLastRacePodiumAPI();
+            return handlerInput.responseBuilder
+                .speak(data.speech)
+                .reprompt('Deseja saber mais alguma coisa?')
+                .getResponse();
+        } catch (error) {
+            return handlerInput.responseBuilder
+                .speak('Ocorreu um erro ao buscar o pódio.')
+                .getResponse();
+        }
+    }
+};
+
+const GetNextRaceProbabilityIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetNextRaceProbabilityIntent';
+    },
+    async handle(handlerInput) {
+        try {
+            const data = await callNextRaceProbabilityAPI();
+            return handlerInput.responseBuilder
+                .speak(data.speech)
+                .reprompt('Você pode registrar seu palpite agora. Diga quem você acha que vai ganhar.')
+                .getResponse();
+        } catch (error) {
+            return handlerInput.responseBuilder
+                .speak('Ocorreu um erro ao buscar as probabilidades.')
+                .getResponse();
+        }
+    }
+};
+
+const GetFOneNewsIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetFOneNewsIntent';
+    },
+    async handle(handlerInput) {
+        try {
+            const data = await callNewsAPI();
+            return handlerInput.responseBuilder
+                .speak(data.speech)
+                .reprompt('Deseja realizar mais alguma ação?')
+                .getResponse();
+        } catch (error) {
+            return handlerInput.responseBuilder
+                .speak('Ocorreu um erro ao buscar as notícias.')
+                .getResponse();
+        }
+    }
+};
+
 
 
 
@@ -444,6 +547,9 @@ exports.handler = Alexa.SkillBuilders.custom()
         GetNextRaceIntentHandler,
         RegistrarPalpiteIntentHandler,
         GetPalpiteIntentHandler,
+        GetLastRacePodiumIntentHandler,
+        GetNextRaceProbabilityIntentHandler,
+        GetFOneNewsIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler
