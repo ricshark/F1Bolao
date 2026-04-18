@@ -707,7 +707,7 @@ export default function AdminPage() {
                     min="0"
                     step="0.5"
                     value={settingsForm.betLockHours}
-                    onChange={(e) => setSettingsForm({ betLockHours: Number(e.target.value) })}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, betLockHours: Number(e.target.value) })}
                     className="block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
                   />
                   <button
