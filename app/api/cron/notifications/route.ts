@@ -9,6 +9,7 @@ import { sendBetReminderEmail } from "@/lib/email";
 import { sendAlexaNotification } from "@/lib/alexa";
 
 export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';
 
 // This endpoint should be triggered periodically via a cron job service (e.g. Vercel Cron, GitHub Actions)
 export async function GET() {
