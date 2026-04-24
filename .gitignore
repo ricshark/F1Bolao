@@ -7,3 +7,6 @@ npm-debug.log
 yarn-debug.log
 yarn-error.log
 scratch/
+manifest_v2.json
+manifest.json
+skill.json
