@@ -1,13 +1,12 @@
-// lib/alexa.ts
+import { URLSearchParams } from 'url';
+
+let alexaToken: string | null = null;
+let tokenExpiration: number = 0;
 
 /**
- * Funções para interagir com a Alexa Reminders API.
- * Requer que a permissão "Reminders" esteja ativada no Alexa Developer Console.
+ * Obtém o token de acesso da Alexa usando as credenciais do Skill Messaging.
+ * Implementa retry para erro 500 e tratamento para escopos.
  */
-
-let alexaToken = '';
-let tokenExpiration = 0;
-
 async function getAlexaAccessToken() {
     if (alexaToken && Date.now() < tokenExpiration) {
         return alexaToken;
@@ -20,18 +19,13 @@ async function getAlexaAccessToken() {
         throw new Error("ALEXA_CLIENT_ID ou ALEXA_CLIENT_SECRET não configurados.");
     }
 
-    const scopesToTest = [
-        'alexa::proactive_events',
-        'alexa::alerts:reminders:skill:readwrite',
-        'alexa:proactive_events',
-        'alexa::skill_messaging'
-    ];
-
+    // Usamos o escopo de Lembretes como alvo principal
+    const scopeName = 'alexa::alerts:reminders:skill:readwrite';
     let lastError = null;
     
-    for (const scopeName of scopesToTest) {
-        console.log(`Testando escopo: ${scopeName}...`);
-        
+    // Tentamos até 3 vezes com intervalo em caso de erro 500
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        // Formato Query String para máxima compatibilidade com Amazon LWA
         const url = `https://api.amazon.com/auth/o2/token?grant_type=client_credentials&client_id=${encodeURIComponent(clientId.trim())}&client_secret=${encodeURIComponent(clientSecret.trim())}&scope=${encodeURIComponent(scopeName)}`;
 
         try {
@@ -39,58 +33,68 @@ async function getAlexaAccessToken() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(`✅ SUCESSO com o escopo: ${scopeName}`);
                 alexaToken = data.access_token;
                 tokenExpiration = Date.now() + (data.expires_in - 60) * 1000;
                 return alexaToken;
             } else {
                 const errText = await response.text();
-                console.warn(`❌ FALHA no escopo ${scopeName}: ${response.status} - ${errText}`);
-                lastError = errText;
+                lastError = `Status ${response.status}: ${errText}`;
+                
+                // Se for 500, espera 5 segundos e tenta de novo
+                if (response.status === 500 && attempt < 3) {
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+                    continue;
+                }
+                // Se for 400 (invalid_scope), não adianta tentar de novo
+                break; 
             }
         } catch (e: any) {
-            console.error(`💥 ERRO na requisição (${scopeName}): ${e.message}`);
             lastError = e.message;
+            if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 5000));
         }
     }
 
-    throw new Error(`Nenhum escopo funcionou. Último erro: ${lastError}`);
+    throw new Error(`Erro ao obter token da Alexa: ${lastError}`);
 }
 
 /**
- * Envia uma notificação de evento proativo (Yellow Ring) para a Alexa.
+ * Cria um lembrete para o usuário que dispara após 10 segundos (para teste/aviso imediato).
+ * Esta função é preparada para o futuro: assim que a permissão for liberada no console, funcionará.
  */
 export async function sendAlexaNotification(alexaUserId: string, message: string) {
     try {
         const token = await getAlexaAccessToken();
         
-        // Endpoint para Proactive Events (mude para produção se a skill estiver LIVE)
-        // stages/development ou apis/proactiveEvents/ (produção)
-        const endpoint = 'https://api.amazonalexa.com/v1/proactiveEvents/stages/development';
+        // Endpoint para Reminders
+        const endpoint = 'https://api.amazonalexa.com/v1/alerts/reminders';
         
         const payload = {
-            timestamp: new Date().toISOString(),
-            referenceId: `f1bolao-notif-${Date.now()}`,
-            expiryTime: new Date(Date.now() + 3600 * 1000).toISOString(), // 1 hora
-            event: {
-                name: "AMAZON.MessageAlert.Activated",
-                payload: {
-                    state: {
-                        status: "UNREAD"
-                    },
-                    messageGroup: {
-                        creator: {
-                            name: "Fórmula 1 Bolão"
-                        },
-                        count: 1
-                    }
+            displayInformation: [
+                {
+                    content: [
+                        {
+                            locale: "pt-BR",
+                            text: message
+                        }
+                    ]
+                }
+            ],
+            trigger: {
+                type: "SCHEDULED_RELATIVE",
+                offsetInSeconds: 10
+            },
+            alertInfo: {
+                spokenInfo: {
+                    content: [
+                        {
+                            locale: "pt-BR",
+                            text: `Olá! Este é um lembrete do F1 Bolão. ${message}`
+                        }
+                    ]
                 }
             },
-            relevantAudience: {
-                type: "UNICAST",
-                payload: {
-                    user: alexaUserId
-                }
+            pushNotification: {
+                status: "ENABLED"
             }
         };
 
@@ -105,14 +109,15 @@ export async function sendAlexaNotification(alexaUserId: string, message: string
 
         if (!response.ok) {
             const err = await response.text();
-            console.error(`Erro ao enviar notificação Alexa: ${response.status} - ${err}`);
+            console.warn(`Alexa API recusou o lembrete (pode ser falta de permissão no Manifesto): ${response.status} - ${err}`);
             return false;
         }
 
-        console.log(`Notificação Alexa enviada com sucesso para ${alexaUserId.substring(0, 20)}...`);
+        console.log(`Lembrete Alexa criado com sucesso para o usuário.`);
         return true;
-    } catch (error) {
-        console.error("Falha ao processar notificação Alexa:", error);
+    } catch (error: any) {
+        // Logamos como aviso para não quebrar o fluxo principal do Cron
+        console.warn(`Aviso: Não foi possível enviar para Alexa: ${error.message}`);
         return false;
     }
 }
