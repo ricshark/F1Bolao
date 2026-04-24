@@ -20,7 +20,7 @@ async function getAlexaAccessToken() {
         throw new Error("ALEXA_CLIENT_ID ou ALEXA_CLIENT_SECRET não configurados.");
     }
 
-    const scopeName = 'alexa::alerts:reminders:skill:readwrite';
+    const scopeName = 'alexa::proactive_events';
     let lastError = null;
     
     for (let attempt = 1; attempt <= 3; attempt++) {
@@ -61,42 +61,39 @@ async function getAlexaAccessToken() {
 }
 
 /**
- * Cria um lembrete para o usuário que dispara quase imediatamente (10 segundos).
+ * Envia uma notificação de evento proativo (Yellow Ring) para a Alexa.
  */
 export async function sendAlexaNotification(alexaUserId: string, message: string) {
     try {
         const token = await getAlexaAccessToken();
         
-        // Endpoint para Reminders
-        const endpoint = 'https://api.amazonalexa.com/v1/alerts/reminders';
+        // Endpoint para Proactive Events (mude para produção se a skill estiver LIVE)
+        // stages/development ou apis/proactiveEvents/ (produção)
+        const endpoint = 'https://api.amazonalexa.com/v1/proactiveEvents/stages/development';
         
         const payload = {
-            displayInformation: [
-                {
-                    content: [
-                        {
-                            locale: "pt-BR",
-                            text: message
-                        }
-                    ]
-                }
-            ],
-            trigger: {
-                type: "SCHEDULED_RELATIVE",
-                offsetInSeconds: 10
-            },
-            alertInfo: {
-                spokenInfo: {
-                    content: [
-                        {
-                            locale: "pt-BR",
-                            text: `Olá! Este é um lembrete do F1 Bolão. ${message}`
-                        }
-                    ]
+            timestamp: new Date().toISOString(),
+            referenceId: `f1bolao-notif-${Date.now()}`,
+            expiryTime: new Date(Date.now() + 3600 * 1000).toISOString(), // 1 hora
+            event: {
+                name: "AMAZON.MessageAlert.Activated",
+                payload: {
+                    state: {
+                        status: "UNREAD"
+                    },
+                    messageGroup: {
+                        creator: {
+                            name: "Fórmula 1 Bolão"
+                        },
+                        count: 1
+                    }
                 }
             },
-            pushNotification: {
-                status: "ENABLED"
+            relevantAudience: {
+                type: "UNICAST",
+                payload: {
+                    user: alexaUserId
+                }
             }
         };
 
@@ -111,15 +108,14 @@ export async function sendAlexaNotification(alexaUserId: string, message: string
 
         if (!response.ok) {
             const err = await response.text();
-            console.error(`Erro ao criar lembrete Alexa: ${response.status} - ${err}`);
-            // Se for 403, pode ser falta de permissão ou o usuário não deu consentimento
+            console.error(`Erro ao enviar notificação Alexa: ${response.status} - ${err}`);
             return false;
         }
 
-        console.log(`Lembrete Alexa criado com sucesso para ${alexaUserId.substring(0, 20)}...`);
+        console.log(`Notificação Alexa enviada com sucesso para ${alexaUserId.substring(0, 20)}...`);
         return true;
     } catch (error) {
-        console.error("Falha ao processar lembrete Alexa:", error);
+        console.error("Falha ao processar notificação Alexa:", error);
         return false;
     }
 }
