@@ -24,23 +24,21 @@ async function getAlexaAccessToken() {
     let lastError = null;
     
     for (let attempt = 1; attempt <= 3; attempt++) {
-        const auth = Buffer.from(`${clientId.trim()}:${clientSecret.trim()}`).toString('base64');
-        
-        const body = new URLSearchParams();
-        body.append('grant_type', 'client_credentials');
-        body.append('scope', scopeName);
+        const params = new URLSearchParams();
+        params.append('grant_type', 'client_credentials');
+        params.append('client_id', clientId.trim());
+        params.append('client_secret', clientSecret.trim());
+        params.append('scope', scopeName);
 
-        console.log(`Tentativa ${attempt}: Solicitando token Alexa via Basic Auth (Scope: ${scopeName})`);
+        console.log(`Tentativa ${attempt}: Solicitando token Alexa (Scope: ${scopeName})`);
 
         try {
             const response = await fetch('https://api.amazon.com/auth/o2/token', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Basic ${auth}`,
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json'
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: body.toString()
+                body: params.toString()
             });
 
             if (response.ok) {
@@ -53,17 +51,17 @@ async function getAlexaAccessToken() {
                 lastError = `Status ${response.status}: ${errText}`;
                 console.warn(`Tentativa ${attempt} falhou: ${lastError}`);
                 
-                // Se for 500, espera 2 segundos e tenta de novo
+                // Se for 500, espera 5 segundos e tenta de novo
                 if (response.status === 500 && attempt < 3) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    await new Promise(resolve => setTimeout(resolve, 5000));
                     continue;
                 }
-                break; // Se for 400 ou outro erro, não adianta tentar de novo
+                break; 
             }
         } catch (e: any) {
             lastError = e.message;
             console.warn(`Erro na tentativa ${attempt}: ${lastError}`);
-            if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 2000));
+            if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 5000));
         }
     }
 
