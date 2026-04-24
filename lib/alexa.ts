@@ -1,8 +1,8 @@
 // lib/alexa.ts
 
 /**
- * Funções para interagir com a Alexa Proactive Events API.
- * Requer configuração de ALEXA_CLIENT_ID e ALEXA_CLIENT_SECRET.
+ * Funções para interagir com a Alexa Reminders API.
+ * Requer que a permissão "Reminders" esteja ativada no Alexa Developer Console.
  */
 
 let alexaToken = '';
@@ -24,7 +24,7 @@ async function getAlexaAccessToken() {
     params.append('grant_type', 'client_credentials');
     params.append('client_id', clientId);
     params.append('client_secret', clientSecret);
-    params.append('scope', 'alexa::proactive_events');
+    params.append('scope', 'alexa::alerts:reminders:skill:readwrite');
 
     const response = await fetch('https://api.amazon.com/auth/o2/token', {
         method: 'POST',
@@ -41,42 +41,48 @@ async function getAlexaAccessToken() {
 
     const data = await response.json();
     alexaToken = data.access_token;
-    // Expira em: expires_in (segundos). Subtrair 60s para margem de segurança.
     tokenExpiration = Date.now() + (data.expires_in - 60) * 1000;
 
     return alexaToken;
 }
 
+/**
+ * Cria um lembrete para o usuário que dispara quase imediatamente (10 segundos).
+ */
 export async function sendAlexaNotification(alexaUserId: string, message: string) {
     try {
         const token = await getAlexaAccessToken();
         
-        // Usamos o ambiente de desenvolvimento por padrão (mude para produção quando aprovar a skill)
-        const endpoint = 'https://api.amazonalexa.com/v1/proactiveEvents/stages/development';
+        // Endpoint para Reminders
+        const endpoint = 'https://api.amazonalexa.com/v1/alerts/reminders';
         
         const payload = {
-            timestamp: new Date().toISOString(),
-            referenceId: `f1bolao-notif-${Date.now()}`,
-            expiryTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24h
-            event: {
-                name: "AMAZON.MessageAlert.Activated",
-                payload: {
-                    state: {
-                        status: "UNREAD"
-                    },
-                    messageGroup: {
-                        creator: {
-                            name: "Fórmula 1 Bolão"
-                        },
-                        count: 1
-                    }
+            displayInformation: [
+                {
+                    content: [
+                        {
+                            locale: "pt-BR",
+                            text: message
+                        }
+                    ]
+                }
+            ],
+            trigger: {
+                type: "SCHEDULED_RELATIVE",
+                offsetInSeconds: 10
+            },
+            alertInfo: {
+                spokenInfo: {
+                    content: [
+                        {
+                            locale: "pt-BR",
+                            text: `Olá! Este é um lembrete do F1 Bolão. ${message}`
+                        }
+                    ]
                 }
             },
-            relevantAudience: {
-                type: "Unicast",
-                payload: {
-                    user: alexaUserId
-                }
+            pushNotification: {
+                status: "ENABLED"
             }
         };
 
@@ -91,14 +97,15 @@ export async function sendAlexaNotification(alexaUserId: string, message: string
 
         if (!response.ok) {
             const err = await response.text();
-            console.error(`Erro ao enviar notificação Alexa: ${response.status} - ${err}`);
+            console.error(`Erro ao criar lembrete Alexa: ${response.status} - ${err}`);
+            // Se for 403, pode ser falta de permissão ou o usuário não deu consentimento
             return false;
         }
 
-        console.log(`Notificação Alexa enviada com sucesso para ${alexaUserId.substring(0, 20)}...`);
+        console.log(`Lembrete Alexa criado com sucesso para ${alexaUserId.substring(0, 20)}...`);
         return true;
     } catch (error) {
-        console.error("Falha ao processar notificação Alexa:", error);
+        console.error("Falha ao processar lembrete Alexa:", error);
         return false;
     }
 }
