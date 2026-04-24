@@ -24,21 +24,23 @@ async function getAlexaAccessToken() {
     let lastError = null;
     
     for (let attempt = 1; attempt <= 3; attempt++) {
-        const params = new URLSearchParams();
-        params.append('grant_type', 'client_credentials');
-        params.append('client_id', clientId.trim());
-        params.append('client_secret', clientSecret.trim());
-        params.append('scope', scopeName);
+        const auth = Buffer.from(`${clientId.trim()}:${clientSecret.trim()}`).toString('base64');
+        
+        const body = new URLSearchParams();
+        body.append('grant_type', 'client_credentials');
+        body.append('scope', scopeName);
 
-        console.log(`Tentativa ${attempt}: Solicitando token Alexa (Scope: ${scopeName})`);
+        console.log(`Tentativa ${attempt}: Solicitando token Alexa via Basic Auth (Scope: ${scopeName})`);
 
         try {
             const response = await fetch('https://api.amazon.com/auth/o2/token', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Authorization': `Basic ${auth}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
                 },
-                body: params.toString()
+                body: body.toString()
             });
 
             if (response.ok) {
