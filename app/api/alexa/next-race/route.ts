@@ -1,6 +1,7 @@
 // /api/alexa/next-race/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
+import User from "@/models/User";
 import Race from "@/models/Race";
 
 export const runtime = "nodejs";
