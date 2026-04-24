@@ -17,7 +17,7 @@ export const sendResetEmail = async (to: string, resetLink: string) => {
     from: process.env.SMTP_USER,
     to,
     subject: 'F1 Bolão - Password Recovery Code',
-    text: `Your password recovery code is: ${resetLink}\n\nYou can also reset your password directly here: https://f1-bolao-d0p06p4zb-ricshark-2569s-projects.vercel.app/reset-password`,
+    text: `Your password recovery code is: ${resetLink}\n\nYou can also reset your password directly here: https://https://f1-bolao-three.vercel.app/reset-password`,
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
         <h2 style="color: #e10600;">F1 Bolão</h2>
@@ -28,7 +28,7 @@ export const sendResetEmail = async (to: string, resetLink: string) => {
         </div>
         <p>Alternatively, you can reset your password directly by clicking the link below:</p>
         <p style="text-align: center; margin: 20px 0;">
-          <a href="https://f1-bolao-d0p06p4zb-ricshark-2569s-projects.vercel.app/reset-password" 
+          <a href="https://https://f1-bolao-three.vercel.app/reset-password" 
              style="background-color: #e10600; color: white; padding: 12px 20px; border-radius: 4px; text-decoration: none; font-weight: bold;">
             Reset Password
           </a>
@@ -52,12 +52,12 @@ export const sendResetEmail = async (to: string, resetLink: string) => {
 // Function to send reminder email
 export const sendBetReminderEmail = async (to: string, userName: string, raceName: string, daysRemaining: number) => {
   const timeText = daysRemaining === 0 ? "HOJE" : `em ${daysRemaining} dias`;
-  
+
   const mailOptions = {
     from: process.env.SMTP_USER,
     to,
     subject: `[F1 Bolão] Alerta: Palpite Pendente para o ${raceName}`,
-    text: `Olá ${userName}, a corrida do ${raceName} está chegando e você ainda não fez seu palpite! Acesse o site do F1 Bolão agora ou diga "Alexa, pedir para Fórmula 1 Bolão registrar meu palpite".`,
+    text: `Olá ${userName}, a corrida do ${raceName} está chegando e você ainda não fez seu palpite! Acesse o site do F1 Bolão agora ou diga "Alexa, abrir corrida carros." e depois fale "Meus palpites Hamilton, Russell e o Norris".`,
     html: `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
         <h2 style="color: #e10600;">F1 Bolão - Alerta de Palpite</h2>
@@ -69,7 +69,7 @@ export const sendBetReminderEmail = async (to: string, userName: string, raceNam
         <p>Você pode registrar seu palpite de duas formas:</p>
         <ul>
           <li><strong>Pelo Site:</strong> Acesse o F1 Bolão e faça seu palpite pela área de apostas.</li>
-          <li><strong>Pela Alexa:</strong> Diga <em>"Alexa, abrir Fórmula 1 Bolão"</em> ou <em>"Alexa, pedir para Fórmula 1 Bolão registrar meu palpite Hamilton, Russell e Norris"</em>.</li>
+          <li><strong>Pela Alexa:</strong> Diga <em>"Alexa, abrir corrida carros"</em> e depois diga <em>"Meus palpites Hamilton, Russell e o Norris"</em>.</li>
         </ul>
         <p style="text-align: center; margin: 30px 0;">
           <a href="https://f1-bolao-three.vercel.app/" 
