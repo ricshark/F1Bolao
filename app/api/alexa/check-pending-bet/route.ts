@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import dayjs from 'dayjs';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
+import Race from '@/models/Race';
+import Bet from '@/models/Bet';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -11,40 +13,31 @@ export async function GET(request: Request) {
     }
 
     try {
-        // 1. Buscar usuário
-        const user = await prisma.user.findUnique({
-            where: { email }
-        });
+        await dbConnect();
+
+        // 1. Buscar usuário pelo e-mail
+        const user = await User.findOne({ email });
 
         if (!user) {
             return NextResponse.json({ success: false, hasPendingBet: false, message: 'Usuário não encontrado' });
         }
 
         // 2. Buscar a próxima corrida que ainda não aconteceu
-        const nextRace = await prisma.race.findFirst({
-            where: {
-                date: {
-                    gt: new Date()
-                }
-            },
-            orderBy: {
-                date: 'asc'
-            }
-        });
+        const nextRace = await Race.findOne({
+            date: { $gt: new Date() }
+        }).sort({ date: 1 });
 
         if (!nextRace) {
             return NextResponse.json({ success: true, hasPendingBet: false, message: 'Nenhuma corrida futura encontrada' });
         }
 
         // 3. Verificar se o usuário já tem palpite para esta corrida
-        const bet = await prisma.bet.findFirst({
-            where: {
-                userId: user.id,
-                raceId: nextRace.id
-            }
+        const bet = await Bet.findOne({
+            userId: user._id,
+            raceId: nextRace._id
         });
 
-        // Retorna se o palpite está pendente (não existe bet)
+        // Retorna se o palpite está pendente (se não existir bet)
         return NextResponse.json({
             success: true,
             hasPendingBet: !bet,
@@ -53,7 +46,7 @@ export async function GET(request: Request) {
         });
 
     } catch (error) {
-        console.error('Erro ao verificar palpite pendente:', error);
+        console.error('Erro ao verificar palpite pendente na API Alexa:', error);
         return NextResponse.json({ success: false, message: 'Erro interno do servidor' }, { status: 500 });
     }
 }
