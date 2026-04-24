@@ -28,7 +28,7 @@ async function getAlexaAccessToken() {
 
     console.log(`Solicitando token para Client ID: ${clientId.substring(0, 15)}...`);
 
-    const response = await fetch('https://api.amazonalexa.com/auth/o2/token', {
+    const response = await fetch('https://api.amazon.com/auth/o2/token', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
