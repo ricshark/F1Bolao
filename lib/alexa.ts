@@ -22,11 +22,13 @@ async function getAlexaAccessToken() {
 
     const params = new URLSearchParams();
     params.append('grant_type', 'client_credentials');
-    params.append('client_id', clientId);
-    params.append('client_secret', clientSecret);
+    params.append('client_id', clientId.trim());
+    params.append('client_secret', clientSecret.trim());
     params.append('scope', 'alexa::alerts:reminders:skill:readwrite');
 
-    const response = await fetch('https://api.amazon.com/auth/o2/token', {
+    console.log(`Solicitando token para Client ID: ${clientId.substring(0, 15)}...`);
+
+    const response = await fetch('https://api.amazonalexa.com/auth/o2/token', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
