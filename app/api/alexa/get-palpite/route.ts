@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
         await dbConnect();
 
         const body = await req.json();
-        const { email, raceName } = body;
+        const { userId, email, raceName } = body;
         console.log("email:", email);
 
         let userEmail: string | null = null;

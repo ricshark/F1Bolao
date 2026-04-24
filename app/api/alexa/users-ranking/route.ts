@@ -6,9 +6,26 @@ import User from "@/models/User";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
     try {
         await dbConnect();
+
+        // Tenta capturar o userId e email se enviados
+        try {
+            const body = await req.json();
+            const { email, userId } = body;
+
+            if (email && userId) {
+                const user = await User.findOne({ email });
+                if (user && user.alexaId !== userId) {
+                    user.alexaId = userId;
+                    await user.save();
+                    console.log(`alexaId atualizado para o usuário: ${email}`);
+                }
+            }
+        } catch (e) {
+            // Ignora se não for enviado body JSON ou se der erro no parse
+        }
 
         const topUsers = await User.find({})
             .sort({ points: -1 })

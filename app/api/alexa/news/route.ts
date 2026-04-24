@@ -3,8 +3,27 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
     try {
+        await dbConnect();
+
+        // Tenta capturar o userId e email se enviados
+        try {
+            const body = await req.json();
+            const { email, userId } = body;
+
+            if (email && userId) {
+                const user = await User.findOne({ email });
+                if (user && user.alexaId !== userId) {
+                    user.alexaId = userId;
+                    await user.save();
+                    console.log(`alexaId atualizado para o usuário: ${email}`);
+                }
+            }
+        } catch (e) {
+            // Ignora se não for enviado body JSON ou se der erro no parse
+        }
+
         // Fetching F1 news in Portuguese from Motorsport RSS
         const response = await fetch('https://motorsport.uol.com.br/rss/f1/news/');
         

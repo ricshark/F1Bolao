@@ -6,9 +6,26 @@ import Race from "@/models/Race";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
     try {
         await dbConnect();
+
+        // Tenta capturar o userId e email se enviados
+        try {
+            const body = await req.json();
+            const { email, userId } = body;
+
+            if (email && userId) {
+                const user = await User.findOne({ email });
+                if (user && user.alexaId !== userId) {
+                    user.alexaId = userId;
+                    await user.save();
+                    console.log(`alexaId atualizado para o usuário: ${email}`);
+                }
+            }
+        } catch (e) {
+            // Ignora se não for enviado body JSON ou se der erro no parse
+        }
 
         // Pega a data atual
         const now = new Date();
@@ -21,47 +38,47 @@ export async function GET(req: NextRequest) {
         let speech = "Por enquanto, não temos nenhuma corrida futura cadastrada no sistema.";
 
         if (nextRace) {
-    const dataCorrida = new Date(nextRace.date);
+            const dataCorrida = new Date(nextRace.date);
 
-    // Zera horas para evitar erro de fuso ao calcular dias
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
+            // Zera horas para evitar erro de fuso ao calcular dias
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
 
-    const corrida = new Date(dataCorrida);
-    corrida.setHours(0, 0, 0, 0);
+            const corrida = new Date(dataCorrida);
+            corrida.setHours(0, 0, 0, 0);
 
-    // Diferença em dias
-    const diffTime = corrida.getTime() - hoje.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            // Diferença em dias
+            const diffTime = corrida.getTime() - hoje.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    const dia = dataCorrida.getUTCDate();
+            const dia = dataCorrida.getUTCDate();
 
-    const meses = [
-        "janeiro", "fevereiro", "março", "abril", "maio", "junho",
-        "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
-    ];
-    const mesNome = meses[dataCorrida.getUTCMonth()];
+            const meses = [
+                "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+                "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"
+            ];
+            const mesNome = meses[dataCorrida.getUTCMonth()];
 
-    // Monta frase com dias restantes
-    if (diffDays === 0) {
-        speech = `A próxima corrida é o ${nextRace.name}, que acontece hoje, dia ${dia} de ${mesNome}.`;
-    } else if (diffDays === 1) {
-        speech = `A próxima corrida é o ${nextRace.name}, que acontece amanhã, dia ${dia} de ${mesNome}. Falta 1 dia.`;
-    } else {
-        speech = `A próxima corrida é o ${nextRace.name}, que acontece no dia ${dia} de ${mesNome}. Faltam ${diffDays} dias.`;
-    }
+            // Monta frase com dias restantes
+            if (diffDays === 0) {
+                speech = `A próxima corrida é o ${nextRace.name}, que acontece hoje, dia ${dia} de ${mesNome}.`;
+            } else if (diffDays === 1) {
+                speech = `A próxima corrida é o ${nextRace.name}, que acontece amanhã, dia ${dia} de ${mesNome}. Falta 1 dia.`;
+            } else {
+                speech = `A próxima corrida é o ${nextRace.name}, que acontece no dia ${dia} de ${mesNome}. Faltam ${diffDays} dias.`;
+            }
 
-    // Horário
-    if (nextRace.time) {
-        const parts = nextRace.time.split(":");
-        if (parts.length > 0) {
-            const horaFormatada = parseInt(parts[0], 10);
-            if (!isNaN(horaFormatada)) {
-                speech += ` A largada está prevista para as ${horaFormatada} horas.`;
+            // Horário
+            if (nextRace.time) {
+                const parts = nextRace.time.split(":");
+                if (parts.length > 0) {
+                    const horaFormatada = parseInt(parts[0], 10);
+                    if (!isNaN(horaFormatada)) {
+                        speech += ` A largada está prevista para as ${horaFormatada} horas.`;
+                    }
+                }
             }
         }
-    }
-}
 
         return NextResponse.json({
             success: true,
@@ -78,4 +95,4 @@ export async function GET(req: NextRequest) {
             speech: "Erro ao buscar sobre a próxima corrida."
         }, { status: 500 });
     }
-}
+}

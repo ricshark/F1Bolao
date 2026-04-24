@@ -33,11 +33,8 @@ export async function POST(req: NextRequest) {
         await dbConnect();
 
         const body = await req.json();
-
-        const { piloto1, piloto2, piloto3, email } = body;
-        const consentToken = body?.session?.user?.permissions?.consentToken;
-        console.log("email:", email);
-
+        const { piloto1, piloto2, piloto3, email, userId } = body;
+        console.log("email:", email, "userId:", userId);
 
         let userEmail: string | null = null;
 
@@ -53,7 +50,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, message: 'Faltam dados para preencher o pódio completamente.' }, { status: 400 });
         }
 
-        // Identifica o Usuario na Base pelo ID vindo da Alexa
+        // Identifica o Usuario na Base pelo Email
         const user = await User.findOne({ email: userEmail });
 
         if (!user) {
@@ -61,6 +58,13 @@ export async function POST(req: NextRequest) {
                 success: false,
                 message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no F1 Bolão.'
             });
+        }
+
+        // Se encontrou usuário e veio userId da Alexa, atualiza o alexaId no banco
+        if (userId && user.alexaId !== userId) {
+            user.alexaId = userId;
+            await user.save();
+            console.log(`alexaId atualizado para o usuário: ${userEmail}`);
         }
 
         // Busca a próxima corrida ativa

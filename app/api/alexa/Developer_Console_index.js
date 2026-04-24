@@ -4,47 +4,62 @@ const https = require('https');
 // =============================
 // FUNÇÕES PARA CHAMAR SUAS APIS
 // =============================
-function callUsersRankingAPI() {
+function callUsersRankingAPI(userId, email) {
     return new Promise((resolve, reject) => {
-        const url = `https://f1-bolao-three.vercel.app/api/alexa/users-ranking`;
+        const data = JSON.stringify({ userId, email });
+        const options = {
+            hostname: 'f1-bolao-three.vercel.app',
+            path: '/api/alexa/users-ranking',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': data.length
+            }
+        };
 
-        https.get(url, (res) => {
+        const req = https.request(options, (res) => {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
-                try {
-                    const data = JSON.parse(body);
-                    resolve(data);
-                } catch (err) {
-                    reject(err);
-                }
+                try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
             });
-        }).on('error', reject);
+        });
+        req.on('error', reject);
+        req.write(data);
+        req.end();
     });
 }
 
-function callNextRaceAPI() {
+function callNextRaceAPI(userId, email) {
     return new Promise((resolve, reject) => {
-        const url = `https://f1-bolao-three.vercel.app/api/alexa/next-race`;
+        const data = JSON.stringify({ userId, email });
+        const options = {
+            hostname: 'f1-bolao-three.vercel.app',
+            path: '/api/alexa/next-race',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': data.length
+            }
+        };
 
-        https.get(url, (res) => {
+        const req = https.request(options, (res) => {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
-                try {
-                    const data = JSON.parse(body);
-                    resolve(data);
-                } catch (err) {
-                    reject(err);
-                }
+                try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
             });
-        }).on('error', reject);
+        });
+        req.on('error', reject);
+        req.write(data);
+        req.end();
     });
 }
 
-function callRegisterPalpiteAPI(email, piloto1, piloto2, piloto3) {
+function callRegisterPalpiteAPI(userId, email, piloto1, piloto2, piloto3) {
     return new Promise((resolve, reject) => {
         const data = JSON.stringify({
+            userId,
             email,
             piloto1,
             piloto2,
@@ -65,12 +80,7 @@ function callRegisterPalpiteAPI(email, piloto1, piloto2, piloto3) {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
-                try {
-                    const result = JSON.parse(body);
-                    resolve(result);
-                } catch (err) {
-                    reject(err);
-                }
+                try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
             });
         });
 
@@ -80,9 +90,10 @@ function callRegisterPalpiteAPI(email, piloto1, piloto2, piloto3) {
     });
 }
 
-function callGetPalpiteAPI(email, raceName) {
+function callGetPalpiteAPI(userId, email, raceName) {
     return new Promise((resolve, reject) => {
         const data = JSON.stringify({
+            userId,
             email,
             raceName
         });
@@ -101,12 +112,7 @@ function callGetPalpiteAPI(email, raceName) {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
-                try {
-                    const result = JSON.parse(body);
-                    resolve(result);
-                } catch (err) {
-                    reject(err);
-                }
+                try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
             });
         });
 
@@ -116,42 +122,81 @@ function callGetPalpiteAPI(email, raceName) {
     });
 }
 
-function callLastRacePodiumAPI() {
+function callLastRacePodiumAPI(userId, email) {
     return new Promise((resolve, reject) => {
-        const url = `https://f1-bolao-three.vercel.app/api/alexa/last-race-podium`;
-        https.get(url, (res) => {
+        const data = JSON.stringify({ userId, email });
+        const options = {
+            hostname: 'f1-bolao-three.vercel.app',
+            path: '/api/alexa/last-race-podium',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': data.length
+            }
+        };
+
+        const req = https.request(options, (res) => {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
                 try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
             });
-        }).on('error', reject);
+        });
+        req.on('error', reject);
+        req.write(data);
+        req.end();
     });
 }
 
-function callNextRaceProbabilityAPI() {
+function callNextRaceProbabilityAPI(userId, email) {
     return new Promise((resolve, reject) => {
-        const url = `https://f1-bolao-three.vercel.app/api/alexa/next-race-probability`;
-        https.get(url, (res) => {
+        const data = JSON.stringify({ userId, email });
+        const options = {
+            hostname: 'f1-bolao-three.vercel.app',
+            path: '/api/alexa/next-race-probability',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': data.length
+            }
+        };
+
+        const req = https.request(options, (res) => {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
                 try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
             });
-        }).on('error', reject);
+        });
+        req.on('error', reject);
+        req.write(data);
+        req.end();
     });
 }
 
-function callNewsAPI() {
+function callNewsAPI(userId, email) {
     return new Promise((resolve, reject) => {
-        const url = `https://f1-bolao-three.vercel.app/api/alexa/news`;
-        https.get(url, (res) => {
+        const data = JSON.stringify({ userId, email });
+        const options = {
+            hostname: 'f1-bolao-three.vercel.app',
+            path: '/api/alexa/news',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': data.length
+            }
+        };
+
+        const req = https.request(options, (res) => {
             let body = '';
             res.on('data', chunk => body += chunk);
             res.on('end', () => {
                 try { resolve(JSON.parse(body)); } catch (err) { reject(err); }
             });
-        }).on('error', reject);
+        });
+        req.on('error', reject);
+        req.write(data);
+        req.end();
     });
 }
 
@@ -181,7 +226,16 @@ const GetRankingIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            const data = await callUsersRankingAPI();
+            const userId = handlerInput.requestEnvelope.context.System.user.userId;
+            let email = null;
+            try {
+                const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
+                email = await upsServiceClient.getProfileEmail();
+            } catch (e) {
+                console.log('E-mail não disponível');
+            }
+
+            const data = await callUsersRankingAPI(userId, email);
 
             if (data.success) {
                 return handlerInput.responseBuilder
@@ -214,7 +268,14 @@ const GetNextRaceIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            const data = await callNextRaceAPI();
+            const userId = handlerInput.requestEnvelope.context.System.user.userId;
+            let email = null;
+            try {
+                const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
+                email = await upsServiceClient.getProfileEmail();
+            } catch (e) { }
+
+            const data = await callNextRaceAPI(userId, email);
 
             if (data.success) {
                 return handlerInput.responseBuilder
@@ -333,6 +394,7 @@ const RegistrarPalpiteIntentHandler = {
         try {
             const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
             const email = await upsServiceClient.getProfileEmail();
+            const userId = handlerInput.requestEnvelope.context.System.user.userId;
 
             if (!email) {
                 return handlerInput.responseBuilder
@@ -346,7 +408,7 @@ const RegistrarPalpiteIntentHandler = {
             const piloto2 = normalizarPiloto(slots.secondplace.value);
             const piloto3 = normalizarPiloto(slots.thirdplace.value);
 
-            const result = await callRegisterPalpiteAPI(email, piloto1, piloto2, piloto3);
+            const result = await callRegisterPalpiteAPI(userId, email, piloto1, piloto2, piloto3);
 
             if (result.success) {
                 return handlerInput.responseBuilder
@@ -392,8 +454,9 @@ const GetPalpiteIntentHandler = {
 
             const slots = handlerInput.requestEnvelope.request.intent.slots;
             const raceName = slots.race ? slots.race.value : null;
+            const userId = handlerInput.requestEnvelope.context.System.user.userId;
 
-            const result = await callGetPalpiteAPI(email, raceName);
+            const result = await callGetPalpiteAPI(userId, email, raceName);
 
             if (result.success) {
                 return handlerInput.responseBuilder
@@ -427,7 +490,14 @@ const GetLastRacePodiumIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            const data = await callLastRacePodiumAPI();
+            const userId = handlerInput.requestEnvelope.context.System.user.userId;
+            let email = null;
+            try {
+                const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
+                email = await upsServiceClient.getProfileEmail();
+            } catch (e) { }
+
+            const data = await callLastRacePodiumAPI(userId, email);
             return handlerInput.responseBuilder
                 .speak(data.speech)
                 .reprompt('Deseja saber mais alguma coisa?')
@@ -447,7 +517,14 @@ const GetNextRaceProbabilityIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            const data = await callNextRaceProbabilityAPI();
+            const userId = handlerInput.requestEnvelope.context.System.user.userId;
+            let email = null;
+            try {
+                const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
+                email = await upsServiceClient.getProfileEmail();
+            } catch (e) { }
+
+            const data = await callNextRaceProbabilityAPI(userId, email);
             return handlerInput.responseBuilder
                 .speak(data.speech)
                 .reprompt('Você pode registrar seu palpite agora. Diga quem você acha que vai ganhar.')
@@ -467,7 +544,14 @@ const GetFOneNewsIntentHandler = {
     },
     async handle(handlerInput) {
         try {
-            const data = await callNewsAPI();
+            const userId = handlerInput.requestEnvelope.context.System.user.userId;
+            let email = null;
+            try {
+                const upsServiceClient = handlerInput.serviceClientFactory.getUpsServiceClient();
+                email = await upsServiceClient.getProfileEmail();
+            } catch (e) { }
+
+            const data = await callNewsAPI(userId, email);
             return handlerInput.responseBuilder
                 .speak(data.speech)
                 .reprompt('Deseja realizar mais alguma ação?')
@@ -492,9 +576,29 @@ const HelpIntentHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
+        const speakOutput =
+            'Aqui estão algumas coisas que você pode fazer no Fórmula 1 Bolão. ' +
+
+            'Para saber sua pontuação no ranking, diga: ranking. ' +
+
+            'Para saber a próxima corrida, diga: próxima corrida. ' +
+
+            'Para registrar seu palpite, diga por exemplo: meu palpite é Hamilton, Russell e Piastri. ' +
+
+            'Para consultar seu palpite já registrado, diga: meus palpites. ' +
+
+            'Você também pode especificar a corrida, dizendo por exemplo: qual é o meu palpite para o Grande Prêmio do Brasil. ' +
+
+            'Para se interar das notícias da Fórmula 1, diga: últimas notícias. ' +
+
+            'O que você gostaria de fazer?';
+
+        const repromptOutput =
+            'Por exemplo, diga: qual é meu ranking, ou: meu palpite é Hamilton, Russell e Piastri.';
+
         return handlerInput.responseBuilder
-            .speak('Você pode me pedir sua pontuação, perguntar a próxima corrida ou registrar seus palpites.')
-            .reprompt('Por exemplo, diga "Qual é meu ranking?" ou "Meu palpite é Hamilton, Russell e Piastri".')
+            .speak(speakOutput)
+            .reprompt(repromptOutput)
             .getResponse();
     }
 };
