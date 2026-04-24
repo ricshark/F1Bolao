@@ -87,7 +87,9 @@ export async function GET() {
 
              // Enviar Notificação Alexa
              if (user.alexaId) {
+                 console.log(`Tentando enviar notificação Alexa para: ${user.email}`);
                  const sentObj = await sendAlexaNotification(user.alexaId, `Não se esqueça de registrar seu palpite para o ${nextRace.name}.`);
+                 console.log(`Resultado notificação Alexa para ${user.email}: ${sentObj}`);
                  if (sentObj) alexaSent++;
              }
 

@@ -95,6 +95,7 @@ export async function sendAlexaNotification(alexaUserId: string, message: string
             return false;
         }
 
+        console.log(`Notificação Alexa enviada com sucesso para ${alexaUserId.substring(0, 20)}...`);
         return true;
     } catch (error) {
         console.error("Falha ao processar notificação Alexa:", error);
