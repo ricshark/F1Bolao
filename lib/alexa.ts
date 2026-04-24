@@ -20,29 +20,23 @@ async function getAlexaAccessToken() {
         throw new Error("ALEXA_CLIENT_ID ou ALEXA_CLIENT_SECRET não configurados.");
     }
 
-    const scopes = [
-        'alexa::alerts:reminders:skill:readwrite',
-        'alexa:alerts:reminders:skill:readwrite'
-    ];
-
+    const scopeName = 'alexa::alerts:reminders:skill:readwrite';
     let lastError = null;
     
-    for (const scopeName of scopes) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
         const params = new URLSearchParams();
         params.append('grant_type', 'client_credentials');
         params.append('client_id', clientId.trim());
         params.append('client_secret', clientSecret.trim());
         params.append('scope', scopeName);
 
-        console.log(`Solicitando token para Client ID: ${clientId.substring(0, 15)}... (Scope: ${scopeName})`);
+        console.log(`Tentativa ${attempt}: Solicitando token Alexa (Scope: ${scopeName})`);
 
         try {
             const response = await fetch('https://api.amazon.com/auth/o2/token', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json',
-                    'User-Agent': 'F1Bolao-App/1.0'
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 body: params.toString()
             });
@@ -55,15 +49,23 @@ async function getAlexaAccessToken() {
             } else {
                 const errText = await response.text();
                 lastError = `Status ${response.status}: ${errText}`;
-                console.warn(`Falha no escopo ${scopeName}: ${lastError}`);
+                console.warn(`Tentativa ${attempt} falhou: ${lastError}`);
+                
+                // Se for 500, espera 2 segundos e tenta de novo
+                if (response.status === 500 && attempt < 3) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    continue;
+                }
+                break; // Se for 400 ou outro erro, não adianta tentar de novo
             }
         } catch (e: any) {
             lastError = e.message;
-            console.warn(`Erro na requisição do escopo ${scopeName}: ${lastError}`);
+            console.warn(`Erro na tentativa ${attempt}: ${lastError}`);
+            if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 2000));
         }
     }
 
-    throw new Error(`Erro ao obter token da Alexa após tentar vários escopos. Último erro: ${lastError}`);
+    throw new Error(`Erro ao obter token da Alexa após 3 tentativas. Último erro: ${lastError}`);
 }
 
 /**
