@@ -111,6 +111,6 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Erro API register-palpite:', error);
-        return NextResponse.json({ success: false, message: 'Ocorreu um erro interno ao tentar registrar sua aposta.' }, { status: 500 });
+        return NextResponse.json({ success: false, message: 'Tivemos uma falha nos boxes! Não consegui registrar sua aposta agora. Tente novamente em instantes.' }, { status: 500 });
     }
 }

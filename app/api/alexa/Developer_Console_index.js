@@ -444,6 +444,15 @@ function normalizarPiloto(nome) {
     return pilotoAliases[chave] || nome; // se não achar alias, mantém original
 }
 
+// Conjunto de todos os nomes oficiais reconhecidos
+const pilotosValidos = new Set(Object.values(pilotoAliases));
+
+function validarPiloto(nomeSlot) {
+    if (!nomeSlot) return null;
+    const normalizado = normalizarPiloto(nomeSlot);
+    return pilotosValidos.has(normalizado) ? normalizado : null;
+}
+
 const RegistrarPalpiteIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -463,21 +472,46 @@ const RegistrarPalpiteIntentHandler = {
             }
 
             const slots = handlerInput.requestEnvelope.request.intent.slots;
-            const piloto1 = normalizarPiloto(slots.firstplace.value);
-            const piloto2 = normalizarPiloto(slots.secondplace.value);
-            const piloto3 = normalizarPiloto(slots.thirdplace.value);
+            const rawP1 = slots.firstplace?.value;
+            const rawP2 = slots.secondplace?.value;
+            const rawP3 = slots.thirdplace?.value;
+
+            const piloto1 = validarPiloto(rawP1);
+            const piloto2 = validarPiloto(rawP2);
+            const piloto3 = validarPiloto(rawP3);
+
+            // Verifica pilotos não reconhecidos
+            const naoReconhecidos = [];
+            if (!piloto1 && rawP1) naoReconhecidos.push(`"${rawP1}"`);
+            if (!piloto2 && rawP2) naoReconhecidos.push(`"${rawP2}"`);
+            if (!piloto3 && rawP3) naoReconhecidos.push(`"${rawP3}"`);
+
+            if (naoReconhecidos.length > 0) {
+                const reconhecidos = [
+                    piloto1 ? `primeiro: ${piloto1}` : null,
+                    piloto2 ? `segundo: ${piloto2}` : null,
+                    piloto3 ? `terceiro: ${piloto3}` : null
+                ].filter(Boolean);
+                const reconhecidosStr = reconhecidos.length > 0
+                    ? ` Reconheci ${reconhecidos.join(', ')}.`
+                    : '';
+                return handlerInput.responseBuilder
+                    .speak(`Bandeira vermelha! Não reconheci ${naoReconhecidos.join(' e ')} como piloto da Fórmula 1.${reconhecidosStr} Por favor, tente novamente dizendo o sobrenome completo de cada piloto.`)
+                    .reprompt('Diga "meu palpite é" seguido dos três sobrenomes. Por exemplo: "meu palpite é Norris, Piastri e Hamilton".')
+                    .getResponse();
+            }
 
             const result = await callRegisterPalpiteAPI(userId, email, piloto1, piloto2, piloto3);
 
             if (result.success) {
                 return handlerInput.responseBuilder
-                    .speak(`Estratégia definida! Seu palpite foi registrado com sucesso: ${piloto1}, ${piloto2} e ${piloto3}. Agora é torcer para que eles cruzem a linha de chegada nessas posições!`)
-                    .reprompt('Deseja conferir sua posição no campeonato ou saber quando será a próxima largada?')
+                    .speak(`Estratégia definida! Palpite registrado: ${piloto1} em primeiro, ${piloto2} em segundo e ${piloto3} em terceiro. Agora é torcer para que eles cruzem a linha de chegada nessas posições!`)
+                    .reprompt('Quer conferir sua posição no campeonato? Diga "ranking". Ou pergunte sobre a "próxima corrida".')
                     .getResponse();
             } else {
                 return handlerInput.responseBuilder
                     .speak(result.message || 'Houve um erro no reabastecimento! Não consegui registrar seu palpite no momento.')
-                    .reprompt('Tente novamente ou pergunte sua pontuação no ranking.')
+                    .reprompt('Tente novamente ou pergunte sua pontuação dizendo "ranking".')
                     .getResponse();
             }
         } catch (error) {
