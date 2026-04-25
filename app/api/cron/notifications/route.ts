@@ -12,7 +12,12 @@ export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
 
 // This endpoint should be triggered periodically via a cron job service (e.g. Vercel Cron, GitHub Actions)
-export async function GET() {
+export async function GET(req: Request) {
+    const authHeader = req.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        return new NextResponse('Unauthorized', { status: 401 });
+    }
+
     try {
         await dbConnect();
 

@@ -8,11 +8,11 @@ import SystemConfig from "@/models/SystemConfig";
 export const runtime = "nodejs";
 
 const OFFICIAL_DRIVERS = [
-    'Arvid Lindblad', 'Carlos Sainz', 'Charles Leclerc', 'Esteban Ocon',
-    'Fernando Alonso', 'Franco Colapinto', 'Gabriel Bortoleto', 'George Russell',
-    'Isack Hadjar', 'Lance Stroll', 'Lewis Hamilton', 'Liam Lawson',
-    'Lando Norris', 'Max Verstappen', 'Nico Hülkenberg', 'Oliver Bearman',
-    'Oscar Piastri', 'Pierre Gasly', 'Sergio Pérez', 'Valtteri Bottas'
+    'Alexander Albon', 'Carlos Sainz', 'Charles Leclerc', 'Esteban Ocon',
+    'Fernando Alonso', 'Gabriel Bortoleto', 'George Russell', 'Isack Hadjar',
+    'Jack Doohan', 'Kimi Antonelli', 'Lance Stroll', 'Lewis Hamilton',
+    'Liam Lawson', 'Lando Norris', 'Max Verstappen', 'Nico Hülkenberg',
+    'Oliver Bearman', 'Oscar Piastri', 'Pierre Gasly', 'Yuki Tsunoda'
 ];
 
 function getRandomDrivers(count: number): string[] {
@@ -21,6 +21,11 @@ function getRandomDrivers(count: number): string[] {
 }
 
 export async function GET(req: NextRequest) {
+    const authHeader = req.headers.get('authorization');
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        return new NextResponse('Unauthorized', { status: 401 });
+    }
+
     try {
         await dbConnect();
 
