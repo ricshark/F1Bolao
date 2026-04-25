@@ -210,8 +210,8 @@ const LaunchRequestHandler = {
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
-            .speak('Bem-vindo ao Fórmula 1 Bolão! Você pode perguntar sua pontuação, a próxima corrida ou registrar seus palpites.')
-            .reprompt('Diga, por exemplo: "Qual é meu ranking?" ou "Meu palpite é Hamilton, Russell e Piastri".')
+            .speak('Luzes apagadas e lá vamos nós! Bem-vindo ao Fórmula 1 Bolão, o lugar onde a emoção das pistas encontra seus palpites certeiros! Você pode conferir sua posição no campeonato, descobrir o próximo destino do circo da F1 ou acelerar e registrar seus palpites agora mesmo!')
+            .reprompt('O grid está esperando! Diga, por exemplo: "Qual é meu ranking?" ou "Meu palpite é Hamilton, Russell e Piastri". O que você deseja fazer?')
             .getResponse();
     }
 };
@@ -240,19 +240,19 @@ const GetRankingIntentHandler = {
             if (data.success) {
                 return handlerInput.responseBuilder
                     .speak(data.speech)
-                    .reprompt('Você pode perguntar também sobre a próxima corrida ou registrar seus palpites.')
+                    .reprompt('O campeonato não para! Você pode perguntar também sobre a próxima corrida ou acelerar registrando seus palpites.')
                     .getResponse();
             } else {
                 return handlerInput.responseBuilder
-                    .speak('Não consegui obter sua pontuação no momento.')
-                    .reprompt('Tente perguntar novamente ou peça para registrar seus palpites.')
+                    .speak('Parece que tivemos uma falha nos boxes e não consegui obter sua pontuação no momento.')
+                    .reprompt('Tente perguntar novamente ou peça para registrar seus palpites para a próxima etapa!')
                     .getResponse();
             }
         } catch (error) {
             console.log('Erro ao chamar API:', error);
             return handlerInput.responseBuilder
-                .speak('Ocorreu um erro ao acessar o bolão.')
-                .reprompt('Você pode tentar novamente ou perguntar sobre a próxima corrida.')
+                .speak('Opa, tivemos uma rodada na pista! Ocorreu um erro ao acessar o bolão.')
+                .reprompt('Recupere o controle e tente novamente ou pergunte sobre a próxima corrida.')
                 .getResponse();
         }
     }
@@ -280,19 +280,19 @@ const GetNextRaceIntentHandler = {
             if (data.success) {
                 return handlerInput.responseBuilder
                     .speak(data.speech)
-                    .reprompt('Você pode registrar seus palpites ou perguntar seu ranking.')
+                    .reprompt('Acelere sua estratégia! Você pode registrar seus palpites agora ou conferir como está o campeonato perguntando seu ranking.')
                     .getResponse();
             } else {
                 return handlerInput.responseBuilder
-                    .speak('Não consegui obter a próxima corrida no momento.')
-                    .reprompt('Você pode tentar novamente ou perguntar seu ranking.')
+                    .speak('A pista está com bandeira amarela! Não consegui obter informações da próxima corrida no momento.')
+                    .reprompt('Tente novamente em alguns instantes ou confira sua posição no ranking.')
                     .getResponse();
             }
         } catch (error) {
             console.log('Erro ao chamar API:', error);
             return handlerInput.responseBuilder
-                .speak('Ocorreu um erro ao acessar o bolão.')
-                .reprompt('Você pode tentar novamente ou perguntar seu ranking.')
+                .speak('Tivemos um problema de telemetria! Ocorreu um erro ao acessar as informações da corrida.')
+                .reprompt('Aperte o cinto e tente novamente ou pergunte seu ranking.')
                 .getResponse();
         }
     }
@@ -412,20 +412,20 @@ const RegistrarPalpiteIntentHandler = {
 
             if (result.success) {
                 return handlerInput.responseBuilder
-                    .speak(`Seu palpite foi registrado: ${piloto1}, ${piloto2} e ${piloto3}.`)
-                    .reprompt('Você pode perguntar seu ranking ou a próxima corrida.')
+                    .speak(`Estratégia definida! Seu palpite foi registrado com sucesso: ${piloto1}, ${piloto2} e ${piloto3}. Agora é torcer para que eles cruzem a linha de chegada nessas posições!`)
+                    .reprompt('Deseja conferir sua posição no campeonato ou saber quando será a próxima largada?')
                     .getResponse();
             } else {
                 return handlerInput.responseBuilder
-                    .speak(result.message || 'Não consegui registrar seu palpite no momento.')
-                    .reprompt('Tente novamente ou pergunte seu ranking.')
+                    .speak(result.message || 'Houve um erro no reabastecimento! Não consegui registrar seu palpite no momento.')
+                    .reprompt('Tente novamente ou pergunte sua pontuação no ranking.')
                     .getResponse();
             }
         } catch (error) {
             console.log('Erro ao registrar palpite:', error);
             return handlerInput.responseBuilder
-                .speak('Ocorreu um erro ao registrar seu palpite.')
-                .reprompt('Você pode tentar novamente ou perguntar a próxima corrida.')
+                .speak('Tivemos uma falha mecânica ao registrar seu palpite! Verifique se você deu permissão de e-mail e tente novamente.')
+                .reprompt('Você pode tentar novamente ou perguntar a data da próxima corrida.')
                 .getResponse();
         }
     }
@@ -577,24 +577,24 @@ const HelpIntentHandler = {
     },
     handle(handlerInput) {
         const speakOutput =
-            'Aqui estão algumas coisas que você pode fazer no Fórmula 1 Bolão. ' +
+            'O Fórmula 1 Bolão coloca você no cockpit! Veja o que você pode fazer: ' +
 
-            'Para saber sua pontuação no ranking, diga: ranking. ' +
+            'Para conferir sua performance no campeonato, diga: ranking. ' +
 
-            'Para saber a próxima corrida, diga: próxima corrida. ' +
+            'Para saber quando será a próxima largada, diga: próxima corrida. ' +
 
-            'Para registrar seu palpite, diga por exemplo: meu palpite é Hamilton, Russell e Piastri. ' +
+            'Para definir sua estratégia e registrar um palpite, diga por exemplo: meu palpite é Hamilton, Russell e Piastri. ' +
 
-            'Para consultar seu palpite já registrado, diga: meus palpites. ' +
+            'Para relembrar suas escolhas, diga: meus palpites. ' +
 
-            'Você também pode especificar a corrida, dizendo por exemplo: qual é o meu palpite para o Grande Prêmio do Brasil. ' +
+            'Você também pode focar em uma pista específica, dizendo: qual é o meu palpite para o Grande Prêmio do Brasil. ' +
 
-            'Para se interar das notícias da Fórmula 1, diga: últimas notícias. ' +
+            'E para ficar por dentro de tudo que acontece no paddock, diga: últimas notícias. ' +
 
-            'O que você gostaria de fazer?';
+            'O sinal está verde! O que você gostaria de fazer?';
 
         const repromptOutput =
-            'Por exemplo, diga: qual é meu ranking, ou: meu palpite é Hamilton, Russell e Piastri.';
+            'Acelere! Diga seu ranking, pergunte da próxima corrida ou registre seu pódio preferido!';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -611,7 +611,7 @@ const CancelAndStopIntentHandler = {
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
-            .speak('Até mais! Boa sorte no bolão.')
+            .speak('Bandeira quadriculada! Sua sessão terminou por agora, mas os motores continuam roncando. Volte logo para não perder a pole position no bolão! Até mais!')
             .getResponse();
     }
 };
@@ -623,8 +623,8 @@ const FallbackIntentHandler = {
     },
     handle(handlerInput) {
         return handlerInput.responseBuilder
-            .speak('Desculpe, não consegui entender. Você pode perguntar sua pontuação ou registrar palpites.')
-            .reprompt('Tente dizer, "Qual é meu ranking?" ou "Meu palpite é Hamilton, Russell e Piastri".')
+            .speak('Desculpe, saímos da pista! Não consegui entender o que você disse. Você pode perguntar sua pontuação ou registrar palpites para a próxima etapa.')
+            .reprompt('Tente dizer, "Qual é meu ranking?" ou "Quais são as últimas notícias?".')
             .getResponse();
     }
 };
@@ -636,7 +636,7 @@ const ErrorHandler = {
     handle(handlerInput, error) {
         console.log('Erro Lambda:', error);
         return handlerInput.responseBuilder
-            .speak('Ocorreu um erro ao processar sua solicitação.')
+            .speak('Tivemos uma falha mecânica grave ao processar sua solicitação! Por favor, tente novamente em alguns instantes.')
             .getResponse();
     }
 };

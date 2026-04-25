@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         if (!lastRace) {
             return NextResponse.json({
                 success: true,
-                speech: "Ainda não temos informações sobre a última corrida cadastrada no sistema."
+                speech: "Estamos nos aquecendo! Ainda não temos informações sobre a última corrida cadastrada no sistema. Aguarde as atualizações!"
             }, { status: 200, headers: { "Content-Type": "application/json; charset=utf-8" } });
         }
 
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
                 success: true,
                 // @ts-ignore
-                speech: `A última corrida foi o ${lastRace.name}, mas os resultados oficiais ainda não foram lançados no sistema.`
+                speech: `A última corrida foi o ${lastRace.name}, mas a equipe técnica ainda está apurando os resultados oficiais! Fique ligado.`
             }, { status: 200, headers: { "Content-Type": "application/json; charset=utf-8" } });
         }
 
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         let p3 = podium.find((r: any) => r.position === 3)?.driver || "não informado";
 
         // @ts-ignore
-        const speech = `O pódio da última corrida, que foi o ${lastRace.name}, teve ${p1} em primeiro, ${p2} em segundo e ${p3} em terceiro lugar.`;
+        const speech = `Que espetáculo foi o ${lastRace.name}! O pódio desta corrida ficou assim: ${p1} cruzou a linha em primeiro, ${p2} chegou em segundo e ${p3} completou o pódio em terceiro lugar. Que corrida incrível!`;
 
         return NextResponse.json({
             success: true,
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
         console.error(error);
         return NextResponse.json({
             success: false,
-            speech: "Erro ao buscar sobre a última corrida."
+            speech: "Tivemos uma falha na transmissão ao buscar sobre a última corrida. Tente novamente em instantes!"
         }, { status: 500 });
     }
 }

@@ -45,14 +45,15 @@ export async function POST(req: NextRequest) {
             return titleMatch ? titleMatch[1].trim() : "Notícia sem título";
         });
 
-        let speech = "Aqui estão as últimas notícias da Fórmula 1: ";
+        let speech = "Direto do paddock para você! Confira as últimas manchetes do mundo da Fórmula 1: ";
         
         if (titles.length === 0) {
-            speech = "No momento não consegui acessar as últimas notícias da Fórmula 1.";
+            speech = "Parece que a comunicação com o paddock falhou! Não consegui acessar as últimas notícias agora. Tente novamente em instantes.";
         } else {
             titles.forEach((t, i) => {
-                speech += `Notícia ${i + 1}: ${t}. `;
+                speech += `Manchete ${i + 1}: ${t}. `;
             });
+            speech += "Para mais detalhes, acesse o aplicativo F1 Bolão!";
         }
 
         return NextResponse.json({
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
         console.error("Error fetching F1 news:", error);
         return NextResponse.json({
             success: false,
-            speech: "No momento não consegui carregar as últimas notícias da Fórmula 1."
+            speech: "A conexão com o paddock caiu! Não consegui carregar as últimas notícias agora. Tente novamente em breve."
         }, { status: 500 });
     }
 }

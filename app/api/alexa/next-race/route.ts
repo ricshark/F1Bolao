@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
             .sort({ date: 1 })
             .lean();
 
-        let speech = "Por enquanto, não temos nenhuma corrida futura cadastrada no sistema.";
+        let speech = "Por enquanto, os motores estão desligados! Não temos nenhuma corrida futura cadastrada no sistema.";
 
         if (nextRace) {
             const dataCorrida = new Date(nextRace.date);
@@ -62,11 +62,11 @@ export async function POST(req: NextRequest) {
 
             // Monta frase com dias restantes
             if (diffDays === 0) {
-                speech = `A próxima corrida é o ${nextRace.name}, que acontece hoje, dia ${dia} de ${mesNome}.`;
+                speech = `Prepare o coração! A próxima parada do circo da Fórmula 1 é o ${nextRace.name}, e a emoção acontece hoje, dia ${dia} de ${mesNome}!`;
             } else if (diffDays === 1) {
-                speech = `A próxima corrida é o ${nextRace.name}, que acontece amanhã, dia ${dia} de ${mesNome}. Falta 1 dia.`;
+                speech = `A ansiedade está a mil! A próxima corrida é o ${nextRace.name}, que acontece amanhã, dia ${dia} de ${mesNome}. Falta apenas 1 dia para a largada!`;
             } else {
-                speech = `A próxima corrida é o ${nextRace.name}, que acontece no dia ${dia} de ${mesNome}. Faltam ${diffDays} dias.`;
+                speech = `Aqueçam os motores! A próxima corrida é o ${nextRace.name}, que acontece no dia ${dia} de ${mesNome}. Faltam ${diffDays} dias para a luz verde!`;
             }
 
             // Horário
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
                 if (parts.length > 0) {
                     const horaFormatada = parseInt(parts[0], 10);
                     if (!isNaN(horaFormatada)) {
-                        speech += ` A largada está prevista para as ${horaFormatada} horas.`;
+                        speech += ` A largada está prevista para as ${horaFormatada} horas. Não se atrase!`;
                     }
                 }
             }

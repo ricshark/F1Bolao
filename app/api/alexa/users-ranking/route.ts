@@ -32,12 +32,12 @@ export async function POST(req: NextRequest) {
             .limit(3)
             .lean();
 
-        let top3Speech = "O ranking dos 3 primeiros colocados é: ";
-        const posicoes = ["Primeiro lugar", "Segundo lugar", "Terceiro lugar"];
+        let top3Speech = "Atenção para o pódio do nosso campeonato! No momento, o ranking dos 3 primeiros colocados é: ";
+        const posicoes = ["Em primeiro lugar, acelerando tudo,", "Em segundo lugar, colado no líder,", "E em terceiro lugar, fechando o pódio,"];
 
         topUsers.forEach((u, index) => {
             const posicao = posicoes[index] || `${index + 1}º lugar`;
-            top3Speech += `${posicao}, ${u.name} com ${u.points} pontos. `;
+            top3Speech += `${posicao} temos ${u.name} com impressionantes ${u.points} pontos. `;
         });
 
         return NextResponse.json({
