@@ -424,57 +424,58 @@ export default function AdminPage() {
     <main className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white">
       <header className="border-b border-red-600/40 bg-black/70 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <Image src="/logo.png" alt="F1 Bolão Logo" width={96} height={96} className="flex-shrink-0 rounded-full shadow-2xl transition hover:scale-105" priority />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Image src="/logo.png" alt="F1 Bolão Logo" width={48} height={48} className="flex-shrink-0 rounded-full shadow-2xl transition hover:scale-105 sm:w-24 sm:h-24" priority />
             <div>
-              <h1 className="text-xl font-bold tracking-wide">{t.adminTitle}</h1>
-              <p className="text-xs text-gray-300">{t.adminDesc}</p>
+              <h1 className="text-sm sm:text-xl font-bold tracking-wide leading-tight">{t.adminTitle}</h1>
+              <p className="hidden sm:block text-xs text-gray-300">{t.adminDesc}</p>
+              <p className="sm:hidden text-[10px] text-gray-400">Total: {users.length}u, {bets.length}a</p>
             </div>
           </div>
           <button
             onClick={() => router.push('/dashboard')}
-            className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold transition hover:bg-white/20"
+            className="rounded-full bg-white/10 px-3 py-1 sm:px-4 sm:py-2 text-[10px] sm:text-sm font-semibold transition hover:bg-white/20"
           >
             {t.backToApp}
           </button>
         </div>
       </header>
 
-      <section className="mx-auto max-w-6xl px-6 py-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex gap-4">
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 py-4 sm:py-8">
+        <div className="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="flex gap-2 p-1 overflow-x-auto no-scrollbar sm:gap-4 bg-white/5 rounded-xl border border-white/10 sm:bg-transparent sm:border-0 sm:p-0">
             <button
               onClick={() => setActiveTab('users')}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'users'
+              className={`whitespace-nowrap rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-sm font-semibold transition shrink-0 ${activeTab === 'users'
                   ? 'bg-red-600 text-white'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                  : 'bg-transparent sm:bg-white/10 text-gray-300 hover:bg-white/20'
                 }`}
             >
               {t.usersTab} ({users.length})
             </button>
             <button
               onClick={() => setActiveTab('createUser')}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'createUser'
+              className={`whitespace-nowrap rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-sm font-semibold transition shrink-0 ${activeTab === 'createUser'
                   ? 'bg-red-600 text-white'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                  : 'bg-transparent sm:bg-white/10 text-gray-300 hover:bg-white/20'
                 }`}
             >
               {t.createUserTab}
             </button>
             <button
               onClick={() => setActiveTab('bets')}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'bets'
+              className={`whitespace-nowrap rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-sm font-semibold transition shrink-0 ${activeTab === 'bets'
                   ? 'bg-red-600 text-white'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                  : 'bg-transparent sm:bg-white/10 text-gray-300 hover:bg-white/20'
                 }`}
             >
               {t.betsTab} ({bets.length})
             </button>
             <button
               onClick={() => setActiveTab('settings')}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${activeTab === 'settings'
+              className={`whitespace-nowrap rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-sm font-semibold transition shrink-0 ${activeTab === 'settings'
                   ? 'bg-red-600 text-white'
-                  : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                  : 'bg-transparent sm:bg-white/10 text-gray-300 hover:bg-white/20'
                 }`}
             >
               {t.settingsTab}
@@ -484,7 +485,7 @@ export default function AdminPage() {
           <button
             onClick={handleCalculatePoints}
             disabled={loading}
-            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50 ml-auto"
+            className="rounded-lg bg-green-600 px-3 py-2 sm:px-4 sm:py-2.5 text-[10px] sm:text-sm font-bold text-white transition hover:bg-green-700 disabled:opacity-50 shrink-0"
           >
             ♺ {t.calcPoints}
           </button>
@@ -493,7 +494,7 @@ export default function AdminPage() {
         {activeTab === 'users' && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
             <h2 className="mb-4 text-xl font-bold">{t.usersTab}</h2>
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10">
@@ -543,6 +544,47 @@ export default function AdminPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile User Cards */}
+            <div className="sm:hidden space-y-2">
+              {users.map(user => (
+                <div key={user._id} className="rounded-xl border border-white/5 bg-[#16161a] p-3 flex items-center justify-between gap-3 group transition hover:border-red-600/30">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                       <h3 className="font-black text-white text-sm uppercase italic leading-tight truncate">{user.name}</h3>
+                       {user.isAdmin && (
+                         <span className="shrink-0 rounded bg-red-600 px-1 py-0.5 text-[8px] font-black uppercase italic tracking-tighter">Admin</span>
+                       )}
+                    </div>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase truncate">{user.email}</p>
+                    <div className="flex gap-2 mt-1">
+                       <span className="text-[9px] text-gray-600 flex items-center gap-1 font-black">
+                          <span className="text-red-500">🏁</span> {user.points} PTS
+                       </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => openEditModal(user)}
+                      className="p-2 rounded bg-blue-600/10 border border-blue-500/20 text-blue-400 group-hover:bg-blue-600/20"
+                    >
+                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                       </svg>
+                    </button>
+                    <button
+                      onClick={() => handleClearBets(user._id)}
+                      className="p-2 rounded bg-yellow-600/10 border border-yellow-500/20 text-yellow-400 group-hover:bg-yellow-600/20"
+                    >
+                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                       </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -630,7 +672,7 @@ export default function AdminPage() {
                 className="w-full sm:w-64 rounded-xl border border-white/20 bg-black/40 px-4 py-2 text-sm text-white focus:border-red-500 focus:outline-none"
               />
             </div>
-            <div className="overflow-x-auto">
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10">
@@ -670,19 +712,21 @@ export default function AdminPage() {
                       <td className="py-3 px-4">{bet.points}</td>
                       <td className="py-3 px-4">{new Date(bet.createdAt).toLocaleDateString()}</td>
                       <td className="py-3 px-4 text-right space-x-2 whitespace-nowrap">
-                        <button
-                          onClick={() => openEditBetModal(bet)}
-                          className="rounded bg-blue-600/20 px-3 py-1 text-xs font-semibold text-blue-500 hover:bg-blue-600/40 transition"
-                        >
-                          Edit Bet
-                        </button>
                         {new Date(bet.race.date) >= new Date() && (
-                          <button
-                            onClick={() => handleDeleteBet(bet._id)}
-                            className="rounded bg-red-600/20 px-3 py-1 text-xs font-semibold text-red-500 hover:bg-red-600/40 transition ml-2"
-                          >
-                            Delete
-                          </button>
+                          <>
+                            <button
+                              onClick={() => openEditBetModal(bet)}
+                              className="rounded bg-blue-600/20 px-3 py-1 text-xs font-semibold text-blue-500 hover:bg-blue-600/40 transition"
+                            >
+                              Edit Bet
+                            </button>
+                            <button
+                              onClick={() => handleDeleteBet(bet._id)}
+                              className="rounded bg-red-600/20 px-3 py-1 text-xs font-semibold text-red-500 hover:bg-red-600/40 transition ml-2"
+                            >
+                              Delete
+                            </button>
+                          </>
                         )}
                       </td>
                     </tr>
@@ -690,85 +734,131 @@ export default function AdminPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Bet Cards */}
+            <div className="sm:hidden space-y-4">
+              {sortedAndFilteredBets.map(bet => (
+                  <div key={bet._id} className={`rounded-xl border border-white/5 p-3 flex flex-col gap-2 transition ${new Date(bet.race.date) < new Date() ? 'bg-[#0a0a0c]' : 'bg-[#16161a] hover:border-red-600/30'}`}>
+                    <div className="flex items-center justify-between gap-2">
+                       <div className="flex-1 min-w-0">
+                         <div className="flex items-center gap-2">
+                           <span className="text-[9px] font-black italic text-red-600 shrink-0">R{bet.race.round}</span>
+                           <h3 className="text-xs font-black text-white uppercase italic leading-tight truncate">{bet.race.name}</h3>
+                         </div>
+                         <p className="text-[9px] font-bold text-gray-500 italic uppercase truncate">User: {bet.user.name}</p>
+                       </div>
+                       <div className="text-center bg-white/5 border border-white/5 px-2 py-1 rounded min-w-[35px]">
+                          <span className="block text-[7px] font-black text-gray-500 uppercase">PTS</span>
+                          <span className="text-xs font-black italic text-white">{bet.points}</span>
+                       </div>
+                    </div>
+                    
+                    <div className="flex gap-1">
+                       {[bet.prediction.first, bet.prediction.second, bet.prediction.third].map((d, idx) => (
+                         <div key={idx} className="flex-1 bg-black/40 border border-white/5 rounded px-2 py-1 text-[8px] font-bold text-gray-400 uppercase italic truncate text-center">
+                           <span className="text-red-500 mr-1">{idx+1}º</span> {d?.split(' ').pop()}
+                         </div>
+                       ))}
+                    </div>
+
+                    {new Date(bet.race.date) >= new Date() && (
+                      <div className="grid grid-cols-2 gap-2 pt-1">
+                        <button
+                          onClick={() => openEditBetModal(bet)}
+                          className="rounded bg-blue-600/10 border border-blue-500/20 py-1.5 text-[8px] font-black uppercase italic text-blue-400"
+                        >
+                          EDITAR
+                        </button>
+                        <button
+                          onClick={() => handleDeleteBet(bet._id)}
+                          className="rounded bg-red-600/10 border border-red-500/20 py-1.5 text-[8px] font-black uppercase italic text-red-400"
+                        >
+                          EXCLUIR
+                        </button>
+                      </div>
+                    )}
+                  </div>
+              ))}
+            </div>
           </div>
         )}
 
         {activeTab === 'settings' && (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h2 className="mb-4 text-xl font-bold">{t.settingsTab}</h2>
-            <form onSubmit={handleSaveSettings} className="space-y-6 max-w-md">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Bet Lock Hours Before Race
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+            <h2 className="mb-2 sm:mb-4 text-sm sm:text-xl font-bold uppercase italic tracking-wider text-red-500">{t.settingsTab}</h2>
+            <form onSubmit={handleSaveSettings} className="space-y-3 sm:space-y-6 max-w-md">
+              <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                <label className="block text-[10px] sm:text-sm font-black uppercase tracking-widest text-gray-400 mb-1">
+                  Bet Lock (Hours)
                 </label>
-                <div className="flex gap-4">
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    value={settingsForm.betLockHours}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, betLockHours: Number(e.target.value) })}
-                    className="block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
-                  />
-                  <button
-                    type="submit"
-                    disabled={settingsLoading}
-                    className="whitespace-nowrap rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
-                  >
-                    {settingsLoading ? t.loading : 'Save Settings'}
-                  </button>
-                </div>
-                <p className="mt-2 text-xs text-gray-400">
-                  Number of hours before the race starts when betting and changing bets is locked.
-                  (e.g., 1 = 1 hour before race).
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={settingsForm.betLockHours}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, betLockHours: Number(e.target.value) })}
+                  className="block w-full rounded-lg border border-white/10 bg-black/40 px-3 py-1.5 sm:py-2 text-sm text-white focus:border-red-600 focus:outline-none"
+                />
+                <p className="mt-1 text-[8px] sm:text-xs text-gray-500 leading-tight">
+                  Hours before race starts when betting is locked.
                 </p>
               </div>
-
-              <div className="pt-4 border-t border-white/10">
-                <h3 className="text-lg font-semibold mb-3">Notification Settings (Hours Before Race)</h3>
+ 
+              <div className="pt-2 border-t border-white/10">
+                <h3 className="text-xs sm:text-lg font-black uppercase tracking-widest text-gray-300 mb-2">Notifications</h3>
                 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Attempt 1 (e.g., 24)
+                <div className="grid grid-cols-1 sm:grid-cols-1 gap-2 sm:gap-4">
+                  <div className="bg-white/5 p-2 rounded-lg border border-white/5 flex items-center gap-3">
+                    <label className="text-[10px] sm:text-sm font-bold text-gray-500 uppercase min-w-[70px]">
+                      Aviso 1 (h)
                     </label>
                     <input
                       type="number"
                       min="0"
                       value={settingsForm.notif1Hours}
                       onChange={(e) => setSettingsForm({ ...settingsForm, notif1Hours: Number(e.target.value) })}
-                      className="block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                      className="block flex-1 rounded border border-white/10 bg-black px-2 py-1 text-sm text-white focus:border-red-600 focus:outline-none"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Attempt 2 (e.g., 12)
+                  <div className="bg-white/5 p-2 rounded-lg border border-white/5 flex items-center gap-3">
+                    <label className="text-[10px] sm:text-sm font-bold text-gray-500 uppercase min-w-[70px]">
+                      Aviso 2 (h)
                     </label>
                     <input
                       type="number"
                       min="0"
                       value={settingsForm.notif2Hours}
                       onChange={(e) => setSettingsForm({ ...settingsForm, notif2Hours: Number(e.target.value) })}
-                      className="block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                      className="block flex-1 rounded border border-white/10 bg-black px-2 py-1 text-sm text-white focus:border-red-600 focus:outline-none"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">
-                      Attempt 3 (e.g., 2)
+                  <div className="bg-white/5 p-2 rounded-lg border border-white/5 flex items-center gap-3">
+                    <label className="text-[10px] sm:text-sm font-bold text-gray-500 uppercase min-w-[70px]">
+                      Aviso 3 (h)
                     </label>
                     <input
                       type="number"
                       min="0"
                       value={settingsForm.notif3Hours}
                       onChange={(e) => setSettingsForm({ ...settingsForm, notif3Hours: Number(e.target.value) })}
-                      className="block w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-white focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                      className="block flex-1 rounded border border-white/10 bg-black px-2 py-1 text-sm text-white focus:border-red-600 focus:outline-none"
                     />
                   </div>
                 </div>
-
+ 
                 {settingsSuccess && (
-                  <p className="mt-3 text-sm text-green-400">{settingsSuccess}</p>
+                  <p className="mt-2 text-[10px] text-green-400 font-black uppercase italic animate-pulse">{settingsSuccess}</p>
                 )}
+                
+                <div className="mt-4 pt-4 border-t border-white/10">
+                   <button
+                    type="submit"
+                    disabled={settingsLoading}
+                    className="w-full rounded-xl bg-red-700 hover:bg-red-600 py-2 sm:py-4 text-[10px] sm:text-sm font-black uppercase italic tracking-widest shadow-xl shadow-red-900/20 disabled:opacity-50 transition-all active:scale-95"
+                  >
+                    {settingsLoading ? 'Processando...' : 'Salvar Configurações'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

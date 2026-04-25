@@ -212,20 +212,20 @@ export default function Dashboard() {
   };
 
   return (
-    <main className="min-h-screen bg-[#0f0f13] text-gray-100 font-sans">
+    <main className="min-h-[100svh] bg-[#0f0f13] text-gray-100 font-sans">
       <Header />
 
-      <section className="mx-auto max-w-7xl px-6 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <section className="mx-auto max-w-7xl px-6 py-6 sm:py-10">
+        <div className="flex flex-col md:grid md:grid-cols-12 gap-8">
           
-          {/* Main Content (Left) */}
-          <div className="md:col-span-8">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold tracking-tight text-white">{t.activeGP}</h2>
-              <p className="text-sm text-gray-400 mt-1">{t.activeGPDesc}</p>
+          {/* Main Content (Left) - Order 2 on mobile */}
+          <div className="md:col-span-8 order-2 md:order-1">
+            <div className="mb-6 md:mb-8">
+              <h2 className="text-2xl md:text-3xl font-black md:font-bold tracking-tight text-white uppercase italic">{t.activeGP}</h2>
+              <p className="text-[10px] md:text-sm text-gray-400 mt-1 uppercase tracking-widest">{t.activeGPDesc}</p>
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-3 sm:grid sm:gap-6 sm:grid-cols-2 lg:grid-cols-3 sm:space-y-0">
               {loading ? (
                 <div className="col-span-full rounded-xl border border-white/5 bg-[#16161a] p-8 text-center text-gray-400 animate-pulse">{t.loadingRaces}</div>
               ) : error ? (
@@ -244,33 +244,46 @@ export default function Dashboard() {
                   return (
                     <div
                       key={race.round}
-                      className="group relative flex flex-col overflow-hidden rounded-2xl bg-[#16161a] shadow-lg transition-transform hover:-translate-y-1"
+                      className="group relative flex flex-row sm:flex-col overflow-hidden rounded-xl sm:rounded-2xl bg-[#16161a] shadow-lg transition-all hover:ring-1 hover:ring-red-600/50"
                     >
-                      {/* Race Image Header */}
-                      <div className="relative h-40 w-full overflow-hidden bg-[#242429]">
+                      {/* Race Image / Flag - Compact for Mobile, Card for Desktop */}
+                      <div className="relative h-24 w-24 shrink-0 sm:h-32 md:h-40 sm:w-full overflow-hidden bg-[#242429]">
                         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-red-600 via-orange-500 to-red-600 z-10" />
                         <img 
                           src={bgImage} 
                           alt={`${race.name} Card`} 
                           loading="lazy"
-                          className="h-full w-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-500"
+                          className="h-full w-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#16161a] via-[#16161a]/60 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#16161a] via-[#16161a]/40 to-transparent" />
+                        {/* Round Indicator on Image */}
+                        <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-md px-1.5 py-0.5 text-[8px] font-black text-white z-20">
+                          R{race.round}
+                        </div>
                       </div>
 
                       {/* Race Details */}
-                      <div className="flex flex-col flex-1 p-5 -mt-4 relative z-10">
-                        <h3 className="text-xl font-bold text-white tracking-tight leading-tight">{race.name}</h3>
-                        <p className="mt-2 text-xs text-gray-400 flex items-center gap-1">
-                          <span className="font-mono">{raceDateTime.toLocaleString(lang === 'pt' ? 'pt-BR' : 'en-US', { dateStyle: 'short', timeStyle: 'short' })}</span>
-                        </p>
+                      <div className="flex flex-col flex-1 p-3 sm:p-5 sm:-mt-4 relative z-10 justify-between">
+                        <div>
+                          <h3 className="text-sm sm:text-lg md:text-xl font-black text-white tracking-tight leading-tight uppercase italic">{race.name}</h3>
+                          <div className="mt-1 sm:mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                             <div className="flex items-center gap-1 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-[8px] sm:text-xs">
+                               <span className="text-red-500">📅</span>
+                               <span className="font-mono text-gray-300">{new Date(race.date).toLocaleDateString(lang === 'pt' ? 'pt-BR' : 'en-US')}</span>
+                             </div>
+                             <div className="flex items-center gap-1 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-[8px] sm:text-xs">
+                               <span className="text-red-500">🕒</span>
+                               <span className="font-mono text-gray-300">{race.time ? race.time.slice(0,5) : '15:00'}</span>
+                             </div>
+                          </div>
+                        </div>
                         
-                        <div className="mt-auto pt-6 w-full">
+                        <div className="mt-2 sm:mt-6 w-full">
                           {session ? (
                             !isLocked ? (
                               <button
                                 onClick={() => handleOpenBetModal(race)}
-                                className="w-full rounded-lg bg-red-700 py-2.5 text-sm font-bold text-white shadow-md hover:bg-red-600 transition"
+                                className="w-full rounded-lg bg-red-700 py-1.5 sm:py-2.5 text-[10px] sm:text-sm font-black uppercase italic text-white shadow-md hover:bg-red-600 transition tracking-tighter"
                               >
                                 {t.placeOrUpdate}
                               </button>
@@ -278,7 +291,7 @@ export default function Dashboard() {
                               <button
                                 onClick={isPast ? () => router.push(`/resultados/${race.round}`) : undefined}
                                 disabled={!isPast}
-                                className={`w-full rounded-lg py-2.5 text-sm font-bold shadow-md transition ${isPast ? 'bg-[#303036] text-white hover:bg-gray-600' : 'bg-[#1f1f23] text-gray-500 cursor-not-allowed'}`}
+                                className={`w-full rounded-lg py-1.5 sm:py-2.5 text-[10px] sm:text-sm font-black uppercase italic shadow-md transition ${isPast ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-[#1f1f23] text-gray-600 cursor-not-allowed'}`}
                               >
                                 {isPast ? t.viewResults : t.betsLocked}
                               </button>
@@ -286,7 +299,7 @@ export default function Dashboard() {
                           ) : (
                             <button
                               onClick={() => router.push('/login')}
-                              className="w-full rounded-lg bg-red-700 py-2.5 text-sm font-bold text-white shadow-md hover:bg-red-600 transition"
+                              className="w-full rounded-lg bg-red-700 py-1.5 sm:py-2.5 text-[10px] sm:text-sm font-black uppercase italic text-white shadow-md hover:bg-red-600 transition tracking-tighter"
                             >
                               {t.loginToBet}
                             </button>
@@ -300,41 +313,46 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Sidebar (Right) */}
-          <div className="md:col-span-4 space-y-6">
+          {/* Sidebar (Right) - Order 1 on mobile */}
+          <div className="md:col-span-4 space-y-6 order-1 md:order-2">
             
             {/* Player Ranking Widget */}
             <div className="rounded-2xl bg-[#16161a] shadow-lg overflow-hidden border border-white/5">
-              <div className="p-5 border-b border-white/5">
-                <h3 className="font-bold text-lg text-white">{t.rankingPlayers}</h3>
+              <div className="p-4 sm:p-5 border-b border-white/5 flex items-center justify-between">
+                <h3 className="font-black text-sm sm:text-lg text-white uppercase italic tracking-tighter">{t.rankingPlayers}</h3>
+                <span className="text-[10px] font-bold text-red-500 sm:hidden uppercase italic">TOP LÍDERES</span>
               </div>
               <div className="p-3">
                 {topUsers.length === 0 ? (
                   <p className="p-4 text-center text-sm text-gray-500">{t.loading}</p>
                 ) : (
-                  <ul className="space-y-2">
+                  <ul className="flex flex-row overflow-x-auto no-scrollbar gap-3 sm:flex-col sm:overflow-visible sm:space-y-2 pb-2 sm:pb-0">
                     {topUsers.map((u, i) => {
                       const isTop3 = i < 3;
                       return (
-                        <li key={u._id} className={`flex items-center justify-between p-3 rounded-xl transition ${isTop3 ? 'bg-[#1f1f26]' : 'bg-transparent'}`}>
-                          <div className="flex items-center gap-3">
-                            <span className={`w-6 text-center font-black ${i === 0 ? 'text-yellow-400' : i === 1 ? 'text-gray-300' : i === 2 ? 'text-yellow-700' : 'text-gray-500'}`}>
+                        <li key={u._id} className={`flex items-center gap-3 p-2.5 sm:p-3 rounded-xl transition shrink-0 min-w-[130px] sm:min-w-0 sm:justify-between ${isTop3 ? 'bg-red-600/10 border border-red-500/20' : 'bg-[#1a1a1f] border border-white/5 sm:bg-transparent sm:border-transparent'}`}>
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <span className={`w-4 sm:w-6 text-center font-black text-xs sm:text-base ${i === 0 ? 'text-yellow-400 font-mono' : i === 1 ? 'text-gray-300 font-mono' : i === 2 ? 'text-yellow-700 font-mono' : 'text-gray-500 font-mono'}`}>
                               {i + 1}
                             </span>
-                            {isTop3 && (
-                              <div className="h-8 w-8 overflow-hidden rounded-full border border-white/10 shrink-0 bg-[#1f1f26]">
-                                <img 
-                                  src={u.photo ? u.photo : `https://api.dicebear.com/7.x/notionists/svg?seed=${u.name}&backgroundColor=transparent`} 
-                                  alt={u.name} 
-                                  className="h-full w-full object-cover"
-                                />
-                              </div>
-                            )}
-                            <span className={`font-semibold ${isTop3 ? 'text-white text-sm' : 'text-gray-300 text-sm'}`}>
-                              {u.name.split(' ')[0]}
-                            </span>
+                            <div className="h-7 w-7 sm:h-8 sm:w-8 overflow-hidden rounded-full border border-white/10 shrink-0 bg-[#242429]">
+                              <img 
+                                src={u.photo ? u.photo : `https://api.dicebear.com/7.x/notionists/svg?seed=${u.name}&backgroundColor=transparent`} 
+                                alt={u.name} 
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                            <div>
+                               <p className={`font-black uppercase italic ${isTop3 ? 'text-white text-[10px] sm:text-sm tracking-tight' : 'text-gray-400 text-[10px]'}`}>
+                                 {u.name.split(' ')[0]}
+                               </p>
+                               <div className="sm:hidden flex items-center gap-1">
+                                 <span className="text-[9px] font-black text-red-500 font-mono">{u.points}</span>
+                                 <span className="text-[7px] text-gray-500 uppercase font-bold">PTS</span>
+                               </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="hidden sm:flex items-center gap-2">
                             {isTop3 && <span className="text-xl">🏆</span>}
                             <span className="font-mono text-sm font-bold text-white">{u.points}</span>
                           </div>
@@ -351,17 +369,17 @@ export default function Dashboard() {
               <div 
                 className="absolute inset-0 bg-[url('/logo.png')] opacity-20 mix-blend-screen bg-center bg-no-repeat bg-contain transition-transform duration-700 group-hover:scale-110" 
               />
-              <div className="p-6 relative z-10 flex flex-col h-full">
-                <div className="h-10 w-10 bg-red-600 rounded-full flex items-center justify-center mb-4 shadow-xl">
+              <div className="p-5 sm:p-6 relative z-10 flex flex-col h-full">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 bg-red-600 rounded-full flex items-center justify-center mb-3 sm:mb-4 shadow-xl">
                   {/* Alexa Icon mock */}
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
                 </div>
-                <h3 className="text-xl font-black text-white leading-tight mb-2">{t.alexaPromoTitle}</h3>
-                <p className="text-gray-300 text-sm font-medium mb-6">
+                <h3 className="text-lg sm:text-xl font-black text-white leading-tight mb-2">{t.alexaPromoTitle}</h3>
+                <p className="text-gray-300 text-xs sm:text-sm font-medium mb-4 sm:mb-6">
                   {t.alexaPromoDesc}
                 </p>
                 <div className="mt-auto">
-                  <div className="inline-block bg-red-600/20 border border-red-500/30 text-red-500 font-black px-4 py-2 rounded-lg text-xs uppercase tracking-widest shadow-lg animate-pulse">
+                  <div className="inline-block bg-red-600/20 border border-red-500/30 text-red-500 font-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-[10px] uppercase tracking-widest shadow-lg animate-pulse">
                     {t.alexaPromoBtn}
                   </div>
                 </div>

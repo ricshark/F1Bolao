@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Race from "@/models/Race";
 import Bet from "@/models/Bet";
 import SystemConfig from "@/models/SystemConfig";
+import { syncAlexaUser } from "@/lib/alexa-sync";
 
 export const runtime = "nodejs";
 
@@ -50,21 +51,14 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: false, message: 'Faltam dados para preencher o pódio completamente.' }, { status: 400 });
         }
 
-        // Identifica o Usuario na Base pelo Email
-        const user = await User.findOne({ email: userEmail });
-
+        // Identifica e sincroniza o Usuario na Base pelo Email e AlexaId
+        const user = await syncAlexaUser(userEmail, userId);
+ 
         if (!user) {
             return NextResponse.json({
                 success: false,
-                message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no F1 Bolão.'
+                message: 'Ocorreu um problema ao identificar ou criar sua conta no F1 Bolão.'
             });
-        }
-
-        // Se encontrou usuário e veio userId da Alexa, atualiza o alexaId no banco
-        if (userId && user.alexaId !== userId) {
-            user.alexaId = userId;
-            await user.save();
-            console.log(`alexaId atualizado para o usuário: ${userEmail}`);
         }
 
         // Busca a próxima corrida ativa

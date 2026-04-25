@@ -72,7 +72,7 @@ export default function Login() {
               alt="F1 Bolão Logo" 
               width={320} 
               height={320} 
-              className="inline-block rounded-full mb-8 shadow-[0_0_50px_rgba(220,38,38,0.4)] transition-transform hover:scale-105 duration-500" 
+              className="inline-block w-32 h-32 sm:w-48 sm:h-48 md:w-80 md:h-80 rounded-full mb-8 shadow-[0_0_50px_rgba(220,38,38,0.4)] transition-transform hover:scale-105 duration-500" 
               priority
             />
             <h1 className="text-4xl font-bold text-white mb-2 tracking-wider"></h1>
@@ -80,7 +80,7 @@ export default function Login() {
           </div>
 
           {/* Login Form */}
-          <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-8 shadow-2xl">
+          <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 p-6 sm:p-8 shadow-2xl">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-white mb-2">
                 {isRegister ? t.signUp : t.loginTitle}

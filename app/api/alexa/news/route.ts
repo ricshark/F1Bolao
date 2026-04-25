@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
+import { syncAlexaUser } from "@/lib/alexa-sync";
 
 export const runtime = "nodejs";
 export const dynamic = 'force-dynamic';
@@ -9,18 +10,12 @@ export async function POST(req: NextRequest) {
     try {
         await dbConnect();
 
-        // Tenta capturar o userId e email se enviados
+        // Tenta capturar o userId e email se enviados para sincronia de usuário
         try {
             const body = await req.json();
             const { email, userId } = body;
-
             if (email && userId) {
-                const user = await User.findOne({ email });
-                if (user && user.alexaId !== userId) {
-                    user.alexaId = userId;
-                    await user.save();
-                    console.log(`alexaId atualizado para o usuário: ${email}`);
-                }
+                await syncAlexaUser(email, userId);
             }
         } catch (e) {
             // Ignora se não for enviado body JSON ou se der erro no parse

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
   await dbConnect();
 
-  const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+  const users = await User.find({}).select('-password').sort({ isAdmin: -1, name: 1 });
   return NextResponse.json(users);
 }
 

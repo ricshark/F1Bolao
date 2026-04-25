@@ -17,7 +17,8 @@ export function Header() {
   const navLinks = [
     { name: t.navDashboard, path: '/dashboard' },
     { name: t.navRanking, path: '/ranking' },
-    { name: t.navMyBets, path: '/minhas-apostas' }
+    { name: t.navMyBets, path: '/minhas-apostas' },
+    { name: 'Notícias', path: '/news' }
   ];
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -156,19 +157,18 @@ export function Header() {
               )}
             </div>
 
-            {/* Mobile-only Hamburger Button */}
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 text-gray-400 hover:text-white transition-colors"
+              className="lg:hidden p-1.5 text-gray-400 hover:text-white transition-colors border border-white/10 rounded-lg"
               aria-label="Toggle Menu"
             >
               {isMenuOpen ? (
-                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               ) : (
-                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M8 18h12" />
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               )}
             </button>
@@ -186,8 +186,8 @@ export function Header() {
                     key={link.path} 
                     href={link.path}
                     onClick={() => setIsMenuOpen(false)}
-                    className={`text-2xl font-black uppercase tracking-widest ${
-                      pathname === link.path ? 'text-red-500 pl-4 border-l-4 border-red-600' : 'text-gray-200'
+                    className={`text-xl font-black uppercase tracking-tight italic ${
+                      pathname === link.path ? 'text-red-500 pl-3 border-l-2 border-red-600' : 'text-gray-200'
                     }`}
                   >
                     {link.name}
@@ -198,20 +198,20 @@ export function Header() {
              <div className="h-px bg-white/5" />
 
              <div className="flex flex-col gap-6">
-                <button 
+                 <button 
                   onClick={() => { toggleLang(); setIsMenuOpen(false); }}
-                  className="flex items-center gap-3 text-lg font-bold text-gray-400"
+                  className="flex items-center gap-2 text-base font-bold text-gray-400"
                 >
-                  <span className="text-2xl">🌐</span> {t.langToggle}
+                  <span className="text-xl">🌐</span> {t.langToggle}
                 </button>
                 
                 {session ? (
                   <>
                     <button 
                       onClick={() => { setShowProfileModal(true); setIsMenuOpen(false); }}
-                      className="flex items-center gap-3 text-lg font-bold text-gray-400"
+                      className="flex items-center gap-2 text-base font-bold text-gray-400"
                     >
-                      <span className="text-2xl">👤</span> {t.greeting}, {session.user?.name}
+                      <span className="text-xl">👤</span> {t.greeting}, {session.user?.name?.split(' ')[0]}
                     </button>
                     {(session.user as any)?.isAdmin && (
                       <button

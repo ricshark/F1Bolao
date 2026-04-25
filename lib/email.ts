@@ -91,3 +91,44 @@ export const sendBetReminderEmail = async (to: string, userName: string, raceNam
     throw error;
   }
 };
+
+// Function to send welcome email for Alexa auto-registration
+export const sendWelcomeEmail = async (to: string, userName: string, tempPass: string) => {
+  const mailOptions = {
+    from: process.env.SMTP_USER,
+    to,
+    subject: '[F1 Bolão] Bem-vindo ao time! Sua conta foi criada via Alexa',
+    text: `Olá ${userName}, sua conta no F1 Bolão foi criada automaticamente através do seu comando de voz na Alexa! Sua senha provisória é: ${tempPass}\n\nRecomendamos que você altere sua senha imediatamente acessando o site: https://f1-bolao-three.vercel.app/dashboard`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+        <h2 style="color: #e10600;">F1 Bolão - Bem-vindo!</h2>
+        <p>Olá <strong>${userName}</strong>,</p>
+        <p>Sua conta no <strong>F1 Bolão</strong> foi criada automaticamente através do seu comando de voz na Alexa!</p>
+        <div style="background-color: #f0f0f0; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center;">
+          <p style="margin: 0; color: #666; font-size: 14px;">Sua senha provisória é:</p>
+          <strong style="font-size: 24px; color: #e10600; font-family: monospace;">${tempPass}</strong>
+        </div>
+        <p>Para sua segurança, recomendamos que você altere sua senha imediatamente acessando sua conta pelo site.</p>
+        <p style="text-align: center; margin: 30px 0;">
+          <a href="https://f1-bolao-three.vercel.app/dashboard" 
+             style="background-color: #e10600; color: white; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: bold; display: inline-block;">
+            Acessar Minha Conta
+          </a>
+        </p>
+        <hr style="border: none; border-top: 1px solid #ddd; margin-top: 30px;" />
+        <p style="font-size: 12px; color: #999; text-align: center;">
+          Você recebeu este e-mail porque interagiu com a Skill F1 Bolão na Alexa.<br>
+          Equipe F1 Bolão
+        </p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+    throw error;
+  }
+};

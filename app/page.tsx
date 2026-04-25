@@ -51,7 +51,7 @@ export default function LandingPage() {
             alt="F1 Bolão Logo" 
             width={180} 
             height={180} 
-            className="flex-shrink-0 rounded-full group hover:scale-110 shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-transform duration-500" 
+            className="w-24 h-24 sm:w-32 sm:h-32 md:w-44 md:h-44 flex-shrink-0 rounded-full group hover:scale-110 shadow-[0_0_30px_rgba(220,38,38,0.5)] transition-transform duration-500" 
             priority
           />
         </Link>
@@ -71,21 +71,21 @@ export default function LandingPage() {
         </nav>
       </header>
 
-      <main className="relative z-30 flex flex-col items-center justify-center min-h-[calc(100vh-100px)] text-center px-4">
-        <div className="space-y-6 max-w-4xl mx-auto pb-20">
-          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-red-400 mb-4 backdrop-blur-sm">
+      <main className="relative z-30 flex flex-col items-center justify-center min-h-[calc(100svh-100px)] md:min-h-[calc(100vh-100px)] text-center px-4 py-10">
+        <div className="space-y-6 max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 rounded-full border border-red-500/40 bg-red-500/10 px-4 py-1.5 text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-red-400 mb-4 backdrop-blur-sm">
             <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(220,38,38,1)]" />
             {t.live}
           </div>
           
-          <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tight text-white mb-2 drop-shadow-2xl">
+          <h2 className="text-4xl sm:text-5xl md:text-8xl font-black uppercase tracking-tight text-white mb-2 drop-shadow-2xl leading-tight">
             {t.title1} <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-red-700 filter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">
               {t.title2}
             </span>
           </h2>
           
-          <p className="mx-auto max-w-2xl text-lg md:text-xl text-gray-300 font-light leading-relaxed mt-6 drop-shadow-md bg-black/20 p-4 rounded-xl backdrop-blur-sm border border-white/5">
+          <p className="mx-auto max-w-2xl text-base sm:text-lg md:text-xl text-gray-300 font-light leading-relaxed mt-6 drop-shadow-md bg-black/20 p-4 rounded-xl backdrop-blur-sm border border-white/5">
             {t.descPre}
             <span className="font-semibold text-white border-b border-red-500 pb-0.5">{t.fun}</span>
             {t.descPost}
@@ -94,10 +94,10 @@ export default function LandingPage() {
           <div className="pt-10 flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link
               href="/login"
-              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full bg-gradient-to-r from-red-700 to-red-600 px-10 py-5 text-sm font-bold uppercase tracking-widest text-white transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(220,38,38,0.8)] active:scale-95"
+              className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full bg-gradient-to-r from-red-700 to-red-600 px-8 py-4 sm:px-10 sm:py-5 text-xs sm:text-sm font-bold uppercase tracking-widest text-white transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(220,38,38,0.8)] active:scale-95"
             >
               <span className="relative z-10">{t.startPlaying}</span>
-              <svg className="w-5 h-5 transition-transform group-hover:translate-x-2 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-2 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
