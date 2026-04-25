@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
                     image,
                     password: hashedPassword,
                     isBot: true,
-                    points: Math.floor(Math.random() * 50) // Começam com alguns pontos aleatórios para simular histórico
+                    points: 0
                 });
             }
         }
