@@ -211,7 +211,7 @@ const LaunchRequestHandler = {
     handle(handlerInput) {
         return handlerInput.responseBuilder
             .speak('Luzes apagadas e lá vamos nós! Bem-vindo ao Fórmula 1 Bolão, o lugar onde a emoção das pistas encontra seus palpites certeiros! Você pode conferir sua posição no campeonato, descobrir o próximo destino do circo da F1 ou acelerar e registrar seus palpites agora mesmo!')
-            .reprompt('O grid está esperando! Diga, por exemplo: "Qual é meu ranking?" ou "Meu palpite é Hamilton, Russell e Piastri". O que você deseja fazer?')
+            .reprompt('O grid está esperando! Diga, por exemplo: "ranking", "próxima corrida" ou "meu palpite é Hamilton, Norris e Piastri". O que você deseja fazer?')
             .getResponse();
     }
 };
@@ -472,8 +472,8 @@ const GetPalpiteIntentHandler = {
         } catch (error) {
             console.log('Erro ao chamar API get-palpite:', error);
             return handlerInput.responseBuilder
-                .speak('Ocorreu um erro ao buscar seus palpites.')
-                .reprompt('Você pode tentar novamente ou perguntar seu ranking.')
+                .speak('Pit stop forçado! Tivemos uma falha ao buscar seus palpites. Tente novamente em instantes.')
+                .reprompt('Diga "meus palpites" para tentar novamente ou "ranking" para ver sua pontuação.')
                 .getResponse();
         }
     }
@@ -500,11 +500,12 @@ const GetLastRacePodiumIntentHandler = {
             const data = await callLastRacePodiumAPI(userId, email);
             return handlerInput.responseBuilder
                 .speak(data.speech)
-                .reprompt('Deseja saber mais alguma coisa?')
+                .reprompt('Quer mais emoção? Diga "próxima corrida", "ranking" ou "últimas notícias".')
                 .getResponse();
         } catch (error) {
             return handlerInput.responseBuilder
-                .speak('Ocorreu um erro ao buscar o pódio.')
+                .speak('Rádio do carro falhando! Não consegui buscar o pódio agora. Tente novamente em instantes.')
+                .reprompt('Diga "último pódio" para tentar de novo ou "ranking" para ver a classificação.')
                 .getResponse();
         }
     }
@@ -527,11 +528,12 @@ const GetNextRaceProbabilityIntentHandler = {
             const data = await callNextRaceProbabilityAPI(userId, email);
             return handlerInput.responseBuilder
                 .speak(data.speech)
-                .reprompt('Você pode registrar seu palpite agora. Diga quem você acha que vai ganhar.')
+                .reprompt('Hora de definir sua estratégia! Diga "meu palpite é" seguido dos três pilotos que você aposta no pódio. Ou diga "probabilidade próxima corrida" para ouvir novamente.')
                 .getResponse();
         } catch (error) {
             return handlerInput.responseBuilder
-                .speak('Ocorreu um erro ao buscar as probabilidades.')
+                .speak('Falha na telemetria! Não consegui carregar as probabilidades agora. Mas você ainda pode registrar seu palpite!')
+                .reprompt('Diga "meu palpite é Hamilton, Norris e Piastri" ou pergunte "próxima corrida".')
                 .getResponse();
         }
     }
@@ -554,11 +556,12 @@ const GetFOneNewsIntentHandler = {
             const data = await callNewsAPI(userId, email);
             return handlerInput.responseBuilder
                 .speak(data.speech)
-                .reprompt('Deseja realizar mais alguma ação?')
+                .reprompt('Quer continuar no paddock? Diga "ranking", "próxima corrida" ou "meu palpite é" seguido dos três pilotos.')
                 .getResponse();
         } catch (error) {
             return handlerInput.responseBuilder
-                .speak('Ocorreu um erro ao buscar as notícias.')
+                .speak('A conexão com o paddock caiu! Não consegui buscar as notícias agora. Tente de novo em instantes!')
+                .reprompt('Diga "últimas notícias" para tentar novamente ou "ranking" para ver sua pontuação.')
                 .getResponse();
         }
     }
@@ -566,10 +569,48 @@ const GetFOneNewsIntentHandler = {
 
 
 
+// =============================
+// CONTAR PIADA INTENT
+// =============================
+const piadasF1 = [
+    'Por que a Ferrari pintou o carro de vermelho? Para que as chamas combinem com a pintura! 🔥',
+    'O que o Alonso disse depois de 20 anos na Fórmula 1? Ainda estou aquecendo os pneus!',
+    'Por que o Max Verstappen é tão bom? Porque ele tem Max-imo talento, é claro!',
+    'Qual a diferença entre a Haas e um táxi? O táxi às vezes chega no destino!',
+    'Por que os pilotos de F1 são péssimos no supermercado? Porque sempre querem ultrapassar no corredor errado!',
+    'O que a Ferrari e um celular com bateria fraca têm em comum? Os dois ficam sem energia na pior hora!',
+    'Por que o Lewis Hamilton usa sempre preto? Para combinar com a trilha de borracha que ele deixa na pista!',
+    'O que o mecânico disse ao piloto antes da largada? Vá lá, acelera! Mas o carro quebrou antes mesmo de sair do pit!',
+    'Por que o Leclerc não usa GPS? Porque a Ferrari sempre o manda pelo caminho errado no pit stop!',
+    'Qual é o esporte favorito do mecânico de F1? Box-e!',
+    'O que um piloto de F1 pediu na padaria? Uma pole position de sonho e um pit stop de café!',
+    'Por que os pilotos dormem bem antes de cada corrida? Porque sabem que depois de uma curva, sempre vem uma reta!',
+    'O que tem 20 pilotos e 1 vencedor? Uma corrida de Fórmula 1! Mas se perguntar à Ferrari, eles dizem que tem 20 pilotos e zero vencedores!',
+    'Por que a Williams é como uma festa surpresa? Porque nunca se sabe o que vai acontecer!',
+    'O que um pit stop e um casamento têm em comum? Tudo depende de uma boa equipe e de bom tempo!'
+];
 
-// =============================
-// HELP / CANCEL / STOP / FALLBACK / ERROR
-// =============================
+const ContarPiadaIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'ContarPiadaIntent';
+    },
+    handle(handlerInput) {
+        const piada = piadasF1[Math.floor(Math.random() * piadasF1.length)];
+        const reprompts = [
+            'Quer ouvir mais uma? Diga "Contar Piada" para mais uma risada! Ou posso te ajudar com "ranking" ou "próxima corrida".',
+            'Ha, gostou? Diga "me faça rir um pouco" para mais uma! Ou pergunte sobre o "último pódio".',
+            'Boa essa! Diga "Contar Piada de Formula um" para mais uma ou "ranking" para ver sua pontuação!'
+        ];
+        const reprompt = reprompts[Math.floor(Math.random() * reprompts.length)];
+
+        return handlerInput.responseBuilder
+            .speak(piada)
+            .reprompt(reprompt)
+            .getResponse();
+    }
+};
+
 const HelpIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -577,24 +618,26 @@ const HelpIntentHandler = {
     },
     handle(handlerInput) {
         const speakOutput =
-            'O Fórmula 1 Bolão coloca você no cockpit! Veja o que você pode fazer: ' +
+            'O Bolão F1 coloca você no cockpit! Veja o que você pode fazer: ' +
 
             'Para conferir sua performance no campeonato, diga: ranking. ' +
 
             'Para saber quando será a próxima largada, diga: próxima corrida. ' +
 
-            'Para definir sua estratégia e registrar um palpite, diga por exemplo: meu palpite é Hamilton, Russell e Piastri. ' +
+            'Para definir sua estratégia e registrar um palpite, diga por exemplo: meu palpite é Hamilton, Norris e Piastri. ' +
 
             'Para relembrar suas escolhas, diga: meus palpites. ' +
 
-            'Você também pode focar em uma pista específica, dizendo: qual é o meu palpite para o Grande Prêmio do Brasil. ' +
+            'Para ouvir as notícias do paddock, diga: últimas notícias. ' +
 
-            'E para ficar por dentro de tudo que acontece no paddock, diga: últimas notícias. ' +
+            'Para ver quem tem mais chance de ganhar, diga: probabilidade próxima corrida. ' +
+
+            'E para dar uma risada, diga: Contar Piada! ' +
 
             'O sinal está verde! O que você gostaria de fazer?';
 
         const repromptOutput =
-            'Acelere! Diga seu ranking, pergunte da próxima corrida ou registre seu pódio preferido!';
+            'Diga "ranking", "próxima corrida" ou "meu palpite é" seguido dos três pilotos. O que vai ser?';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -624,7 +667,7 @@ const FallbackIntentHandler = {
     handle(handlerInput) {
         return handlerInput.responseBuilder
             .speak('Desculpe, saímos da pista! Não consegui entender o que você disse. Você pode perguntar sua pontuação ou registrar palpites para a próxima etapa.')
-            .reprompt('Tente dizer, "Qual é meu ranking?" ou "Quais são as últimas notícias?".')
+            .reprompt('Tente dizer: "ranking", "próxima corrida" ou "meus palpites".')
             .getResponse();
     }
 };
@@ -636,7 +679,8 @@ const ErrorHandler = {
     handle(handlerInput, error) {
         console.log('Erro Lambda:', error);
         return handlerInput.responseBuilder
-            .speak('Tivemos uma falha mecânica grave ao processar sua solicitação! Por favor, tente novamente em alguns instantes.')
+            .speak('Tivemos uma falha mecânica grave! Mas o safety car já está na pista. Tente novamente em instantes.')
+            .reprompt('Diga "ranking", "próxima corrida" ou "meu palpite é" para continuar.')
             .getResponse();
     }
 };
@@ -654,6 +698,7 @@ exports.handler = Alexa.SkillBuilders.custom()
         GetLastRacePodiumIntentHandler,
         GetNextRaceProbabilityIntentHandler,
         GetFOneNewsIntentHandler,
+        ContarPiadaIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         FallbackIntentHandler
@@ -663,7 +708,8 @@ exports.handler = Alexa.SkillBuilders.custom()
         handle(handlerInput, error) {
             console.log('Erro Lambda:', error);
             return handlerInput.responseBuilder
-                .speak('Ocorreu um erro ao processar sua solicitação.')
+                .speak('Tivemos uma falha mecânica! O safety car já está na pista. Tente novamente em instantes.')
+                .reprompt('Diga "ranking", "próxima corrida" ou "meu palpite é" para continuar.')
                 .getResponse();
         }
     })
