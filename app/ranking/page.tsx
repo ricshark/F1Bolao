@@ -26,7 +26,6 @@ interface Constructor {
   name: string;
   nationality: string;
   code: string;
-  nationality?: string;
 }
 
 
