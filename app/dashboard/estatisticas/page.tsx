@@ -19,6 +19,12 @@ interface PointEvolution {
     userPoints: number | null;
 }
 
+interface Comparison {
+    type: string;
+    avg: number;
+    count: number;
+}
+
 interface Consensus {
     raceName: string;
     predictedWinner: string;
