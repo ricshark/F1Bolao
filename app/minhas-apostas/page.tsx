@@ -34,15 +34,13 @@ export default function MyBetsPage() {
       fetch('/api/bets')
         .then(r => r.json())
         .then(data => {
-          if (Array.isArray(data)) {
-             // Sort bets by race date (descending: newest first for bets)
-             data.sort((a, b) => {
-               const dateA = new Date(a.race?.date || 0).getTime();
-               const dateB = new Date(b.race?.date || 0).getTime();
-               return dateB - dateA;
-             });
-             setBets(data);
-          }
+              // Sort bets by race date safely
+              const sorted = [...data].sort((a, b) => {
+                const dateA = a.race?.date ? new Date(a.race.date).getTime() : 0;
+                const dateB = b.race?.date ? new Date(b.race.date).getTime() : 0;
+                return dateB - dateA;
+              });
+              setBets(sorted);
         })
         .finally(() => setLoading(false));
     }
@@ -121,21 +119,21 @@ export default function MyBetsPage() {
 
                    {/* Predictions */}
                    <div className="flex items-center gap-1 hidden sm:flex">
-                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/5 min-w-[80px]">
+                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/10 min-w-[100px]">
                             <span className="text-[7px] text-gray-500 font-black uppercase">P1</span>
-                            <span className="text-[10px] font-black text-white truncate max-w-[70px] text-center">
+                            <span className="text-[10px] font-black text-white truncate max-w-[90px] text-center" title={bet.prediction?.first}>
                                 {bet.prediction?.first || '---'}
                             </span>
                         </div>
-                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/5 min-w-[80px]">
+                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/10 min-w-[100px]">
                             <span className="text-[7px] text-gray-500 font-black uppercase">P2</span>
-                            <span className="text-[10px] font-black text-gray-300 truncate max-w-[70px] text-center">
+                            <span className="text-[10px] font-black text-gray-300 truncate max-w-[90px] text-center" title={bet.prediction?.second}>
                                 {bet.prediction?.second || '---'}
                             </span>
                         </div>
-                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/5 min-w-[80px]">
+                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/10 min-w-[100px]">
                             <span className="text-[7px] text-gray-500 font-black uppercase">P3</span>
-                            <span className="text-[10px] font-black text-gray-400 truncate max-w-[70px] text-center">
+                            <span className="text-[10px] font-black text-gray-400 truncate max-w-[90px] text-center" title={bet.prediction?.third}>
                                 {bet.prediction?.third || '---'}
                             </span>
                         </div>

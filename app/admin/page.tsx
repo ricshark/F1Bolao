@@ -111,14 +111,23 @@ export default function AdminPage() {
     let result = [...bets];
     if (betFilter) {
       const q = betFilter.toLowerCase();
-      result = result.filter(b => b.user.name.toLowerCase().includes(q) || b.race.name.toLowerCase().includes(q));
+      result = result.filter(b => 
+        (b.user?.name?.toLowerCase().includes(q)) || 
+        (b.race?.name?.toLowerCase().includes(q))
+      );
     }
     if (betSortConfig) {
       result.sort((a, b) => {
         let valA: any, valB: any;
-        if (betSortConfig.key === 'user') { valA = a.user.name.toLowerCase(); valB = b.user.name.toLowerCase(); }
-        else if (betSortConfig.key === 'race') { valA = a.race.name.toLowerCase(); valB = b.race.name.toLowerCase(); }
-        else if (betSortConfig.key === 'points') { valA = a.points; valB = b.points; }
+        if (betSortConfig.key === 'user') { 
+          valA = a.user?.name?.toLowerCase() || ''; 
+          valB = b.user?.name?.toLowerCase() || ''; 
+        }
+        else if (betSortConfig.key === 'race') { 
+          valA = a.race?.name?.toLowerCase() || ''; 
+          valB = b.race?.name?.toLowerCase() || ''; 
+        }
+        else if (betSortConfig.key === 'points') { valA = a.points || 0; valB = b.points || 0; }
         else if (betSortConfig.key === 'date') { valA = new Date(a.createdAt).getTime(); valB = new Date(b.createdAt).getTime(); }
 
         if (valA < valB) return betSortConfig.direction === 'asc' ? -1 : 1;
@@ -695,11 +704,11 @@ export default function AdminPage() {
                 <tbody>
                   {sortedAndFilteredBets.map(bet => (
                     <tr key={bet._id} className="border-b border-white/5 hover:bg-white/5">
-                      <td className="py-3 px-4">{bet.user.name}</td>
+                      <td className="py-3 px-4">{bet.user?.name || 'Deleted User'}</td>
                       <td className="py-3 px-4">
                         <div>
-                          <div className="font-semibold">{bet.race.name}</div>
-                          <div className="text-xs text-gray-400">{bet.race.circuit}</div>
+                          <div className="font-semibold">{bet.race?.name || 'Unknown Race'}</div>
+                          <div className="text-xs text-gray-400">{bet.race?.circuit || 'N/A'}</div>
                         </div>
                       </td>
                       <td className="py-3 px-4">
@@ -738,14 +747,14 @@ export default function AdminPage() {
             {/* Mobile Bet Cards */}
             <div className="sm:hidden space-y-4">
               {sortedAndFilteredBets.map(bet => (
-                  <div key={bet._id} className={`rounded-xl border border-white/5 p-3 flex flex-col gap-2 transition ${new Date(bet.race.date) < new Date() ? 'bg-[#0a0a0c]' : 'bg-[#16161a] hover:border-red-600/30'}`}>
+                  <div key={bet._id} className={`rounded-xl border border-white/5 p-3 flex flex-col gap-2 transition ${new Date(bet.race?.date || 0) < new Date() ? 'bg-[#0a0a0c]' : 'bg-[#16161a] hover:border-red-600/30'}`}>
                     <div className="flex items-center justify-between gap-2">
                        <div className="flex-1 min-w-0">
                          <div className="flex items-center gap-2">
-                           <span className="text-[9px] font-black italic text-red-600 shrink-0">R{bet.race.round}</span>
-                           <h3 className="text-xs font-black text-white uppercase italic leading-tight truncate">{bet.race.name}</h3>
+                           <span className="text-[9px] font-black italic text-red-600 shrink-0">R{bet.race?.round || '?'}</span>
+                           <h3 className="text-xs font-black text-white uppercase italic leading-tight truncate">{bet.race?.name || 'Unknown Race'}</h3>
                          </div>
-                         <p className="text-[9px] font-bold text-gray-500 italic uppercase truncate">User: {bet.user.name}</p>
+                         <p className="text-[9px] font-bold text-gray-500 italic uppercase truncate">User: {bet.user?.name || 'Deleted'}</p>
                        </div>
                        <div className="text-center bg-white/5 border border-white/5 px-2 py-1 rounded min-w-[35px]">
                           <span className="block text-[7px] font-black text-gray-500 uppercase">PTS</span>
