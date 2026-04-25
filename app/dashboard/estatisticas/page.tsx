@@ -16,25 +16,28 @@ interface PointEvolution {
     round: number;
     name: string;
     avgPoints: number;
+    userPoints: number | null;
 }
 
-interface Comparison {
-    type: string;
-    avg: number;
-    count: number;
+interface Consensus {
+    raceName: string;
+    predictedWinner: string;
+    actualWinner: string;
+    isCorrect: boolean;
 }
 
 interface StatsData {
     pilotStats: PilotStat[];
     pointsEvolution: PointEvolution[];
     comparison: Comparison[];
+    consensus: Consensus | null;
 }
 
 export default function StatsPage() {
     const { t } = useLanguage();
     const [data, setData] = useState<StatsData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [chartType, setChartType] = useState<'bar' | 'line' | 'pie'>('bar');
+    const [chartType, setChartType] = useState<'bar' | 'line' | 'pie' | 'consensus'>('bar');
 
     useEffect(() => {
         fetch('/api/stats')
@@ -73,22 +76,28 @@ export default function StatsPage() {
                         <p className="text-sm text-gray-400 mt-1 uppercase tracking-widest">Estatísticas detalhadas de todos os palpites</p>
                     </div>
 
-                    <div className="flex bg-[#16161a] p-1 rounded-xl border border-white/5 shadow-inner">
+                    <div className="flex bg-[#16161a] p-1 rounded-xl border border-white/5 shadow-inner overflow-x-auto no-scrollbar">
                         <button 
                             onClick={() => setChartType('bar')}
-                            className={`px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all ${chartType === 'bar' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                            className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold uppercase transition-all whitespace-nowrap ${chartType === 'bar' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
                         >
                             Pilotos
                         </button>
                         <button 
                             onClick={() => setChartType('line')}
-                            className={`px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all ${chartType === 'line' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                            className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold uppercase transition-all whitespace-nowrap ${chartType === 'line' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
                         >
                             Evolução
                         </button>
                         <button 
+                            onClick={() => setChartType('consensus')}
+                            className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold uppercase transition-all whitespace-nowrap ${chartType === 'consensus' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                        >
+                            Consenso
+                        </button>
+                        <button 
                             onClick={() => setChartType('pie')}
-                            className={`px-4 py-2 rounded-lg text-xs font-bold uppercase transition-all ${chartType === 'pie' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+                            className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold uppercase transition-all whitespace-nowrap ${chartType === 'pie' ? 'bg-red-600 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
                         >
                             Bots vs Humanos
                         </button>
@@ -128,7 +137,19 @@ export default function StatsPage() {
 
                         {chartType === 'line' && (
                             <div>
-                                <h3 className="text-xl font-black text-white uppercase italic mb-8">Média de Pontos por Corrida</h3>
+                                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                                    <h3 className="text-xl font-black text-white uppercase italic">Seu Desempenho vs. Média Global</h3>
+                                    <div className="flex items-center gap-6">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-1 bg-white opacity-20 rounded-full" />
+                                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Média Global</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-3 h-1 bg-red-600 rounded-full" />
+                                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Seu Score</span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div className="h-[400px] w-full relative mt-10">
                                     {/* SVG Line Chart */}
                                     <svg viewBox="0 0 1000 400" className="w-full h-full overflow-visible">
@@ -141,17 +162,36 @@ export default function StatsPage() {
                                             />
                                         ))}
                                         
-                                        {/* Line */}
+                                        {/* Global Avg Line */}
+                                        <polyline
+                                            fill="none"
+                                            stroke="white"
+                                            strokeOpacity="0.2"
+                                            strokeWidth="2"
+                                            strokeDasharray="5,5"
+                                            strokeLinejoin="round"
+                                            points={data.pointsEvolution.map((p, i) => {
+                                                const maxPoints = Math.max(...data.pointsEvolution.map(e => Math.max(e.avgPoints, e.userPoints || 0)), 25);
+                                                const x = (i / (data.pointsEvolution.length - 1)) * 1000;
+                                                const y = 400 - (p.avgPoints / maxPoints) * 400;
+                                                return `${x},${y}`;
+                                            }).join(' ')}
+                                        />
+
+                                        {/* User Line */}
                                         <polyline
                                             fill="none"
                                             stroke="#dc2626"
                                             strokeWidth="4"
                                             strokeLinejoin="round"
                                             strokeLinecap="round"
-                                            points={data.pointsEvolution.map((p, i) => {
-                                                const maxPoints = Math.max(...data.pointsEvolution.map(e => e.avgPoints), 25);
-                                                const x = (i / (data.pointsEvolution.length - 1)) * 1000;
-                                                const y = 400 - (p.avgPoints / maxPoints) * 400;
+                                            points={data.pointsEvolution.filter(p => p.userPoints !== null).map((p, i, arr) => {
+                                                const maxPoints = Math.max(...data.pointsEvolution.map(e => Math.max(e.avgPoints, e.userPoints || 0)), 25);
+                                                const totalSteps = data.pointsEvolution.length - 1;
+                                                // Find actual index in original array
+                                                const originalIndex = data.pointsEvolution.findIndex(e => e.round === p.round);
+                                                const x = (originalIndex / totalSteps) * 1000;
+                                                const y = 400 - (p.userPoints! / maxPoints) * 400;
                                                 return `${x},${y}`;
                                             }).join(' ')}
                                             className="drop-shadow-[0_0_8px_rgba(220,38,38,0.5)]"
@@ -159,18 +199,27 @@ export default function StatsPage() {
                                         
                                         {/* Data Points */}
                                         {data.pointsEvolution.map((p, i) => {
-                                            const maxPoints = Math.max(...data.pointsEvolution.map(e => e.avgPoints), 25);
+                                            const maxPoints = Math.max(...data.pointsEvolution.map(e => Math.max(e.avgPoints, e.userPoints || 0)), 25);
                                             const x = (i / (data.pointsEvolution.length - 1)) * 1000;
-                                            const y = 400 - (p.avgPoints / maxPoints) * 400;
+                                            
                                             return (
                                                 <g key={i} className="group/point cursor-pointer">
-                                                    <circle cx={x} cy={y} r="6" fill="#dc2626" />
-                                                    <circle cx={x} cy={y} r="12" fill="white" fillOpacity="0" className="hover:fill-opacity-10 transition-all" />
-                                                    {/* Tooltip mock */}
-                                                    <text x={x} y={y - 20} textAnchor="middle" className="text-[10px] font-mono fill-white opacity-0 group-hover/point:opacity-100 transition-opacity">
-                                                        {p.avgPoints} pts
+                                                    {/* User Point */}
+                                                    {p.userPoints !== null && (
+                                                        <>
+                                                            <circle cx={x} cy={400 - (p.userPoints / maxPoints) * 400} r="6" fill="#dc2626" />
+                                                            <text x={x} y={400 - (p.userPoints / maxPoints) * 400 - 20} textAnchor="middle" className="text-[10px] font-mono font-black fill-white opacity-0 group-hover/point:opacity-100 transition-opacity">
+                                                                VOCÊ: {p.userPoints} pts
+                                                            </text>
+                                                        </>
+                                                    )}
+                                                    {/* Global Point */}
+                                                    <circle cx={x} cy={400 - (p.avgPoints / maxPoints) * 400} r="3" fill="white" fillOpacity="0.2" />
+                                                    <text x={x} y={400 - (p.avgPoints / maxPoints) * 400 + 20} textAnchor="middle" className="text-[10px] font-mono fill-gray-500 opacity-0 group-hover/point:opacity-100 transition-opacity">
+                                                        MÉDIA: {p.avgPoints} pts
                                                     </text>
-                                                    <text x={x} y={420} textAnchor="middle" className="text-[10px] font-bold fill-gray-500 uppercase tracking-tighter">
+
+                                                    <text x={x} y={430} textAnchor="middle" className="text-[10px] font-bold fill-gray-500 uppercase tracking-tighter">
                                                         R{p.round}
                                                     </text>
                                                 </g>
@@ -178,7 +227,50 @@ export default function StatsPage() {
                                         })}
                                     </svg>
                                 </div>
-                                <p className="text-center text-[10px] text-gray-500 mt-12 uppercase tracking-widest font-bold">Rodadas do Campeonato</p>
+                                <p className="text-center text-[10px] text-gray-500 mt-16 uppercase tracking-widest font-bold">Corridas Realizadas</p>
+                            </div>
+                        )}
+
+                        {chartType === 'consensus' && (
+                            <div className="flex flex-col h-full">
+                                <h3 className="text-xl font-black text-white uppercase italic mb-12">Consenso da Galera vs. Realidade</h3>
+                                
+                                {data.consensus ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-12">
+                                        <div className="text-center">
+                                            <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.3em] mb-2">Último Grande Prêmio</p>
+                                            <h4 className="text-4xl font-black text-white uppercase italic">{data.consensus.raceName}</h4>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+                                            <div className="relative group">
+                                                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                                                <div className="relative bg-[#1a1a1f] border border-white/5 p-8 rounded-2xl flex flex-col items-center">
+                                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Aposta da Maioria</span>
+                                                    <div className="text-4xl mb-4">🔮</div>
+                                                    <h5 className="text-2xl font-black text-white uppercase italic text-center">{data.consensus.predictedWinner}</h5>
+                                                </div>
+                                            </div>
+
+                                            <div className="relative group">
+                                                <div className={`absolute -inset-1 bg-gradient-to-r ${data.consensus.isCorrect ? 'from-green-600 to-emerald-500' : 'from-red-600 to-orange-500'} rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000`}></div>
+                                                <div className="relative bg-[#1a1a1f] border border-white/5 p-8 rounded-2xl flex flex-col items-center">
+                                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">Vencedor Real</span>
+                                                    <div className="text-4xl mb-4">🏁</div>
+                                                    <h5 className="text-2xl font-black text-white uppercase italic text-center">{data.consensus.actualWinner}</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className={`px-8 py-4 rounded-full border font-black uppercase italic tracking-widest text-lg ${data.consensus.isCorrect ? 'bg-green-600/10 border-green-500 text-green-500' : 'bg-red-600/10 border-red-500 text-red-500'}`}>
+                                            {data.consensus.isCorrect ? 'A GALERA ACERTOU!' : 'A ZEBRA VENCEU!'}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col items-center justify-center text-gray-500 italic">
+                                        Aguardando os resultados da primeira corrida para gerar análise de consenso...
+                                    </div>
+                                )}
                             </div>
                         )}
 
