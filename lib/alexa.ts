@@ -30,6 +30,7 @@ async function getAlexaAccessToken() {
             // Padrão oficial Amazon LWA: enviar no corpo como x-www-form-urlencoded
             const response = await fetch('https://api.amazon.com/auth/o2/token', {
                 method: 'POST',
+                cache: 'no-store',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
