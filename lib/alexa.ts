@@ -26,20 +26,18 @@ async function getAlexaAccessToken() {
     // Tentamos até 3 vezes com intervalo em caso de erro 500
     for (let attempt = 1; attempt <= 3; attempt++) {
         try {
-            // Logando 40 caracteres para ver o ID real
-            console.log(`[Alexa Debug] ID: ${clientId.trim().substring(0, 40)}...`);
+            const auth = Buffer.from(`${clientId.trim()}:${clientSecret.trim()}`).toString('base64');
             
-            // TESTE: Removendo o SCOPE para ver se o erro 500 para
             const response = await fetch('https://api.amazon.com/auth/o2/token', {
                 method: 'POST',
                 cache: 'no-store',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': `Basic ${auth}`
                 },
                 body: new URLSearchParams({
                     grant_type: 'client_credentials',
-                    client_id: clientId.trim(),
-                    client_secret: clientSecret.trim()
+                    scope: scopeName
                 }).toString()
             });
 
