@@ -19,11 +19,11 @@ async function getAlexaAccessToken() {
         throw new Error("ALEXA_CLIENT_ID ou ALEXA_CLIENT_SECRET não configurados.");
     }
 
-    // Usamos o escopo de Lembretes como alvo principal
+    // Escopo necessário para criar lembretes
     const scopeName = 'alexa::alerts:reminders:skill:readwrite';
     let lastError = null;
     
-    // Tentamos até 3 vezes com intervalo em caso de erro 500
+    // Tentamos até 3 vezes com intervalo em caso de erro 500 (instabilidade da Amazon)
     for (let attempt = 1; attempt <= 3; attempt++) {
         try {
             const auth = Buffer.from(`${clientId.trim()}:${clientSecret.trim()}`).toString('base64');
