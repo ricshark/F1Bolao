@@ -18,6 +18,7 @@ export function Header() {
     { name: t.navDashboard, path: '/dashboard' },
     { name: t.navRanking, path: '/ranking' },
     { name: t.navMyBets, path: '/minhas-apostas' },
+    { name: t.navStats, path: '/dashboard/estatisticas' },
     { name: 'Notícias', path: '/news' }
   ];
 

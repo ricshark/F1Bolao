@@ -68,6 +68,7 @@ const defaultTranslations = {
     navDashboard: "Dashboard",
     navRanking: "Ranking",
     navMyBets: "My Bets",
+    navStats: "Stats",
     
     // Widgets & Extras
     rankingPlayers: "Player Ranking",
@@ -138,6 +139,7 @@ const defaultTranslations = {
     navDashboard: "Dashboard",
     navRanking: "Ranking",
     navMyBets: "Minhas Apostas",
+    navStats: "Estatísticas",
     
     // Widgets & Extras
     rankingPlayers: "Ranking dos Jogadores",

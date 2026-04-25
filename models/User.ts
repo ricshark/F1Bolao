@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema({
   photo: { type: String, default: null },
   resetToken: { type: String, default: null },
   resetTokenExpires: { type: Date, default: null },
+  isBot: { type: Boolean, default: false },
 }, { timestamps: true });
 
 if (mongoose.models.User) {
