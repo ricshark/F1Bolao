@@ -37,15 +37,31 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: "No future races found." });
         }
 
-        // 2. Check lock time
+        // 2. Check timing and lock status
         const config = await SystemConfig.findOne();
         const betLockHours = config?.betLockHours ?? 1;
+        
         const raceDateStr = new Date(nextRace.date).toISOString().split('T')[0];
         const raceDateTime = new Date(nextRace.time ? `${raceDateStr}T${nextRace.time}` : `${raceDateStr}T15:00:00Z`);
+        
+        const diffMs = raceDateTime.getTime() - now.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
+
+        // REGRAS:
+        // - Não pode ter passado do tempo de bloqueio (lockTime)
+        // - Só vota se faltar menos de 2.5 horas para a largada (janela de ativação)
+        
         const lockTime = new Date(raceDateTime.getTime() - betLockHours * 3600 * 1000);
 
         if (now > lockTime) {
-            return NextResponse.json({ message: "Betting is locked for the next race." });
+            return NextResponse.json({ message: `Betting is locked for ${nextRace.name}.` });
+        }
+
+        if (diffHours > 2.5) {
+            return NextResponse.json({ 
+                message: `Too early for bot bets. Next race ${nextRace.name} is in ${diffHours.toFixed(1)} hours.`,
+                diffHours 
+            });
         }
 
         // 3. Find all bots
