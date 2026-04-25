@@ -14,6 +14,12 @@ export const dynamic = 'force-dynamic';
 // This endpoint should be triggered periodically via a cron job service (e.g. Vercel Cron, GitHub Actions)
 export async function GET(req: Request) {
     const authHeader = req.headers.get('authorization');
+    const secret = process.env.CRON_SECRET || "";
+
+    // Log de segurança para depuração (mostra apenas partes da chave)
+    console.log(`[DEBUG] Header: ${authHeader ? authHeader.substring(0, 15) + '...' + authHeader.slice(-4) : 'null'}`);
+    console.log(`[DEBUG] Secret: Bearer ${secret.substring(0, 4)}...${secret.slice(-4)}`);
+
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
         return new NextResponse('Unauthorized', { status: 401 });
     }
