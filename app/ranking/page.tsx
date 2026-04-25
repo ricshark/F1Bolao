@@ -17,6 +17,7 @@ interface Driver {
   name: string;
   team: string;
   code: string;
+  nationality?: string;
 }
 
 interface Constructor {
@@ -25,7 +26,22 @@ interface Constructor {
   name: string;
   nationality: string;
   code: string;
+  nationality?: string;
 }
+
+
+const getFlagEmoji = (nationality: string | undefined): string => {
+  if (!nationality) return "";
+  const map: Record<string, string> = {
+    "British": "🇬🇧", "Brazilian": "🇧🇷", "Dutch": "🇳🇱", "Monegasque": "🇲🇨",
+    "Spanish": "🇪🇸", "German": "🇩🇪", "Mexican": "🇲🇽", "Australian": "🇦🇺",
+    "French": "🇫🇷", "Canadian": "🇨🇦", "Japanese": "🇯🇵", "Thai": "🇹🇭",
+    "Chinese": "🇨🇳", "American": "🇺🇸", "Italian": "🇮🇹", "Austrian": "🇦🇹",
+    "Swiss": "🇨🇭", "Finnish": "🇫🇮", "Danish": "🇩🇰", "New Zealander": "🇳🇿",
+    "Monégasque": "🇲🇨"
+  };
+  return map[nationality] || "🏁";
+};
 
 export default function RankingPage() {
   const { t } = useLanguage();
@@ -117,7 +133,7 @@ export default function RankingPage() {
                         
                         <div>
                           <p className={`font-black uppercase italic ${isTop3 ? 'text-white text-xs' : 'text-gray-300 text-xs'}`}>
-                            {u.name.split(' ')[0]}
+                            {u.name}
                           </p>
                         </div>
                       </div>
@@ -161,7 +177,7 @@ export default function RankingPage() {
                         
                         <div className="min-w-0">
                           <p className={`font-black uppercase italic truncate ${isTop3 ? 'text-white text-xs' : 'text-gray-300 text-xs'}`}>
-                            {d.name.split(' ').pop()}
+                            {getFlagEmoji(d.nationality)} {d.name}
                           </p>
                           <p className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter truncate">{d.team.split(' ')[0]}</p>
                         </div>
@@ -206,7 +222,7 @@ export default function RankingPage() {
                         
                         <div className="min-w-0">
                           <p className={`font-black uppercase italic truncate ${isTop3 ? 'text-white text-xs' : 'text-gray-300 text-xs'}`}>
-                            {c.name}
+                            {getFlagEmoji(c.nationality)} {c.name}
                           </p>
                           <p className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter truncate">{c.nationality}</p>
                         </div>

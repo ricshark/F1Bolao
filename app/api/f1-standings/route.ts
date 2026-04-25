@@ -18,7 +18,8 @@ export async function GET() {
             points: item.points,
             name: `${item.Driver.givenName} ${item.Driver.familyName}`,
             team: item.Constructors[0].name,
-            code: item.Driver.code
+            code: item.Driver.code,
+            nationality: item.Driver.nationality
         }));
 
         return NextResponse.json(formattedStandings);
