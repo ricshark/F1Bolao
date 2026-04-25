@@ -25,11 +25,20 @@ async function getAlexaAccessToken() {
     
     // Tentamos até 3 vezes com intervalo em caso de erro 500
     for (let attempt = 1; attempt <= 3; attempt++) {
-        // Formato Query String para máxima compatibilidade com Amazon LWA
-        const url = `https://api.amazon.com/auth/o2/token?grant_type=client_credentials&client_id=${encodeURIComponent(clientId.trim())}&client_secret=${encodeURIComponent(clientSecret.trim())}&scope=${encodeURIComponent(scopeName)}`;
-
         try {
-            const response = await fetch(url, { method: 'POST' });
+            // Padrão oficial Amazon LWA: enviar no corpo como x-www-form-urlencoded
+            const response = await fetch('https://api.amazon.com/auth/o2/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    grant_type: 'client_credentials',
+                    client_id: clientId.trim(),
+                    client_secret: clientSecret.trim(),
+                    scope: scopeName
+                }).toString()
+            });
 
             if (response.ok) {
                 const data = await response.json();
