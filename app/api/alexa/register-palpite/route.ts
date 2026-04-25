@@ -9,12 +9,14 @@ import { syncAlexaUser } from "@/lib/alexa-sync";
 export const runtime = "nodejs";
 
 const OFFICIAL_DRIVERS = [
-    'Arvid Lindblad', 'Carlos Sainz', 'Charles Leclerc', 'Esteban Ocon',
-    'Fernando Alonso', 'Franco Colapinto', 'Gabriel Bortoleto', 'George Russell',
-    'Isack Hadjar', 'Lance Stroll', 'Lewis Hamilton', 'Liam Lawson',
-    'Lando Norris', 'Max Verstappen', 'Nico Hülkenberg', 'Oliver Bearman',
-    'Oscar Piastri', 'Pierre Gasly', 'Sergio Pérez', 'Valtteri Bottas'
+    'Alexander Albon', 'Carlos Sainz', 'Charles Leclerc', 'Esteban Ocon',
+    'Fernando Alonso', 'Gabriel Bortoleto', 'George Russell', 'Isack Hadjar',
+    'Jack Doohan', 'Kimi Antonelli', 'Lance Stroll', 'Lewis Hamilton',
+    'Liam Lawson', 'Lando Norris', 'Max Verstappen', 'Nico Hülkenberg',
+    'Oliver Bearman', 'Oscar Piastri', 'Pierre Gasly', 'Yuki Tsunoda'
 ];
+
+const officialDriversSet = new Set(OFFICIAL_DRIVERS);
 
 function matchDriverName(input: string): string {
     if (!input) return '';
@@ -86,6 +88,20 @@ export async function POST(req: NextRequest) {
             second: matchDriverName(piloto2),
             third: matchDriverName(piloto3)
         };
+
+        // Validação final: rejeita qualquer nome não reconhecido
+        const invalidos = [];
+        if (!officialDriversSet.has(prediction.first)) invalidos.push(piloto1);
+        if (!officialDriversSet.has(prediction.second)) invalidos.push(piloto2);
+        if (!officialDriversSet.has(prediction.third)) invalidos.push(piloto3);
+
+        if (invalidos.length > 0) {
+            const nomes = invalidos.map(n => `"${n}"`).join(' e ');
+            return NextResponse.json({
+                success: false,
+                message: `Bandeira vermelha! Não reconheci ${nomes} como piloto da Fórmula 1. Por favor, tente novamente dizendo o sobrenome completo.`
+            }, { status: 400 });
+        }
 
         let existingBet = await Bet.findOne({ user: user._id, race: nextRace._id });
         const currentDate = new Date();

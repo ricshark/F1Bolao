@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (!userEmail) {
-            return NextResponse.json({ success: false, message: 'Identificação do usuário da Alexa não fornecida.' }, { status: 400 });
+            return NextResponse.json({ success: false, message: 'Fomos desclassificados! Não recebi sua identificação de piloto.' }, { status: 400 });
         }
 
         // Buscar usuário pelo alexaId
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
         if (!user) {
             return NextResponse.json({
                 success: false,
-                message: 'Sua conta da Alexa ainda não está vinculada a nenhum usuário no F1 Bolão.'
+                message: 'Você ainda não está no nosso grid de largada! Sua conta não foi encontrada no F1 Bolão.'
             });
         }
 
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
         }
 
         if (!targetRace) {
-            return NextResponse.json({ success: false, message: 'Calendário de corridas não disponível no momento.' });
+            return NextResponse.json({ success: false, message: 'O calendário oficial sumiu dos boxes! Nenhuma corrida encontrada.' });
         }
 
         // Buscar palpite do usuário para esta corrida
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
         if (!bet) {
             return NextResponse.json({
                 success: true,
-                message: `Você ainda não registrou nenhum palpite para o ${targetRace.name}.`,
+                message: `Você ainda não definiu sua estratégia para o ${targetRace.name}. O grid está aberto para seus palpites!`,
                 raceName: targetRace.name,
                 hasBet: false
             });
@@ -87,6 +87,6 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error('Erro API get-palpite:', error);
-        return NextResponse.json({ success: false, message: 'Ocorreu um erro interno ao buscar seus palpites.' }, { status: 500 });
+        return NextResponse.json({ success: false, message: 'Tivemos uma pane seca no sistema! Não consegui buscar seus palpites agora.' }, { status: 500 });
     }
 }

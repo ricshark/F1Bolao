@@ -251,7 +251,7 @@ const GetRankingIntentHandler = {
         } catch (error) {
             console.log('Erro ao chamar API:', error);
             return handlerInput.responseBuilder
-                .speak('Opa, tivemos uma rodada na pista! Ocorreu um erro ao acessar o bolão.')
+                .speak('Opa, tivemos uma rodada na pista! O sistema de cronometragem falhou. Tente novamente em instantes.')
                 .reprompt('Recupere o controle e tente novamente ou pergunte sobre a próxima corrida.')
                 .getResponse();
         }
@@ -291,7 +291,7 @@ const GetNextRaceIntentHandler = {
         } catch (error) {
             console.log('Erro ao chamar API:', error);
             return handlerInput.responseBuilder
-                .speak('Tivemos um problema de telemetria! Ocorreu um erro ao acessar as informações da corrida.')
+                .speak('Tivemos um problema de telemetria! Não consegui captar o sinal da pista agora. Tente de novo em instantes.')
                 .reprompt('Aperte o cinto e tente novamente ou pergunte seu ranking.')
                 .getResponse();
         }
@@ -422,6 +422,12 @@ const pilotoAliases = {
     "liam": "Liam Lawson", "liam loson": "Liam Lawson",
     "loson": "Liam Lawson", "lison": "Liam Lawson",
     "liom lawson": "Liam Lawson",
+
+    // KIMI ANTONELLI (Mercedes)
+    "antonelli": "Kimi Antonelli", "kimi antonelli": "Kimi Antonelli",
+    "kimi": "Kimi Antonelli", "antoñelli": "Kimi Antonelli",
+    "antonielli": "Kimi Antonelli", "andrea antonelli": "Kimi Antonelli",
+    "andrea kimi antonelli": "Kimi Antonelli",
 
     // PILOTOS ANTERIORES (retrocompatibilidade)
     "pérez": "Sergio Perez", "sergio pérez": "Sergio Perez",
@@ -711,26 +717,28 @@ const HelpIntentHandler = {
     },
     handle(handlerInput) {
         const speakOutput =
-            'O Bolão F1 coloca você no cockpit! Veja o que você pode fazer: ' +
+            'O Bolão F1 é o seu rádio de equipe! Aqui estão todos os comandos que você pode usar: ' +
+            
+            '1. Para ver sua pontuação e posição, diga: "ranking". ' +
+            
+            '2. Para saber os detalhes da próxima etapa, diga: "próxima corrida". ' +
+            
+            '3. Para registrar sua aposta, diga: "meu palpite é", seguido do nome de três pilotos. ' +
+            
+            '4. Para relembrar suas apostas feitas, diga: "meus palpites". ' +
+            
+            '5. Para saber quem subiu no pódio na última etapa, diga: "último pódio". ' +
+            
+            '6. Para ouvir as fofocas e novidades do paddock, diga: "últimas notícias". ' +
+            
+            '7. Para ver quem a comunidade acha que vai ganhar, diga: "probabilidade próxima corrida". ' +
+            
+            '8. E para relaxar um pouco, diga: "Contar Piada". ' +
 
-            'Para conferir sua performance no campeonato, diga: ranking. ' +
-
-            'Para saber quando será a próxima largada, diga: próxima corrida. ' +
-
-            'Para definir sua estratégia e registrar um palpite, diga por exemplo: meu palpite é Hamilton, Norris e Piastri. ' +
-
-            'Para relembrar suas escolhas, diga: meus palpites. ' +
-
-            'Para ouvir as notícias do paddock, diga: últimas notícias. ' +
-
-            'Para ver quem tem mais chance de ganhar, diga: probabilidade próxima corrida. ' +
-
-            'E para dar uma risada, diga: Contar Piada! ' +
-
-            'O sinal está verde! O que você gostaria de fazer?';
+            'Ficou com alguma dúvida sobre algum desses comandos ou quer acelerar com um deles agora?';
 
         const repromptOutput =
-            'Diga "ranking", "próxima corrida" ou "meu palpite é" seguido dos três pilotos. O que vai ser?';
+            'Estou à disposição nos boxes! Qual desses comandos você quer usar agora? Ranking, próxima corrida, palpite ou quem sabe uma piada?';
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
@@ -796,15 +804,6 @@ exports.handler = Alexa.SkillBuilders.custom()
         CancelAndStopIntentHandler,
         FallbackIntentHandler
     )
-    .addErrorHandlers({
-        canHandle() { return true; },
-        handle(handlerInput, error) {
-            console.log('Erro Lambda:', error);
-            return handlerInput.responseBuilder
-                .speak('Tivemos uma falha mecânica! O safety car já está na pista. Tente novamente em instantes.')
-                .reprompt('Diga "ranking", "próxima corrida" ou "meu palpite é" para continuar.')
-                .getResponse();
-        }
-    })
+    .addErrorHandlers(ErrorHandler)
     .withApiClient(new Alexa.DefaultApiClient()) // Necessário para acessar o perfil do usuário
     .lambda();

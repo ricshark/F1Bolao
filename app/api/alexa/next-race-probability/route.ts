@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
         console.error(error);
         return NextResponse.json({
             success: false,
-            speech: "Erro ao calcular probabilidade da próxima corrida."
+            speech: "A pista está com óleo! Tivemos um erro ao calcular a probabilidade da próxima corrida."
         }, { status: 500 });
     }
 }
