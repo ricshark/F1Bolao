@@ -26,6 +26,7 @@ async function getAlexaAccessToken() {
     // Tentamos até 3 vezes com intervalo em caso de erro 500
     for (let attempt = 1; attempt <= 3; attempt++) {
         try {
+            console.log(`[Alexa Debug] Tentando obter token para ClientID: ${clientId.trim().substring(0, 15)}...`);
             // Padrão oficial Amazon LWA: enviar no corpo como x-www-form-urlencoded
             const response = await fetch('https://api.amazon.com/auth/o2/token', {
                 method: 'POST',
