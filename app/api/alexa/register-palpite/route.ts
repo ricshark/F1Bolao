@@ -103,6 +103,14 @@ export async function POST(req: NextRequest) {
             }, { status: 400 });
         }
 
+        // Validação de duplicados
+        if (prediction.first === prediction.second || prediction.first === prediction.third || prediction.second === prediction.third) {
+            return NextResponse.json({
+                success: false,
+                message: 'Punição dos comissários! Você não pode repetir o mesmo piloto em posições diferentes do pódio.'
+            }, { status: 400 });
+        }
+
         let existingBet = await Bet.findOne({ user: user._id, race: nextRace._id });
         const currentDate = new Date();
         if (existingBet) {

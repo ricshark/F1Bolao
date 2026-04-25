@@ -32,6 +32,11 @@ export async function POST(request: NextRequest) {
   await dbConnect();
 
   const { round, prediction } = await request.json();
+  const { first, second, third } = prediction;
+
+  if (first === second || first === third || second === third) {
+    return NextResponse.json({ error: 'Você não pode repetir o mesmo piloto em posições diferentes do pódio.' }, { status: 400 });
+  }
 
   let race = await Race.findOne({ round });
   if (!race) {
