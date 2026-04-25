@@ -108,7 +108,9 @@ export default function MyBetsPage() {
                         {race?.name?.replace('Grand Prix', 'GP') || 'GP Desconhecido'}
                       </h3>
                       <div className="flex items-center gap-2 mt-0.5">
-                         <span className="text-[9px] text-gray-500 font-bold uppercase truncate">{race?.circuit?.split(',')[0]}</span>
+                         <span className="text-[9px] text-gray-500 font-bold uppercase truncate">
+                           {race?.circuit ? race.circuit.split(',')[0] : 'Circuito'}
+                         </span>
                          {isPast ? (
                            <span className="text-[8px] font-black uppercase text-gray-600 bg-white/5 px-1 rounded">Past</span>
                          ) : (

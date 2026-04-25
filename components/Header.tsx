@@ -127,11 +127,11 @@ export function Header() {
               
               {session ? (
                 <div className="flex items-center gap-3">
-                   <button 
+                  <button 
                     onClick={() => setShowProfileModal(true)}
                     className="text-xs font-bold text-gray-400 hover:text-white transition uppercase border-r border-white/10 pr-3"
                   >
-                    {session.user?.name?.split(' ')[0]}
+                    {session.user?.name ? session.user.name.split(' ')[0] : 'User'}
                   </button>
                   {(session.user as any)?.isAdmin && (
                     <button
@@ -212,7 +212,7 @@ export function Header() {
                       onClick={() => { setShowProfileModal(true); setIsMenuOpen(false); }}
                       className="flex items-center gap-2 text-base font-bold text-gray-400"
                     >
-                      <span className="text-xl">👤</span> {t.greeting}, {session.user?.name?.split(' ')[0]}
+                      <span className="text-xl">👤</span> {t.greeting}, {session.user?.name ? session.user.name.split(' ')[0] : 'User'}
                     </button>
                     {(session.user as any)?.isAdmin && (
                       <button
