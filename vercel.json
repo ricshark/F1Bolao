@@ -6,7 +6,6 @@
     },
     {
       "path": "/api/cron/process-bot-bets",
-      //"schedule": "0 10,6,12,18 * * *"
       "schedule": "0 10 * * *"
     }
   ]
