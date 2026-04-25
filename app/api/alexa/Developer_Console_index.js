@@ -301,82 +301,141 @@ const GetNextRaceIntentHandler = {
 // =============================
 // REGISTRAR PALPITE INTENT
 // =============================
-// Dicionário de aliases para normalizar nomes
+
+// Dicionário de aliases para normalizar nomes dos pilotos
 const pilotoAliases = {
-    // Mercedes
-    "hamilton": "Lewis Hamilton",
-    "reminton": "Lewis Hamilton",
-    "amilton": "Lewis Hamilton",
-    "luís hamilton": "Lewis Hamilton",
-    "lewis hamiltom": "Lewis Hamilton",
-    "lewis hamilton": "Lewis Hamilton",
-    "russel": "George Russell",
-    "jorge russel": "George Russell",
-    "george russel": "George Russell",
-    "george russell": "George Russell",
 
-    // Ferrari
-    "leclerc": "Charles Leclerc",
-    "lek": "Charles Leclerc",
-    "le clerc": "Charles Leclerc",
-    "le clerk": "Charles Leclerc",
-    "Charles": "Charles Leclerc",
-    "charles leclér": "Charles Leclerc",
-    "charles leclerc": "Charles Leclerc",
-    "sainz": "Carlos Sainz",
-    "carlos sainz": "Carlos Sainz",
-    "carlos sainz jr": "Carlos Sainz",
+    // LEWIS HAMILTON (Ferrari)
+    "hamilton": "Lewis Hamilton", "lewis hamilton": "Lewis Hamilton",
+    "lewis": "Lewis Hamilton", "lewis hamiltom": "Lewis Hamilton",
+    "lewis hamiltton": "Lewis Hamilton", "luís hamilton": "Lewis Hamilton",
+    "luis hamilton": "Lewis Hamilton", "louiz hamilton": "Lewis Hamilton",
+    "hamiltonn": "Lewis Hamilton", "amilton": "Lewis Hamilton",
+    "reminton": "Lewis Hamilton", "hamilton lewis": "Lewis Hamilton",
 
-    // Red Bull
-    "verstapen": "Max Verstappen",
-    "max verstapen": "Max Verstappen",
-    "max verstappen": "Max Verstappen",
-    "pérez": "Sergio Perez",
-    "sergio pérez": "Sergio Perez",
-    "checo pérez": "Sergio Perez",
+    // GEORGE RUSSELL (Mercedes)
+    "russell": "George Russell", "russel": "George Russell",
+    "george russell": "George Russell", "george russel": "George Russell",
+    "jorge russel": "George Russell", "jorge russell": "George Russell",
+    "jorje russell": "George Russell", "george rassel": "George Russell",
+    "rassel": "George Russell",
 
-    // McLaren
-    "norris": "Lando Norris",
-    "lando norris": "Lando Norris",
-    "piastri": "Oscar Piastri",
-    "piastre": "Oscar Piastri",
-    "oscar piastre": "Oscar Piastri",
+    // CHARLES LECLERC (Ferrari)
+    "leclerc": "Charles Leclerc", "charles leclerc": "Charles Leclerc",
+    "charles": "Charles Leclerc", "charles leclér": "Charles Leclerc",
+    "charles leclerk": "Charles Leclerc", "charles leclerque": "Charles Leclerc",
+    "le clerc": "Charles Leclerc", "le clerk": "Charles Leclerc",
+    "lek": "Charles Leclerc", "xarles leclerc": "Charles Leclerc",
+    "xarles": "Charles Leclerc", "leclerk": "Charles Leclerc",
+    "leclerque": "Charles Leclerc",
 
-    // Aston Martin
-    "alonso": "Fernando Alonso",
-    "fernando alonso": "Fernando Alonso",
-    "stroll": "Lance Stroll",
-    "lance stroll": "Lance Stroll",
+    // MAX VERSTAPPEN (Red Bull)
+    "verstappen": "Max Verstappen", "max verstappen": "Max Verstappen",
+    "max verstapen": "Max Verstappen", "verstapen": "Max Verstappen",
+    "max verstepen": "Max Verstappen", "verstepen": "Max Verstappen",
+    "max ferstapen": "Max Verstappen", "ferstapen": "Max Verstappen",
+    "max ferstappen": "Max Verstappen", "max": "Max Verstappen",
 
-    // Alpine
-    "gasly": "Pierre Gasly",
-    "Pierre": "Pierre Gasly",
-    "pierre gasly": "Pierre Gasly",
-    "ocon": "Esteban Ocon",
-    "esteban ocon": "Esteban Ocon",
+    // YUKI TSUNODA (Red Bull)
+    "tsunoda": "Yuki Tsunoda", "yuki tsunoda": "Yuki Tsunoda",
+    "yuki": "Yuki Tsunoda", "tsounoda": "Yuki Tsunoda",
+    "tunoda": "Yuki Tsunoda", "junoda": "Yuki Tsunoda",
+    "tsunoda yuki": "Yuki Tsunoda",
 
-    // Williams
-    "Alexander": "Alexander Albon",
-    "albon": "Alexander Albon",
-    "alex albon": "Alexander Albon",
-    "sargeant": "Logan Sargeant",
-    "logan sargent": "Logan Sargeant",
+    // LANDO NORRIS (McLaren)
+    "norris": "Lando Norris", "lando norris": "Lando Norris",
+    "lando": "Lando Norris", "lando nóris": "Lando Norris",
+    "lando noris": "Lando Norris", "norris lando": "Lando Norris",
 
-    // Haas
-    "Nico": "Nico Hulkenberg",
-    "hulkenberg": "Nico Hulkenberg",
-    "nico hulkenberg": "Nico Hulkenberg",
-    "magnussen": "Kevin Magnussen",
-    "kevin magnussen": "Kevin Magnussen",
+    // OSCAR PIASTRI (McLaren)
+    "piastri": "Oscar Piastri", "oscar piastri": "Oscar Piastri",
+    "piastre": "Oscar Piastri", "oscar piastre": "Oscar Piastri",
+    "piástri": "Oscar Piastri", "piástre": "Oscar Piastri",
+    "oscar piástri": "Oscar Piastri", "oscar": "Oscar Piastri",
 
-    // Kick Sauber
-    "Valtteri": "Valtteri Bottas",
-    "bottas": "Valtteri Bottas",
-    "valtteri bottas": "Valtteri Bottas",
-    "zhou": "Guanyu Zhou",
+    // FERNANDO ALONSO (Aston Martin)
+    "alonso": "Fernando Alonso", "fernando alonso": "Fernando Alonso",
+    "fernando": "Fernando Alonso", "alonsso": "Fernando Alonso",
+    "allonso": "Fernando Alonso", "alônso": "Fernando Alonso",
+
+    // LANCE STROLL (Aston Martin)
+    "stroll": "Lance Stroll", "lance stroll": "Lance Stroll",
+    "lance": "Lance Stroll", "lance estrole": "Lance Stroll",
+    "estrole": "Lance Stroll", "estrool": "Lance Stroll",
+    "lance estrool": "Lance Stroll",
+
+    // PIERRE GASLY (Alpine)
+    "gasly": "Pierre Gasly", "pierre gasly": "Pierre Gasly",
+    "pierre": "Pierre Gasly", "piere gasly": "Pierre Gasly",
+    "gásli": "Pierre Gasly", "gazly": "Pierre Gasly",
+    "gásly": "Pierre Gasly", "pierre gásli": "Pierre Gasly",
+
+    // JACK DOOHAN (Alpine)
+    "doohan": "Jack Doohan", "jack doohan": "Jack Doohan",
+    "jack": "Jack Doohan", "jack duan": "Jack Doohan",
+    "duan": "Jack Doohan", "duham": "Jack Doohan",
+    "duhan": "Jack Doohan", "jack duhan": "Jack Doohan",
+
+    // ALEXANDER ALBON (Williams)
+    "albon": "Alexander Albon", "alex albon": "Alexander Albon",
+    "alexander albon": "Alexander Albon", "alexander": "Alexander Albon",
+    "alex": "Alexander Albon", "álbon": "Alexander Albon",
+    "albon alex": "Alexander Albon",
+
+    // CARLOS SAINZ (Williams)
+    "sainz": "Carlos Sainz", "carlos sainz": "Carlos Sainz",
+    "carlos sainz jr": "Carlos Sainz", "carlos": "Carlos Sainz",
+    "sainze": "Carlos Sainz", "saínz": "Carlos Sainz",
+    "sainz jr": "Carlos Sainz",
+
+    // ESTEBAN OCON (Haas)
+    "ocon": "Esteban Ocon", "esteban ocon": "Esteban Ocon",
+    "esteban": "Esteban Ocon", "occon": "Esteban Ocon",
+    "ocón": "Esteban Ocon", "estebã ocon": "Esteban Ocon",
+
+    // OLIVER BEARMAN (Haas)
+    "bearman": "Oliver Bearman", "oliver bearman": "Oliver Bearman",
+    "oliver": "Oliver Bearman", "bearmann": "Oliver Bearman",
+    "berman": "Oliver Bearman", "oliver berman": "Oliver Bearman",
+    "béarman": "Oliver Bearman",
+
+    // NICO HÜLKENBERG (Kick Sauber)
+    "hulkenberg": "Nico Hulkenberg", "nico hulkenberg": "Nico Hulkenberg",
+    "nico": "Nico Hulkenberg", "hülkenberg": "Nico Hulkenberg",
+    "nico hülkenberg": "Nico Hulkenberg",
+    "hulkemberg": "Nico Hulkenberg", "nico hulkemberg": "Nico Hulkenberg",
+    "hulquenberg": "Nico Hulkenberg", "hulke": "Nico Hulkenberg",
+
+    // GABRIEL BORTOLETO (Kick Sauber) 🇧🇷
+    "bortoleto": "Gabriel Bortoleto", "gabriel bortoleto": "Gabriel Bortoleto",
+    "gabriel": "Gabriel Bortoleto", "bortoleto": "Gabriel Bortoleto",
+    "bortoletto": "Gabriel Bortoleto", "gabriel bortoletto": "Gabriel Bortoleto",
+    "gabi bortoleto": "Gabriel Bortoleto", "gabi": "Gabriel Bortoleto",
+
+    // ISACK HADJAR (Racing Bulls)
+    "hadjar": "Isack Hadjar", "isack hadjar": "Isack Hadjar",
+    "isack": "Isack Hadjar", "isaac hadjar": "Isack Hadjar",
+    "hajar": "Isack Hadjar", "isac hadjar": "Isack Hadjar",
+
+    // LIAM LAWSON (Racing Bulls)
+    "lawson": "Liam Lawson", "liam lawson": "Liam Lawson",
+    "liam": "Liam Lawson", "liam loson": "Liam Lawson",
+    "loson": "Liam Lawson", "lison": "Liam Lawson",
+    "liom lawson": "Liam Lawson",
+
+    // PILOTOS ANTERIORES (retrocompatibilidade)
+    "pérez": "Sergio Perez", "sergio pérez": "Sergio Perez",
+    "checo pérez": "Sergio Perez", "checo": "Sergio Perez",
+    "perez": "Sergio Perez", "sergio perez": "Sergio Perez",
+    "bottas": "Valtteri Bottas", "valtteri bottas": "Valtteri Bottas",
+    "valtteri": "Valtteri Bottas",
+    "zhou": "Guanyu Zhou", "guanyu zhou": "Guanyu Zhou",
     "guan yu zhou": "Guanyu Zhou",
-    "guanyu zhou": "Guanyu Zhou"
+    "magnussen": "Kevin Magnussen", "kevin magnussen": "Kevin Magnussen",
+    "sargeant": "Logan Sargeant", "logan sargent": "Logan Sargeant"
 };
+
+
 
 
 function normalizarPiloto(nome) {
@@ -599,7 +658,7 @@ const ContarPiadaIntentHandler = {
         const piada = piadasF1[Math.floor(Math.random() * piadasF1.length)];
         const reprompts = [
             'Quer ouvir mais uma? Diga "Contar Piada" para mais uma risada! Ou posso te ajudar com "ranking" ou "próxima corrida".',
-            'Ha, gostou? Diga "me faça rir um pouco" para mais uma! Ou pergunte sobre o "último pódio".',
+            'Ha, gostou? Diga "me faça rir um pouco" para mais uma! Ou pergunte seu "ranking" para ver como está no campeonato.',
             'Boa essa! Diga "Contar Piada de Formula um" para mais uma ou "ranking" para ver sua pontuação!'
         ];
         const reprompt = reprompts[Math.floor(Math.random() * reprompts.length)];
