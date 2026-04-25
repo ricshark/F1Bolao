@@ -6,6 +6,19 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/components/LanguageContext';
 import { Header } from '@/components/Header';
 
+const getFlagEmoji = (nationality: string | undefined): string => {
+  if (!nationality) return "";
+  const map: Record<string, string> = {
+    "British": "🇬🇧", "Brazilian": "🇧🇷", "Dutch": "🇳🇱", "Monegasque": "🇲🇨",
+    "Spanish": "🇪🇸", "German": "🇩🇪", "Mexican": "🇲🇽", "Australian": "🇦🇺",
+    "French": "🇫🇷", "Canadian": "🇨🇦", "Japanese": "🇯🇵", "Thai": "🇹🇭",
+    "Chinese": "CN", "American": "🇺🇸", "Italian": "🇮🇹", "Austrian": "🇦🇹",
+    "Swiss": "🇨🇭", "Finnish": "🇫🇮", "Danish": "🇩🇰", "New Zealander": "🇳🇿",
+    "Monégasque": "🇲🇨"
+  };
+  return map[nationality] || "";
+};
+
 export default function MyBetsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -104,19 +117,25 @@ export default function MyBetsPage() {
                       </div>
                    </div>
 
-                   {/* Predictions (Initials or Compact) */}
+                   {/* Predictions */}
                    <div className="flex items-center gap-1 hidden sm:flex">
-                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/5 min-w-[60px]">
-                            <span className="text-[7px] text-gray-500 font-black uppercase">1st</span>
-                            <span className="text-[10px] font-black text-white truncate max-w-full text-center">{bet.prediction?.first?.split(' ').pop()}</span>
+                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/5 min-w-[80px]">
+                            <span className="text-[7px] text-gray-500 font-black uppercase">P1</span>
+                            <span className="text-[10px] font-black text-white truncate max-w-[70px] text-center">
+                                {bet.prediction?.first || '---'}
+                            </span>
                         </div>
-                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/5 min-w-[60px]">
-                            <span className="text-[7px] text-gray-500 font-black uppercase">2nd</span>
-                            <span className="text-[10px] font-black text-gray-300 truncate max-w-full text-center">{bet.prediction?.second?.split(' ').pop()}</span>
+                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/5 min-w-[80px]">
+                            <span className="text-[7px] text-gray-500 font-black uppercase">P2</span>
+                            <span className="text-[10px] font-black text-gray-300 truncate max-w-[70px] text-center">
+                                {bet.prediction?.second || '---'}
+                            </span>
                         </div>
-                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/5 min-w-[60px]">
-                            <span className="text-[7px] text-gray-500 font-black uppercase">3rd</span>
-                            <span className="text-[10px] font-black text-gray-400 truncate max-w-full text-center">{bet.prediction?.third?.split(' ').pop()}</span>
+                        <div className="flex flex-col items-center p-1 bg-white/5 rounded border border-white/5 min-w-[80px]">
+                            <span className="text-[7px] text-gray-500 font-black uppercase">P3</span>
+                            <span className="text-[10px] font-black text-gray-400 truncate max-w-[70px] text-center">
+                                {bet.prediction?.third || '---'}
+                            </span>
                         </div>
                    </div>
 
